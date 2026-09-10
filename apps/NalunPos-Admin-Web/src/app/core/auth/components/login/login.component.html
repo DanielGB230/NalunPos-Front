@@ -1,0 +1,117 @@
+<!--
+  LoginComponent — NalunPos-Admin-Web (SuperAdmin Dark Theme)
+  Template HTML 100% Tailwind CSS v4 Puro (Utility-First).
+  Usa bloques de control modernos de Angular 22 (@if, @for).
+-->
+<div class="min-h-dvh flex items-center justify-center p-6 bg-gradient-to-br from-slate-950 via-slate-900 to-purple-950">
+  <div class="w-full max-w-md bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl p-8 flex flex-col gap-7">
+
+    <!-- Logo y Encabezado -->
+    <header class="flex flex-col items-center gap-2 text-center">
+      <div class="w-16 h-16 bg-gradient-to-br from-violet-600 to-purple-800 rounded-xl flex items-center justify-center mb-2 shadow-lg shadow-purple-500/20">
+        <span class="text-3xl leading-none">🛡️</span>
+      </div>
+      <h1 class="text-3xl font-bold text-slate-100 tracking-tight">NalunPos</h1>
+      <p class="text-sm text-slate-300 font-normal">Panel SuperAdmin</p>
+    </header>
+
+    <!-- Formulario -->
+    <form
+      class="flex flex-col gap-5"
+      (ngSubmit)="onSubmit()"
+      novalidate
+    >
+
+      <!-- Campo Email -->
+      <div class="flex flex-col gap-1.5">
+        <label class="text-sm font-medium text-slate-200" for="login-email">
+          Correo electrónico
+        </label>
+        <input
+          id="login-email"
+          type="email"
+          class="w-full px-3.5 py-2.5 border border-slate-600 rounded-lg text-sm text-slate-100 bg-slate-900/60 transition-all outline-none placeholder:text-slate-500 focus:border-purple-500 focus:bg-slate-900 focus:ring-2 focus:ring-purple-500/30"
+          [class.border-red-500]="emailField().touched() && emailField().invalid()"
+          [class.focus:border-red-500]="emailField().touched() && emailField().invalid()"
+          [formField]="emailField"
+          placeholder="admin@nalunpos.com"
+          autocomplete="email"
+          aria-describedby="email-error"
+        />
+        @if (emailField().touched() && emailField().invalid()) {
+          <p id="email-error" class="text-xs text-red-400 mt-1" role="alert">
+            Por favor, ingresa un correo electrónico válido.
+          </p>
+        }
+      </div>
+
+      <!-- Campo Password -->
+      <div class="flex flex-col gap-1.5">
+        <label class="text-sm font-medium text-slate-200" for="login-password">
+          Contraseña
+        </label>
+        <div class="relative">
+          <input
+            id="login-password"
+            [type]="showPassword() ? 'text' : 'password'"
+            class="w-full px-3.5 py-2.5 pr-12 border border-slate-600 rounded-lg text-sm text-slate-100 bg-slate-900/60 transition-all outline-none placeholder:text-slate-500 focus:border-purple-500 focus:bg-slate-900 focus:ring-2 focus:ring-purple-500/30"
+            [class.border-red-500]="passwordField().touched() && passwordField().invalid()"
+            [class.focus:border-red-500]="passwordField().touched() && passwordField().invalid()"
+            [formField]="passwordField"
+            placeholder="••••••••"
+            autocomplete="current-password"
+            aria-describedby="password-error"
+          />
+          <button
+            type="button"
+            class="absolute right-3 top-1/2 -translate-y-1/2 bg-transparent border-0 cursor-pointer p-1 text-slate-400 hover:text-slate-200 transition-colors"
+            (click)="togglePasswordVisibility()"
+            [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+          >
+            @if (showPassword()) {
+              <span aria-hidden="true">🙈</span>
+            } @else {
+              <span aria-hidden="true">👁️</span>
+            }
+          </button>
+        </div>
+        @if (passwordField().touched() && passwordField().invalid()) {
+          <p id="password-error" class="text-xs text-red-400 mt-1" role="alert">
+            La contraseña debe tener al menos 6 caracteres.
+          </p>
+        }
+      </div>
+
+      <!-- Mensaje de Error Global -->
+      @if (errorMessage()) {
+        <div class="flex items-start gap-2.5 p-3 px-4 bg-red-500/15 border border-red-500/30 rounded-lg text-red-400 text-sm" role="alert" aria-live="assertive">
+          <span class="text-base shrink-0 mt-0.5">⚠️</span>
+          <p class="leading-snug">{{ errorMessage() }}</p>
+        </div>
+      }
+
+      <!-- Botón de Submit -->
+      <button
+        id="login-submit-btn"
+        type="submit"
+        class="flex items-center justify-center gap-2 w-full py-3 px-6 bg-gradient-to-r from-purple-600 to-violet-800 text-white font-semibold rounded-lg shadow-lg hover:opacity-90 active:scale-[0.99] disabled:opacity-70 disabled:cursor-not-allowed transition-all mt-2 cursor-pointer"
+        [disabled]="isLoading()"
+        [attr.aria-busy]="isLoading()"
+      >
+        @if (isLoading()) {
+          <span class="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin shrink-0" aria-hidden="true"></span>
+          <span>Iniciando sesión...</span>
+        } @else {
+          <span>Iniciar sesión</span>
+        }
+      </button>
+
+    </form>
+
+    <!-- Footer -->
+    <footer class="text-center border-t border-slate-700 pt-4">
+      <p class="text-xs text-slate-500">NalunPos &copy; 2026 · Plataforma SuperAdmin</p>
+    </footer>
+
+  </div>
+</div>

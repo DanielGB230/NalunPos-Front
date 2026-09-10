@@ -1,0 +1,28 @@
+/* =============================================================================
+   NalunPos-Admin-Web — Configuración de Tailwind CSS v4 (Tema Dark Admin)
+   Configuración global de tema y utilidades visuales del Panel SuperAdmin.
+   ============================================================================= */
+
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #7c3aed;
+  --color-primary-light: #a78bfa;
+  --color-primary-dark: #5b21b6;
+  --color-secondary: #06b6d4;
+  --color-accent: #f59e0b;
+  --color-danger: #ef4444;
+  --color-success: #22c55e;
+  --color-warning: #f97316;
+
+  --color-background: #0f172a;
+  --color-surface: #1e293b;
+  --color-surface-variant: #334155;
+  --color-border: #475569;
+
+  --color-text-primary: #f8fafc;
+  --color-text-secondary: #cbd5e1;
+  --color-text-muted: #64748b;
+
+  --font-sans: 'Inter', 'Segoe UI', system-ui, sans-serif;
+}

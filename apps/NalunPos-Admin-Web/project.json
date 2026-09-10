@@ -1,0 +1,80 @@
+{
+  "name": "NalunPos-Admin-Web",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "app",
+  "sourceRoot": "apps/NalunPos-Admin-Web/src",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@angular/build:application",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/apps/NalunPos-Admin-Web",
+        "browser": "apps/NalunPos-Admin-Web/src/main.ts",
+        "tsConfig": "apps/NalunPos-Admin-Web/tsconfig.app.json",
+        "inlineStyleLanguage": "css",
+        "assets": [
+          {
+            "glob": "**/*",
+            "input": "apps/NalunPos-Admin-Web/public"
+          }
+        ],
+        "styles": [
+          "apps/NalunPos-Admin-Web/src/styles.css"
+        ]
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "500kb",
+              "maximumError": "1mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "4kb",
+              "maximumError": "8kb"
+            }
+          ],
+          "outputHashing": "all"
+        },
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true
+        }
+      }
+    },
+    "serve": {
+      "continuous": true,
+      "executor": "@angular/build:dev-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "port": 4201
+      },
+      "configurations": {
+        "production": {
+          "buildTarget": "NalunPos-Admin-Web:build:production"
+        },
+        "development": {
+          "buildTarget": "NalunPos-Admin-Web:build:development"
+        }
+      }
+    },
+    "serve-static": {
+      "continuous": true,
+      "executor": "@nx/web:file-server",
+      "options": {
+        "buildTarget": "NalunPos-Admin-Web:build",
+        "port": 4201,
+        "staticFilePath": "dist/apps/NalunPos-Admin-Web/browser",
+        "spa": true
+      }
+    }
+  }
+}

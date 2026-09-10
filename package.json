@@ -4,10 +4,38 @@
   "license": "MIT",
   "scripts": {},
   "private": true,
-  "dependencies": {},
   "devDependencies": {
+    "@angular-devkit/core": "~22.1.0",
+    "@angular-devkit/schematics": "~22.1.0",
+    "@angular/build": "~22.1.0",
+    "@angular/cli": "~22.1.0",
+    "@angular/compiler-cli": "~22.1.0",
+    "@angular/language-service": "~22.1.0",
+    "@nx/angular": "23.2.1",
     "@nx/js": "23.2.1",
+    "@nx/playwright": "23.2.1",
+    "@nx/vite": "23.2.1",
+    "@nx/web": "23.2.1",
     "@nx/workspace": "23.2.1",
-    "nx": "23.2.1"
+    "@playwright/test": "1.63.0",
+    "@schematics/angular": "~22.1.0",
+    "@swc/helpers": "~0.5.18",
+    "@vitest/ui": "4.1.11",
+    "nx": "23.2.1",
+    "tslib": "^2.3.0",
+    "typescript": "~6.0.3",
+    "vitest": "4.1.11"
+  },
+  "dependencies": {
+    "@angular/common": "~22.1.0",
+    "@angular/compiler": "~22.1.0",
+    "@angular/core": "~22.1.0",
+    "@angular/forms": "~22.1.0",
+    "@angular/material": "22.1.6",
+    "@angular/platform-browser": "~22.1.0",
+    "@angular/router": "~22.1.0",
+    "@tailwindcss/vite": "4.3.3",
+    "rxjs": "~7.8.0",
+    "tailwindcss": "4.3.3"
   }
 }
