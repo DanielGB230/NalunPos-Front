@@ -1,5 +1,10 @@
-﻿import { Routes } from '@angular/router';
+import { Routes } from '@angular/router';
+
+import { TenantListComponent } from './components/tenant-list/tenant-list.component';
 
 export const tenantsRoutes: Routes = [
-  // TODO: Agregar rutas del feature 'tenants'
+  {
+    path: '',
+    component: TenantListComponent,
+  },
 ];
