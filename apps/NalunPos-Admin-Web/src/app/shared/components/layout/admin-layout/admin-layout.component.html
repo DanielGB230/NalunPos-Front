@@ -1,0 +1,17 @@
+<div class="h-screen w-screen overflow-hidden flex flex-col bg-[#F1F5F9] text-slate-800 font-sans antialiased selection:bg-purple-500 selection:text-white">
+  <!-- Header Fijo Superior (Fondo #F4F6F8) -->
+  <app-header class="shrink-0 z-40"></app-header>
+
+  <!-- Contenedor Principal: Sidebar Fijo (#F5F6F7) + Área de Contenido Scrollable (#F1F5F9) -->
+  <div class="flex flex-1 overflow-hidden">
+    <!-- Sidebar de Navegación Fijo -->
+    <app-sidebar class="shrink-0 z-30"></app-sidebar>
+
+    <!-- Área de Contenido Principal (Fondo #F1F5F9 - Único elemento con scroll) -->
+    <main class="flex-1 overflow-y-auto bg-[#F1F5F9] p-4 md:p-8 custom-scrollbar">
+      <div class="max-w-7xl mx-auto space-y-6">
+        <router-outlet></router-outlet>
+      </div>
+    </main>
+  </div>
+</div>

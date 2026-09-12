@@ -79,6 +79,15 @@ export const appRoutes: Routes = [
       ),
     title: 'Usuarios — NalunPos',
   },
+  {
+    path: 'categorias',
+    canActivate: [authGuard],
+    loadChildren: () =>
+      import('./features/categories/categories.routes').then(
+        (m) => m.categoriesRoutes,
+      ),
+    title: 'Categorías — NalunPos',
+  },
 
   // ─── Páginas de error ─────────────────────────────────────────────────────
   {

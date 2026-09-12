@@ -5,6 +5,7 @@ import {
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import {
   form,
@@ -28,7 +29,7 @@ interface TenantFormModel {
 @Component({
   selector: 'app-tenant-create-form',
   standalone: true,
-  imports: [CommonModule, MatDialogModule, FormField],
+  imports: [CommonModule, FormsModule, MatDialogModule, FormField],
   templateUrl: './tenant-create-form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -74,31 +75,30 @@ export class TenantCreateFormComponent {
   }
 
   protected async onSubmit(): Promise<void> {
-    const isValid = await submit(this.tenantForm);
-    if (!isValid) return;
+    await submit(this.tenantForm, async () => {
+      const currentModel = this.formModel();
+      const request: CreateTenantRequest = {
+        name: currentModel.name,
+        documentNumber: currentModel.documentNumber,
+        adminEmail: currentModel.adminEmail,
+        adminPassword: currentModel.adminPassword,
+      };
 
-    const currentModel = this.formModel();
-    const request: CreateTenantRequest = {
-      name: currentModel.name,
-      documentNumber: currentModel.documentNumber,
-      adminEmail: currentModel.adminEmail,
-      adminPassword: currentModel.adminPassword,
-    };
+      this.isLoading.set(true);
+      this.errorMessage.set(null);
 
-    this.isLoading.set(true);
-    this.errorMessage.set(null);
-
-    this.tenantApiService.createTenant(request).subscribe({
-      next: () => {
-        this.isLoading.set(false);
-        this.close(true);
-      },
-      error: (error: AppError) => {
-        this.isLoading.set(false);
-        this.errorMessage.set(
-          error.message || 'Error al aprovisionar el Tenant. Verifique los datos ingresados.'
-        );
-      },
+      this.tenantApiService.createTenant(request).subscribe({
+        next: () => {
+          this.isLoading.set(false);
+          this.close(true);
+        },
+        error: (error: AppError) => {
+          this.isLoading.set(false);
+          this.errorMessage.set(
+            error.message || 'Error al aprovisionar el Tenant. Verifique los datos ingresados.'
+          );
+        },
+      });
     });
   }
 }

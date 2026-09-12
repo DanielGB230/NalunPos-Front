@@ -1,0 +1,107 @@
+<aside
+  [class.w-64]="!isCollapsed()"
+  [class.w-20]="isCollapsed()"
+  class="h-[calc(100vh-4rem)] bg-[#F5F6F7] border-r border-slate-200/90 flex flex-col justify-between transition-all duration-300 select-none z-30 shrink-0 shadow-2xs"
+>
+  <!-- Menú Principal -->
+  <div class="p-3 space-y-6 overflow-y-auto custom-scrollbar">
+    <!-- Header de sección -->
+    <div class="px-3 pt-2 flex items-center justify-between">
+      <span
+        *ngIf="!isCollapsed()"
+        class="text-[10px] uppercase font-extrabold tracking-widest text-slate-400"
+      >
+        Módulos Centrales
+      </span>
+      <button
+        (click)="toggleCollapse()"
+        class="p-1 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-200/70 transition-colors"
+        title="Contraer / Expandir menú"
+      >
+        <svg
+          class="w-4 h-4 transform transition-transform duration-300"
+          [class.rotate-180]="isCollapsed()"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Lista de Links -->
+    <nav class="space-y-1.5">
+      <a
+        *ngFor="let item of navItems"
+        [routerLink]="item.route"
+        routerLinkActive="bg-purple-600 text-white font-bold shadow-md shadow-purple-600/25"
+        [routerLinkActiveOptions]="{ exact: false }"
+        class="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 transition-all group"
+      >
+        <!-- SVG Icon per module -->
+        <div class="w-5 h-5 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+          <!-- Dashboard Icon -->
+          <ng-container *ngIf="item.icon === 'dashboard'">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+            </svg>
+          </ng-container>
+
+          <!-- Tenants Icon -->
+          <ng-container *ngIf="item.icon === 'tenants'">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0h5m-5 0V11m0 0h5m-5 0h-5" />
+            </svg>
+          </ng-container>
+
+          <!-- Planes Icon -->
+          <ng-container *ngIf="item.icon === 'planes'">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          </ng-container>
+
+          <!-- Plataforma Icon -->
+          <ng-container *ngIf="item.icon === 'plataforma'">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </ng-container>
+
+          <!-- Usuarios Admin Icon -->
+          <ng-container *ngIf="item.icon === 'usuarios'">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+          </ng-container>
+        </div>
+
+        <!-- Label -->
+        <span *ngIf="!isCollapsed()" class="truncate tracking-wide flex-1">
+          {{ item.label }}
+        </span>
+
+        <!-- Badge -->
+        <span
+          *ngIf="!isCollapsed() && item.badge"
+          class="px-2 py-0.5 text-[9px] font-bold uppercase rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200"
+        >
+          {{ item.badge }}
+        </span>
+      </a>
+    </nav>
+  </div>
+
+  <!-- Footer del Sidebar -->
+  <div class="p-3 border-t border-slate-200/90 bg-white/60">
+    <div *ngIf="!isCollapsed()" class="px-3 py-2 bg-white border border-slate-200 rounded-xl flex items-center space-x-3 shadow-2xs">
+      <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></div>
+      <div class="flex flex-col text-[11px]">
+        <span class="font-bold text-slate-800">NalunPOS Core</span>
+        <span class="text-slate-400 font-medium">v1.0.0-Enterprise</span>
+      </div>
+    </div>
+  </div>
+</aside>

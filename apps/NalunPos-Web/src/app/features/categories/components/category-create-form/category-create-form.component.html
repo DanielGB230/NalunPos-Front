@@ -1,0 +1,82 @@
+<div class="relative bg-[#0d0e15]/95 backdrop-blur-2xl border border-white/12 rounded-3xl p-6 sm:p-8 shadow-[0_16px_40px_rgba(0,0,0,0.6)] text-white max-w-lg w-full overflow-hidden select-none">
+  <!-- Top Refraction Glow -->
+  <div class="absolute -top-24 -left-24 w-48 h-48 rounded-full bg-[#aca0e7]/20 blur-3xl pointer-events-none"></div>
+
+  <!-- Header -->
+  <div class="flex items-center justify-between pb-5 border-b border-white/10 mb-6 relative z-10">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-2xl bg-[#aca0e7]/15 border border-[#aca0e7]/30 flex items-center justify-center text-[#cabeff]">
+        <span class="material-symbols-outlined text-[20px]">category</span>
+      </div>
+      <div>
+        <h2 class="text-lg font-bold font-syne tracking-wide text-white">Nueva Categoría</h2>
+        <p class="text-xs font-mono text-[#938f9b]">Catálogo Comercial Multitenant</p>
+      </div>
+    </div>
+    <button 
+      type="button" 
+      (click)="close(false)" 
+      class="text-[#938f9b] hover:text-white transition-colors p-1.5 rounded-xl hover:bg-white/5">
+      <span class="material-symbols-outlined text-[20px]">close</span>
+    </button>
+  </div>
+
+  <!-- Error Message Alert -->
+  @if (errorMessage()) {
+    <div class="mb-5 p-3.5 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-300 text-xs flex items-center gap-2.5">
+      <span class="material-symbols-outlined text-[18px]">error</span>
+      <span>{{ errorMessage() }}</span>
+    </div>
+  }
+
+  <!-- Form -->
+  <form (ngSubmit)="onSubmit()" class="space-y-5 relative z-10" novalidate>
+    <!-- Field: Name -->
+    <div class="space-y-2">
+      <label class="block text-xs font-mono font-medium text-[#dedaf4]">Nombre de Categoría <span class="text-red-400">*</span></label>
+      <div class="relative">
+        <input 
+          type="text" 
+          [formField]="nameField"
+          placeholder="Ej. Electrónica, Bebidas, Accesorios" 
+          class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-[#938f9b] text-sm focus:outline-none focus:border-[#aca0e7] focus:ring-1 focus:ring-[#aca0e7] transition-all font-geist"
+        />
+      </div>
+    </div>
+
+    <!-- Field: Description -->
+    <div class="space-y-2">
+      <label class="block text-xs font-mono font-medium text-[#dedaf4]">Descripción (Opcional)</label>
+      <div class="relative">
+        <textarea 
+          rows="3" 
+          [formField]="descriptionField"
+          placeholder="Detalles opcionales sobre esta categoría de productos..." 
+          class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-[#938f9b] text-sm focus:outline-none focus:border-[#aca0e7] focus:ring-1 focus:ring-[#aca0e7] transition-all font-geist resize-none"
+        ></textarea>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="pt-4 flex items-center justify-end gap-3 border-t border-white/10 mt-6">
+      <button 
+        type="button" 
+        (click)="close(false)" 
+        class="px-5 py-2.5 rounded-xl border border-white/10 text-xs font-mono text-[#dedaf4] hover:bg-white/5 transition-colors">
+        Cancelar
+      </button>
+      <button 
+        type="submit" 
+        [disabled]="isLoading()" 
+        class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#aca0e7] to-[#92aae7] text-slate-950 font-geist font-bold text-xs shadow-[0_4px_16px_rgba(172,160,231,0.3)] hover:opacity-90 disabled:opacity-50 transition-all flex items-center gap-2">
+        @if (isLoading()) {
+          <span class="animate-spin rounded-full h-3.5 w-3.5 border-2 border-slate-950 border-t-transparent"></span>
+          <span>Guardando...</span>
+        } @else {
+          <span class="material-symbols-outlined text-[16px]">save</span>
+          <span>Crear Categoría</span>
+        }
+      </button>
+    </div>
+  </form>
+</div>
