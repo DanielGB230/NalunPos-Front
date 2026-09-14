@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -5,19 +6,23 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { MatTableModule } from '@angular/material/table';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { TenantApiService } from '../../services/tenant-api.service';
-import { TenantDto } from '../../models/tenant.model';
-import { TenantCreateFormComponent } from '../tenant-create/tenant-create-form.component';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatTableModule } from '@angular/material/table';
 import { AppError } from '@nalunpos/shared/data-access';
+import { TenantDto } from '../../models/tenant.model';
+import { TenantApiService } from '../../services/tenant-api.service';
+import { TenantCreateFormComponent } from '../tenant-create/tenant-create-form.component';
 
 @Component({
   selector: 'app-tenant-list',
   standalone: true,
-  imports: [CommonModule, MatTableModule, MatPaginatorModule, MatDialogModule],
+  imports: [
+    DatePipe,
+    MatTableModule,
+    MatPaginatorModule,
+    MatDialogModule,
+  ],
   templateUrl: './tenant-list.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -28,12 +33,13 @@ export class TenantListComponent implements OnInit {
   protected readonly displayedColumns: string[] = [
     'name',
     'documentNumber',
+    'subdomain',
     'status',
     'createdAtUtc',
     'actions',
   ];
 
-  // Estado con Signals
+  // Estado reactivo con Signals (Angular 22)
   protected readonly tenants = signal<TenantDto[]>([]);
   protected readonly totalCount = signal(0);
   protected readonly pageSize = signal(10);
@@ -41,6 +47,10 @@ export class TenantListComponent implements OnInit {
   protected readonly searchTerm = signal('');
   protected readonly isLoading = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
+
+  // Estados visuales interactivos para simulación de filtros y panel lateral
+  protected readonly selectedStatusFilter = signal<'all' | 'Active' | 'Pending' | 'Paused'>('all');
+  protected readonly showAdvancedFilters = signal(false);
 
   ngOnInit(): void {
     this.loadTenants();
@@ -82,6 +92,14 @@ export class TenantListComponent implements OnInit {
     this.loadTenants();
   }
 
+  protected setStatusFilter(filter: 'all' | 'Active' | 'Pending' | 'Paused'): void {
+    this.selectedStatusFilter.set(filter);
+  }
+
+  protected toggleAdvancedFilters(): void {
+    this.showAdvancedFilters.update((v) => !v);
+  }
+
   protected openCreateModal(): void {
     const dialogRef = this.dialog.open(TenantCreateFormComponent, {
       width: '560px',
@@ -97,3 +115,4 @@ export class TenantListComponent implements OnInit {
     });
   }
 }
+

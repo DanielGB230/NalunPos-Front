@@ -1,8 +1,12 @@
 /* =============================================================================
-   NalunPos-Admin-Web — Configuración de Tailwind CSS v4 & Tema Ecosistema Futurista
+   NalunPos-Admin-Web — Configuración Global de Tailwind CSS v4 & Dual Theme System
+   Login Dark Glass Futuristic + Panel SuperAdmin Light Glassmorphism
    ============================================================================= */
 
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:ital,wght@0,500;0,700;1,400;1,600&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Syne:wght@400;500;600;700;800&display=swap');
+@import "@angular/material/prebuilt-themes/indigo-pink.css";
 @import "tailwindcss";
+
 
 @theme {
   --color-surface-dark: #0b0c10;
@@ -14,10 +18,25 @@
   --color-sky-bright: #92aae7;
   --color-on-surface: #e3e1e9;
   --color-outline-glow: rgba(202, 190, 255, 0.25);
+  --color-navy-dark: #161b2d;
+
+  /* Paleta 3: Rosa Orquídea / Magenta Etéreo */
+  --color-orchid: #9b2c67;
+  --color-orchid-light: #e8a0bf;
+  --color-orchid-soft: #fce7f0;
+  --color-orchid-bg: #fdf2f7;
+
+  /* Paleta 4: Cobalto / Índigo Luminoso */
+  --color-cobalt: #283fa7;
+  --color-cobalt-light: #687fe5;
+  --color-cobalt-soft: #c5d2f8;
+  --color-cobalt-bg: #eef3fe;
 
   --font-syne: "Syne", sans-serif;
   --font-cinzel: "Cinzel", serif;
   --font-geist: "Geist", sans-serif;
+  --font-sans: "Plus Jakarta Sans", sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
   --font-mono: "JetBrains Mono", monospace;
 
   --color-background: #0b0c10;
@@ -38,10 +57,18 @@
   }
 }
 
-::-webkit-scrollbar {
-  display: none;
-}
+/* =============================================================================
+   Utilidades Tipográficas
+   ============================================================================= */
+.font-syne { font-family: "Syne", sans-serif; }
+.font-cinzel { font-family: "Cinzel", serif; }
+.font-geist { font-family: "Geist", sans-serif; }
+.font-display { font-family: 'Space Grotesk', sans-serif; }
+.font-mono { font-family: 'JetBrains Mono', monospace; }
 
+/* =============================================================================
+   Utilidades Dark Glass Futuristic (Login LoginComponent)
+   ============================================================================= */
 .specular-rim {
   box-shadow: inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.2), 0 20px 50px -10px rgba(0, 0, 0, 0.7), 0 0 30px -5px rgba(172, 160, 231, 0.15);
 }
@@ -67,3 +94,308 @@
   -webkit-mask-image: radial-gradient(ellipse 85% 75% at 48% 45%, black 45%, rgba(0,0,0,0.85) 65%, transparent 95%);
   mask-image: radial-gradient(ellipse 85% 75% at 48% 45%, black 45%, rgba(0,0,0,0.85) 65%, transparent 95%);
 }
+
+/* =============================================================================
+   Fondo Radial & Glassmorphism Enterprise (Panel SuperAdmin AdminLayout)
+   ============================================================================= */
+.admin-bg-radial {
+  background-color: #FAF8FF;
+  background-image: 
+    radial-gradient(at 10% 10%, rgba(172, 160, 231, 0.28) 0px, transparent 45%),
+    radial-gradient(at 90% 15%, rgba(146, 170, 231, 0.25) 0px, transparent 40%),
+    radial-gradient(at 50% 60%, rgba(222, 218, 244, 0.35) 0px, transparent 55%),
+    radial-gradient(at 85% 90%, rgba(219, 230, 251, 0.45) 0px, transparent 50%);
+  background-attachment: fixed;
+}
+
+.glass-surface {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+}
+
+.glass-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(245, 243, 255, 0.65) 100%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 12px 35px -6px rgba(172, 160, 231, 0.14), inset 0 1px 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.glass-drawer {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.88) 0%, rgba(248, 246, 255, 0.8) 100%);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border-left: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: -10px 0 35px -5px rgba(172, 160, 231, 0.12);
+}
+
+.glass-row {
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(222, 218, 244, 0.5);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-row:hover {
+  background: rgba(255, 255, 255, 0.9);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px -4px rgba(172, 160, 231, 0.2);
+  border-color: rgba(172, 160, 231, 0.5);
+}
+
+.shadow-glass {
+  box-shadow: 0 8px 32px 0 rgba(172, 160, 231, 0.12);
+}
+
+.shadow-glass-lg {
+  box-shadow: 0 20px 50px -10px rgba(146, 170, 231, 0.18);
+}
+
+.shadow-glass-glow {
+  box-shadow: 0 0 25px 2px rgba(172, 160, 231, 0.35);
+}
+
+.shadow-glass-active {
+  box-shadow: 0 8px 24px -2px rgba(172, 160, 231, 0.35);
+}
+
+.shadow-orchid-glow {
+  box-shadow: 0 0 25px 2px rgba(232, 160, 191, 0.4);
+}
+
+.shadow-cobalt-glow {
+  box-shadow: 0 0 25px 2px rgba(104, 127, 229, 0.4);
+}
+
+/* Range slider custom styling */
+input[type=range] {
+  -webkit-appearance: none;
+  background: rgba(222, 218, 244, 0.8);
+  border-radius: 9999px;
+  height: 6px;
+}
+
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 18px;
+  width: 18px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ACA0E7, #92AAE7);
+  cursor: pointer;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 8px rgba(172, 160, 231, 0.5);
+}
+
+/* Slider de Facturación MRR armónico uniendo las 4 gamas */
+input[type=range].mrr-slider {
+  -webkit-appearance: none;
+  background: linear-gradient(90deg, #ACA0E7 0%, #92AAE7 33%, #E8A0BF 66%, #687FE5 100%);
+  border-radius: 9999px;
+  height: 7px;
+  outline: none;
+}
+
+input[type=range].mrr-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: #283FA7;
+  border: 2.5px solid #ffffff;
+  box-shadow: 0 2px 10px rgba(104, 127, 229, 0.6);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+input[type=range].mrr-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(172, 160, 231, 0.35);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(172, 160, 231, 0.6);
+}
+
+/* =============================================================================
+   Estilos Angular Material & Glassmorphism (MatPaginator, MatTable, MatSelect, MatDialog)
+   ============================================================================= */
+.mat-mdc-paginator {
+  background-color: transparent !important;
+  color: #605596 !important;
+  font-family: "Plus Jakarta Sans", sans-serif !important;
+  font-size: 0.75rem !important;
+}
+
+.mat-mdc-paginator-container {
+  min-height: auto !important;
+  padding: 0 !important;
+  justify-content: flex-end !important;
+}
+
+.mat-mdc-paginator-page-size-label {
+  color: #605596 !important;
+  font-weight: 600 !important;
+  font-size: 0.75rem !important;
+}
+
+.mat-mdc-paginator-range-label {
+  color: #605596 !important;
+  font-weight: 600 !important;
+  font-family: "JetBrains Mono", monospace !important;
+  font-size: 0.75rem !important;
+  margin: 0 12px !important;
+}
+
+/* Caza de formulario / Select de cantidad de páginas en Paginador */
+.mat-mdc-paginator .mat-mdc-form-field {
+  margin: 0 8px !important;
+}
+
+.mat-mdc-paginator .mat-mdc-select {
+  font-family: "JetBrains Mono", monospace !important;
+}
+
+.mat-mdc-paginator .mat-mdc-select-trigger {
+  background: rgba(255, 255, 255, 0.85) !important;
+  border: 1px solid #DEDAF4 !important;
+  border-radius: 0.75rem !important;
+  padding: 4px 10px !important;
+  box-shadow: 0 1px 3px rgba(172, 160, 231, 0.12) !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.mat-mdc-paginator .mat-mdc-select-trigger:hover {
+  border-color: #ACA0E7 !important;
+  background: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(172, 160, 231, 0.2) !important;
+}
+
+.mat-mdc-paginator .mat-mdc-select-value-text {
+  color: #161B2D !important;
+  font-family: "JetBrains Mono", monospace !important;
+  font-weight: 700 !important;
+  font-size: 0.75rem !important;
+}
+
+.mat-mdc-paginator .mat-mdc-select-arrow {
+  color: #605596 !important;
+}
+
+/* Ocultar bordes de mdc por defecto y subscript wrappers */
+.mat-mdc-paginator .mdc-text-field--outlined .mdc-notched-outline,
+.mat-mdc-paginator .mdc-text-field--filled .mdc-line-ripple,
+.mat-mdc-paginator .mat-mdc-form-field-subscript-wrapper {
+  display: none !important;
+}
+
+.mat-mdc-paginator .mat-mdc-text-field-wrapper {
+  padding: 0 !important;
+  background-color: transparent !important;
+}
+
+.mat-mdc-paginator .mdc-text-field--outlined {
+  height: auto !important;
+}
+
+/* Botones de navegación del paginador (< >) */
+.mat-mdc-paginator-icon {
+  fill: #605596 !important;
+}
+
+.mat-mdc-paginator-navigation-button.mat-mdc-icon-button {
+  border-radius: 0.75rem !important;
+  transition: all 0.2s ease !important;
+  width: 36px !important;
+  height: 36px !important;
+  padding: 6px !important;
+}
+
+.mat-mdc-paginator-navigation-button.mat-mdc-icon-button:hover:not([disabled]) {
+  background-color: rgba(222, 218, 244, 0.6) !important;
+  color: #161B2D !important;
+}
+
+.mat-mdc-paginator-navigation-button[disabled] .mat-mdc-paginator-icon {
+  fill: rgba(96, 85, 150, 0.3) !important;
+}
+
+/* Tabla Material */
+.mat-mdc-table {
+  background-color: transparent !important;
+  font-family: "Plus Jakarta Sans", sans-serif !important;
+}
+
+.mat-mdc-header-row {
+  background-color: rgba(255, 255, 255, 0.5) !important;
+  border-bottom: 1px solid #DEDAF4 !important;
+}
+
+.mat-mdc-header-cell {
+  color: #605596 !important;
+  font-weight: 700 !important;
+  font-size: 0.6875rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  border-bottom: 1px solid #DEDAF4 !important;
+}
+
+.mat-mdc-row {
+  border-bottom: 1px solid rgba(222, 218, 244, 0.6) !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.mat-mdc-row:hover {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.mat-mdc-cell {
+  color: #161B2D !important;
+  border-bottom: 1px solid rgba(222, 218, 244, 0.6) !important;
+  font-size: 0.875rem !important;
+}
+
+/* Modales y Paneles Flotantes */
+.dark-dialog-panel .mat-mdc-dialog-container .mdc-dialog__surface {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(245, 243, 255, 0.92) 100%) !important;
+  backdrop-filter: blur(28px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.95) !important;
+  border-radius: 1.5rem !important;
+  box-shadow: 0 20px 50px -10px rgba(146, 170, 231, 0.3) !important;
+  padding: 0 !important;
+}
+
+.mat-mdc-select-panel {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.9) !important;
+  border-radius: 1rem !important;
+  box-shadow: 0 12px 35px -6px rgba(172, 160, 231, 0.25) !important;
+}
+
+.mat-mdc-option {
+  font-family: "Plus Jakarta Sans", sans-serif !important;
+  font-size: 0.8125rem !important;
+  color: #161B2D !important;
+}
+
+.mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled) {
+  background-color: rgba(172, 160, 231, 0.25) !important;
+  color: #605596 !important;
+  font-weight: 700 !important;
+}
+
+
