@@ -19,6 +19,10 @@
   --color-on-surface: #e3e1e9;
   --color-outline-glow: rgba(202, 190, 255, 0.25);
   --color-navy-dark: #161b2d;
+  
+  --color-brand-navy: #1E1B4B;
+  --color-brand-muted: #64748B;
+  --color-brand-dark: #161B2D;
 
   /* Paleta 3: Rosa Orquídea / Magenta Etéreo */
   --color-orchid: #9b2c67;

@@ -1,150 +1,163 @@
-<div class="relative w-full max-w-xl rounded-2xl border border-slate-700/80 bg-slate-900/95 p-6 shadow-2xl backdrop-blur-xl text-slate-100 font-sans">
-  
-  <!-- Header Modal -->
-  <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
-    <div class="flex items-center space-x-3">
-      <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-600/20 text-violet-400 border border-violet-500/30">
-        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0h5m-5 0V12m0 0h-2m2 0h2" />
-        </svg>
-      </div>
-      <div>
-        <h2 class="text-xl font-bold tracking-tight text-white">Nuevo Tenant (Empresa)</h2>
-        <p class="text-xs text-slate-400">Aprovisionar un nuevo cliente y su Administrador Inicial</p>
-      </div>
-    </div>
-    <button (click)="close(false)" type="button" class="rounded-lg p-2 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-      <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-      </svg>
-    </button>
-  </div>
+<div class="relative flex flex-col w-full max-w-2xl max-h-[90vh] bg-white/85 backdrop-blur-2xl border border-white/90 rounded-3xl p-6 sm:p-8 shadow-[0_30px_90px_rgba(172,160,231,0.25)] overflow-hidden text-brand-dark mx-auto">
+  <!-- Ambient background diffuse glow (positioned absolutely within modal) -->
+  <div class="absolute top-0 left-0 w-96 h-96 bg-[#ACA0E7]/25 rounded-full blur-3xl pointer-events-none -translate-x-1/2 -translate-y-1/2"></div>
+  <div class="absolute bottom-0 right-0 w-96 h-96 bg-[#92AAE7]/25 rounded-full blur-3xl pointer-events-none translate-x-1/4 translate-y-1/4"></div>
+  <!-- Top inner glow highlight line -->
+  <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#ACA0E7] to-transparent opacity-80 pointer-events-none"></div>
 
   <!-- Error Message Alert -->
   @if (errorMessage()) {
-    <div class="mb-5 flex items-start space-x-3 rounded-xl border border-rose-500/30 bg-rose-950/40 p-4 text-rose-200 text-sm">
-      <svg class="h-5 w-5 shrink-0 text-rose-400 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+    <div class="relative z-10 shrink-0 mb-5 flex items-start space-x-3 rounded-xl border border-rose-500/30 bg-rose-50/80 p-4 text-rose-800 text-sm shadow-sm">
+      <svg class="h-5 w-5 shrink-0 text-rose-500 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
       </svg>
-      <span>{{ errorMessage() }}</span>
+      <span class="font-medium">{{ errorMessage() }}</span>
     </div>
   }
 
-  <!-- Form -->
-  <form (ngSubmit)="onSubmit()" class="space-y-4">
-    
-    <!-- Nombre de la Empresa -->
-    <div>
-      <label class="block text-xs font-medium text-slate-300 mb-1.5">Nombre Comercial de la Empresa</label>
-      <div class="relative">
-        <input 
-          type="text"
-          [formField]="nameField"
-          placeholder="Ej: Pos System SAC"
-          class="w-full rounded-xl border border-slate-700 bg-slate-950/80 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500 transition-all"
-        />
-      </div>
-      @if (nameField().touched() && nameField().invalid()) {
-        <p class="mt-1 text-xs text-rose-400">El nombre comercial es requerido.</p>
-      }
-    </div>
-
-    <!-- Documento Fiscal -->
-    <div>
-      <label class="block text-xs font-medium text-slate-300 mb-1.5">Número de Identificación Fiscal (RUC / NIT / RFC)</label>
-      <div class="relative">
-        <input 
-          type="text"
-          [formField]="documentNumberField"
-          placeholder="Ej: 20601234567"
-          class="w-full rounded-xl border border-slate-700 bg-slate-950/80 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500 transition-all"
-        />
-      </div>
-      @if (documentNumberField().touched() && documentNumberField().invalid()) {
-        <p class="mt-1 text-xs text-rose-400">El número de identificación fiscal es requerido.</p>
-      }
-    </div>
-
-    <!-- Separador -->
-    <div class="pt-2 border-t border-slate-800/80 my-2">
-      <span class="text-xs font-semibold tracking-wider text-violet-400 uppercase">Credenciales del TenantAdmin Inicial</span>
-    </div>
-
-    <!-- Email Admin -->
-    <div>
-      <label class="block text-xs font-medium text-slate-300 mb-1.5">Correo Electrónico Administrador</label>
-      <div class="relative">
-        <input 
-          type="email"
-          [formField]="adminEmailField"
-          placeholder="admin@empresa.com"
-          class="w-full rounded-xl border border-slate-700 bg-slate-950/80 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500 transition-all"
-        />
-      </div>
-      @if (adminEmailField().touched() && adminEmailField().invalid()) {
-        <p class="mt-1 text-xs text-rose-400">Por favor, ingresa un correo electrónico válido.</p>
-      }
-    </div>
-
-    <!-- Password Admin -->
-    <div>
-      <label class="block text-xs font-medium text-slate-300 mb-1.5">Contraseña Inicial Administrador</label>
-      <div class="relative">
-        <input 
-          [type]="showPassword() ? 'text' : 'password'"
-          [formField]="adminPasswordField"
-          placeholder="••••••••••••"
-          class="w-full rounded-xl border border-slate-700 bg-slate-950/80 px-4 py-2.5 pr-10 text-sm text-white placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500 transition-all"
-        />
-        <button 
-          type="button" 
-          (click)="togglePasswordVisibility()" 
-          class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
-        >
-          @if (showPassword()) {
-            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858-5.908a10.04 10.04 0 012.122-.363c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21M3 3l18 18" />
+  <form (ngSubmit)="onSubmit()" class="relative z-10 flex flex-col flex-1 min-h-0">
+    <!-- Modal Header -->
+    <div class="shrink-0 flex items-start justify-between pb-5 border-b border-[#DEDAF4] mb-6">
+      <div class="space-y-1.5 pr-6">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#DBE6FB] text-[#4338CA] border border-[#92AAE7]/50 shadow-xs">
+            LatAm Core v2.4
+          </span>
+          <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#DEDAF4]/70 text-[#4338CA] border border-[#ACA0E7]/50 shadow-xs flex items-center gap-1">
+            <svg class="w-3 h-3 text-[#4338CA]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
             </svg>
+            Aislamiento Schema Cifrado
+          </span>
+        </div>
+        <h2 class="font-display font-bold text-2xl sm:text-3xl text-brand-navy tracking-tight mt-1">
+          Aprovisionar <span class="bg-gradient-to-r from-[#4338CA] via-[#ACA0E7] to-[#92AAE7] bg-clip-text text-transparent">Nuevo Tenant</span>
+        </h2>
+        <p class="text-xs sm:text-sm text-brand-muted font-normal leading-relaxed">
+          Configuración instantánea de clúster aislado, subdominio institucional y base de datos multi-tenant.
+        </p>
+      </div>
+      <button type="button" class="w-9 h-9 shrink-0 rounded-2xl glass-surface border border-[#DEDAF4] hover:border-[#ACA0E7] hover:bg-white text-brand-muted hover:text-brand-navy flex items-center justify-center transition duration-200 shadow-xs" (click)="close(false)" title="Cerrar">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Form Inputs (Grid) -->
+    <div class="flex-1 overflow-y-auto min-h-0 space-y-4 pr-1">
+      
+      <!-- Razón Social -->
+      <div class="space-y-1.5">
+        <label class="text-[11px] font-bold uppercase tracking-wider text-brand-muted flex items-center justify-between">
+          <span class="">Nombre Comercial de la Empresa</span>
+          <span class="text-[10px] text-[#4338CA] font-mono">Requerido</span>
+        </label>
+        <div class="relative flex items-center">
+          <div class="absolute left-3.5 text-[#ACA0E7] pointer-events-none">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path>
+            </svg>
+          </div>
+          <input [formField]="nameField" class="w-full pl-10 pr-3 py-2.5 text-xs sm:text-sm bg-white/70 border border-[#DEDAF4] rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ACA0E7]/50 focus:border-[#ACA0E7] text-brand-navy shadow-inner font-medium" placeholder="Ej: Pos System SAC" type="text">
+        </div>
+        @if (nameField().touched() && nameField().invalid()) {
+          <p class="text-[10px] text-rose-500 font-medium">El nombre comercial es requerido.</p>
+        }
+      </div>
+
+      <!-- Identificación Fiscal -->
+      <div class="space-y-1.5">
+        <label class="text-[11px] font-bold uppercase tracking-wider text-brand-muted flex items-center justify-between">
+          <span class="">Número de Identificación Fiscal (RUC / NIT)</span>
+        </label>
+        <div class="relative flex items-center">
+          <div class="absolute left-3.5 text-[#ACA0E7] pointer-events-none font-mono text-xs font-bold">#</div>
+          <input [formField]="documentNumberField" class="w-full pl-9 pr-3 py-2.5 text-xs sm:text-sm bg-white/70 border border-[#DEDAF4] rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ACA0E7]/50 focus:border-[#ACA0E7] font-mono text-brand-navy shadow-inner" placeholder="Ej: 20601234567" type="text">
+        </div>
+        @if (documentNumberField().touched() && documentNumberField().invalid()) {
+          <p class="text-[10px] text-rose-500 font-medium">El número de identificación fiscal es requerido.</p>
+        }
+      </div>
+
+      <div class="pt-2 border-t border-[#DEDAF4]/60 my-2"></div>
+
+      <!-- Email Admin -->
+      <div class="space-y-1.5">
+        <label class="text-[11px] font-bold uppercase tracking-wider text-brand-muted flex items-center justify-between">
+          <span class="">Correo Electrónico Administrador</span>
+        </label>
+        <div class="relative flex items-center">
+          <div class="absolute left-3.5 text-[#ACA0E7] pointer-events-none">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path>
+            </svg>
+          </div>
+          <input [formField]="adminEmailField" class="w-full pl-10 pr-3 py-2.5 text-xs sm:text-sm bg-white/70 border border-[#DEDAF4] rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ACA0E7]/50 focus:border-[#ACA0E7] text-brand-navy shadow-inner" placeholder="admin@empresa.com" type="email">
+        </div>
+        @if (adminEmailField().touched() && adminEmailField().invalid()) {
+          <p class="text-[10px] text-rose-500 font-medium">Por favor, ingresa un correo electrónico válido.</p>
+        }
+      </div>
+
+      <!-- Contraseña Admin -->
+      <div class="space-y-1.5">
+        <label class="text-[11px] font-bold uppercase tracking-wider text-brand-muted flex items-center justify-between">
+          <span class="">Contraseña Inicial Administrador</span>
+        </label>
+        <div class="relative flex items-center">
+          <div class="absolute left-3.5 text-[#ACA0E7] pointer-events-none">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+            </svg>
+          </div>
+          <input [type]="showPassword() ? 'text' : 'password'" [formField]="adminPasswordField" class="w-full pl-10 pr-10 py-2.5 text-xs sm:text-sm bg-white/70 border border-[#DEDAF4] rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ACA0E7]/50 focus:border-[#ACA0E7] text-brand-navy shadow-inner font-mono" placeholder="••••••••••••">
+          <button 
+            type="button" 
+            (click)="togglePasswordVisibility()" 
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-[#ACA0E7] hover:text-[#4338CA] transition-colors"
+          >
+            @if (showPassword()) {
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858-5.908a10.04 10.04 0 012.122-.363c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21M3 3l18 18" />
+              </svg>
+            } @else {
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            }
+          </button>
+        </div>
+        <p class="mt-1 text-[10px] text-brand-muted">Mínimo 8 caracteres, al menos una mayúscula, un número y un carácter especial.</p>
+        @if (adminPasswordField().touched() && adminPasswordField().invalid()) {
+          <p class="text-[10px] text-rose-500 font-medium">La contraseña no cumple con los requisitos mínimos de seguridad.</p>
+        }
+      </div>
+      
+    </div>
+
+    <!-- Modal Footer Actions -->
+    <div class="shrink-0 pt-5 mt-5 border-t border-[#DEDAF4] flex flex-col sm:flex-row items-center justify-end gap-3.5">
+      <div class="flex items-center space-x-3 w-full sm:w-auto justify-end">
+        <button type="button" [disabled]="isLoading()" class="px-4 py-2.5 rounded-xl glass-surface hover:bg-white text-brand-navy font-semibold text-xs transition border border-[#DEDAF4] shadow-xs disabled:opacity-50" (click)="close(false)">
+          Cancelar
+        </button>
+        <button type="submit" [disabled]="isLoading()" class="inline-flex items-center px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#ACA0E7] via-[#92AAE7] to-[#4338CA] hover:opacity-95 text-white font-bold text-xs shadow-glass-glow hover:shadow-lg transition-all transform hover:-translate-y-0.5 active:translate-y-0 space-x-2 disabled:opacity-50">
+          @if (isLoading()) {
+            <svg class="mr-1.5 h-4 w-4 animate-spin text-white" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span class="">Aprovisionando...</span>
           } @else {
-            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"></path>
             </svg>
+            <span class="">Aprovisionar Tenant</span>
           }
         </button>
       </div>
-      <p class="mt-1 text-[11px] text-slate-400">Mínimo 8 caracteres, al menos una mayúscula, un número y un carácter especial.</p>
-      @if (adminPasswordField().touched() && adminPasswordField().invalid()) {
-        <p class="mt-1 text-xs text-rose-400">La contraseña no cumple con los requisitos mínimos de seguridad.</p>
-      }
     </div>
-
-    <!-- Botones Acciones -->
-    <div class="flex items-center justify-end space-x-3 pt-6 border-t border-slate-800 mt-6">
-      <button 
-        type="button" 
-        (click)="close(false)"
-        [disabled]="isLoading()"
-        class="rounded-xl border border-slate-700 bg-slate-800/80 px-4 py-2.5 text-sm font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-all disabled:opacity-50"
-      >
-        Cancelar
-      </button>
-      <button 
-        type="submit" 
-        [disabled]="isLoading()"
-        class="inline-flex items-center justify-center rounded-xl bg-linear-to-r from-violet-600 to-purple-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-violet-600/25 hover:from-violet-500 hover:to-purple-500 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-slate-900 transition-all disabled:opacity-50"
-      >
-        @if (isLoading()) {
-          <svg class="mr-2 h-4 w-4 animate-spin text-white" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          Aprovisionando...
-        } @else {
-          Aprovisionar Tenant
-        }
-      </button>
-    </div>
-
   </form>
 </div>

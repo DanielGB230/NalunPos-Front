@@ -1,10 +1,10 @@
+import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
   inject,
   signal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import {
@@ -77,6 +77,7 @@ export class TenantCreateFormComponent {
   protected async onSubmit(): Promise<void> {
     await submit(this.tenantForm, async () => {
       const currentModel = this.formModel();
+
       const request: CreateTenantRequest = {
         name: currentModel.name,
         documentNumber: currentModel.documentNumber,

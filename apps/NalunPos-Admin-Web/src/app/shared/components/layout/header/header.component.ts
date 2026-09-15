@@ -7,6 +7,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '@nalunpos/shared/auth';
+import { LayoutService } from '../../../services/layout.service';
 
 @Component({
   selector: 'app-header',
@@ -18,6 +19,7 @@ import { AuthService } from '@nalunpos/shared/auth';
 export class HeaderComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly layoutService = inject(LayoutService);
 
   protected readonly currentUser = this.authService.currentUser;
   protected readonly systemStatus = signal<'online' | 'maintenance'>('online');
@@ -25,6 +27,10 @@ export class HeaderComponent {
 
   protected toggleUserMenu(): void {
     this.showUserMenu.update((prev) => !prev);
+  }
+
+  protected toggleMobileMenu(): void {
+    this.layoutService.toggleMobileMenu();
   }
 
   protected logout(): void {

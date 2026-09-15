@@ -102,8 +102,9 @@ export class TenantListComponent implements OnInit {
 
   protected openCreateModal(): void {
     const dialogRef = this.dialog.open(TenantCreateFormComponent, {
-      width: '560px',
+      width: '672px',
       maxWidth: '95vw',
+      maxHeight: '90vh',
       panelClass: 'dark-dialog-panel',
       disableClose: true,
     });

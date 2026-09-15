@@ -1,10 +1,13 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  inject,
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthService } from '@nalunpos/shared/auth';
+import { LayoutService } from '../../../services/layout.service';
 
 interface NavItem {
   label: string;
@@ -22,7 +25,12 @@ interface NavItem {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SidebarComponent {
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly layoutService = inject(LayoutService);
+
   protected readonly isCollapsed = signal(false);
+  protected readonly isMobileMenuOpen = this.layoutService.isMobileMenuOpen;
 
   protected readonly navItems: NavItem[] = [
     {
@@ -56,5 +64,15 @@ export class SidebarComponent {
 
   protected toggleCollapse(): void {
     this.isCollapsed.update((prev) => !prev);
+  }
+
+  protected closeMobileMenu(): void {
+    this.layoutService.closeMobileMenu();
+  }
+
+  protected logout(): void {
+    this.closeMobileMenu();
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 }
