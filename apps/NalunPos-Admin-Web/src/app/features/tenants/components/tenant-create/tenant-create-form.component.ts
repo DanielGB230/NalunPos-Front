@@ -6,18 +6,18 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import {
-  form,
-  submit,
-  required,
-  pattern,
-  minLength,
   FormField,
+  form,
+  minLength,
+  pattern,
+  required,
+  submit,
 } from '@angular/forms/signals';
-import { TenantApiService } from '../../services/tenant-api.service';
+import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { NotificationService } from '@nalunpos/shared/ui';
 import { CreateTenantRequest } from '../../models/tenant.model';
-import { AppError } from '@nalunpos/shared/data-access';
+import { TenantApiService } from '../../services/tenant-api.service';
 
 interface TenantFormModel {
   name: string;
@@ -36,6 +36,7 @@ interface TenantFormModel {
 export class TenantCreateFormComponent {
   protected readonly formFieldDirective = FormField;
   private readonly tenantApiService = inject(TenantApiService);
+  private readonly notificationService = inject(NotificationService);
   private readonly dialogRef = inject(MatDialogRef<TenantCreateFormComponent>);
 
   // Signal Form - Angular 22
@@ -63,7 +64,6 @@ export class TenantCreateFormComponent {
 
   // Estado del componente con Signals
   protected readonly isLoading = signal(false);
-  protected readonly errorMessage = signal<string | null>(null);
   protected readonly showPassword = signal(false);
 
   protected togglePasswordVisibility(): void {
@@ -75,31 +75,49 @@ export class TenantCreateFormComponent {
   }
 
   protected async onSubmit(): Promise<void> {
-    await submit(this.tenantForm, async () => {
-      const currentModel = this.formModel();
+    console.log('onSubmit triggered. Current model:', this.formModel());
 
-      const request: CreateTenantRequest = {
-        name: currentModel.name,
-        documentNumber: currentModel.documentNumber,
-        adminEmail: currentModel.adminEmail,
-        adminPassword: currentModel.adminPassword,
-      };
+    await submit(this.tenantForm, {
+      action: async () => {
+        console.log('Form is valid! Sending request...');
+        const currentModel = this.formModel();
 
-      this.isLoading.set(true);
-      this.errorMessage.set(null);
+        const request: CreateTenantRequest = {
+          name: currentModel.name,
+          documentNumber: currentModel.documentNumber,
+          adminEmail: currentModel.adminEmail,
+          adminPassword: currentModel.adminPassword,
+        };
 
-      this.tenantApiService.createTenant(request).subscribe({
-        next: () => {
-          this.isLoading.set(false);
-          this.close(true);
-        },
-        error: (error: AppError) => {
-          this.isLoading.set(false);
-          this.errorMessage.set(
-            error.message || 'Error al aprovisionar el Tenant. Verifique los datos ingresados.'
-          );
-        },
-      });
+        this.isLoading.set(true);
+
+        this.tenantApiService.createTenant(request).subscribe({
+          next: (tenantId) => {
+            console.log('Tenant creado exitosamente con ID:', tenantId);
+            this.isLoading.set(false);
+            this.notificationService.success(
+              `El tenant ${request.name} fue aprovisionado exitosamente.`,
+              'Tenant Aprovisionado'
+            );
+            this.close(true);
+          },
+          error: (error: any) => {
+            console.error('Request failed', error);
+            this.isLoading.set(false);
+            const msg =
+              error?.message ||
+              error?.detail ||
+              error?.title ||
+              'Error al aprovisionar el Tenant. Verifique los datos ingresados.';
+            this.notificationService.error(msg, 'Error de Aprovisionamiento');
+          },
+        });
+      },
+      onInvalid: () => {
+        console.warn('Formulario inválido:', this.formModel());
+        const msg = 'Por favor, complete todos los campos obligatorios respetando el formato requerido.';
+        this.notificationService.warning(msg, 'Datos Incompletos');
+      },
     });
   }
 }

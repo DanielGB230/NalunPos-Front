@@ -35,12 +35,15 @@ import {
  * Inicializa el AuthService con la URL del backend desde el environment.
  * Garantiza que la URL esté disponible antes del primer request HTTP.
  */
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+
 function initializeAuth(authService: AuthService): () => void {
   return () => authService.configureApiUrl(environment.apiUrl);
 }
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    provideAnimationsAsync(),
     // Error handling global
     provideBrowserGlobalErrorListeners(),
 

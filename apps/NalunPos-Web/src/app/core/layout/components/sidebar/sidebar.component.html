@@ -1,0 +1,309 @@
+<aside
+  [class.w-64]="!isCollapsed()"
+  [class.w-20]="isCollapsed()"
+  [class.px-6]="!isCollapsed()"
+  [class.px-4]="isCollapsed()"
+  class="shrink-0 hidden md:flex flex-col justify-between h-screen min-h-screen border-r border-white/60 bg-white/40 backdrop-blur-xl overflow-y-auto z-30 transition-all duration-300 select-none py-4"
+>
+  <div class="space-y-6">
+    <!-- Identidad de Marca en la parte superior -->
+    <div class="flex items-center justify-between pb-5 border-b border-[#DEDAF4]/70">
+      <div class="flex items-center space-x-3 group cursor-pointer" [class.mx-auto]="isCollapsed()">
+        <!-- Icono en cápsula -->
+        <div class="relative w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#ACA0E7] via-[#92AAE7] to-[#DBE6FB] p-[1.5px] shadow-glass-glow flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
+          <div class="w-full h-full bg-[#FAF8FF]/70 backdrop-blur-md rounded-[14px] flex items-center justify-center">
+            <svg class="w-5 h-5 text-[#605596]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+          </div>
+        </div>
+        <!-- Texto NALUN POS con badge ADMIN NEGOCIO -->
+        <div *ngIf="!isCollapsed()" class="flex flex-col">
+          <span class="font-display font-black text-xl tracking-tight bg-gradient-to-r from-[#ACA0E7] to-[#92AAE7] bg-clip-text text-transparent">
+            NALUN <span class="font-extrabold text-[#605596]">POS</span>
+          </span>
+          <span class="text-[9px] uppercase font-bold tracking-widest px-2 py-0.5 mt-0.5 rounded-full bg-[#DEDAF4]/80 text-[#605596] border border-[#ACA0E7]/40 shadow-xs w-fit">
+            ADMIN NEGOCIO
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Título Módulos del Negocio -->
+    <div class="flex items-center justify-between px-1" [class.justify-center]="isCollapsed()">
+      <span *ngIf="!isCollapsed()" class="text-[11px] font-bold uppercase tracking-wider text-[#605596]/80">
+        Módulos del Negocio
+      </span>
+      <button
+        (click)="toggleCollapse()"
+        class="text-[#ACA0E7] hover:text-[#605596] cursor-pointer text-xs transition p-1 rounded-lg"
+        title="Contraer / Expandir menú"
+      >
+        <svg
+          class="w-4 h-4 transform transition-transform duration-300"
+          [class.rotate-180]="isCollapsed()"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Enlaces de navegación vertical -->
+    <nav class="space-y-1.5">
+      <a
+        #rla="routerLinkActive"
+        *ngFor="let item of navItems"
+        [routerLink]="item.route"
+        routerLinkActive="bg-white/80 border-[#ACA0E7]/60 shadow-glass-active text-[#161B2D]"
+        [routerLinkActiveOptions]="{ exact: false }"
+        [class.w-full]="!isCollapsed()"
+        [class.px-2.5]="!isCollapsed()"
+        [class.py-2]="!isCollapsed()"
+        [class.justify-between]="!isCollapsed()"
+        [class.w-12]="isCollapsed()"
+        [class.h-12]="isCollapsed()"
+        [class.p-1.5]="isCollapsed()"
+        [class.justify-center]="isCollapsed()"
+        [class.mx-auto]="isCollapsed()"
+        class="flex items-center rounded-lg text-[#605596] hover:text-[#161B2D] hover:bg-white/70 border border-transparent hover:border-white/80 transition-all duration-300 group"
+      >
+        <div class="flex items-center justify-center shrink-0" [class.gap-3]="!isCollapsed()">
+          <!-- Icon Capsule con degradado activo cuando la ruta está seleccionada -->
+          <div
+            [class]="rla.isActive 
+              ? 'w-9 h-9 rounded-lg bg-linear-to-tr from-[#605596] via-[#ACA0E7] to-[#92AAE7] text-white flex items-center justify-center shrink-0 shadow-glass-glow ring-2 ring-white' 
+              : 'w-9 h-9 rounded-lg bg-linear-to-tr from-[#DEDAF4] to-[#DBE6FB] border border-white/80 flex items-center justify-center shrink-0 text-[#605596] shadow-xs group-hover:from-[#ACA0E7]/40 group-hover:to-[#92AAE7]/40 transition-colors'"
+          >
+            <!-- Icono Dashboard -->
+            <ng-container *ngIf="item.icon === 'dashboard'">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+              </svg>
+            </ng-container>
+
+            <!-- Icono Ventas -->
+            <ng-container *ngIf="item.icon === 'ventas'">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />
+              </svg>
+            </ng-container>
+
+            <!-- Icono Productos -->
+            <ng-container *ngIf="item.icon === 'productos'">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              </svg>
+            </ng-container>
+
+            <!-- Icono Categorías -->
+            <ng-container *ngIf="item.icon === 'categorias'">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+              </svg>
+            </ng-container>
+
+            <!-- Icono Inventario -->
+            <ng-container *ngIf="item.icon === 'inventario'">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M5 8h14M5 8a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v1a2 2 0 01-2 2M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+              </svg>
+            </ng-container>
+
+            <!-- Icono Clientes -->
+            <ng-container *ngIf="item.icon === 'clientes'">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            </ng-container>
+
+            <!-- Icono Usuarios -->
+            <ng-container *ngIf="item.icon === 'usuarios'">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </ng-container>
+          </div>
+
+          <span
+            *ngIf="!isCollapsed()"
+            [class]="rla.isActive ? 'text-[13px] font-bold text-[#161B2D] tracking-tight truncate' : 'text-[13px] font-medium tracking-tight truncate'"
+          >
+            {{ item.label }}
+          </span>
+        </div>
+
+        <span
+          *ngIf="!isCollapsed() && item.badge"
+          class="px-2 py-0.5 mr-1 text-[10px] font-black uppercase tracking-wider bg-gradient-to-r from-[#ACA0E7] to-[#92AAE7] text-white rounded-full shadow-xs"
+        >
+          {{ item.badge }}
+        </span>
+      </a>
+    </nav>
+  </div>
+
+  <!-- Al pie del sidebar: tarjeta de estado 'NalunPOS Web v1.0.0' -->
+  <div *ngIf="!isCollapsed()" class="mt-6 p-4 rounded-2xl glass-card border border-white relative overflow-hidden">
+    <div class="absolute -right-6 -bottom-6 w-20 h-20 rounded-full bg-[#ACA0E7]/20 blur-xl pointer-events-none"></div>
+    <div class="flex items-center space-x-3">
+      <div class="w-3.5 h-3.5 rounded-full bg-[#92AAE7] ring-4 ring-[#DBE6FB] flex-shrink-0 animate-pulse"></div>
+      <div>
+        <div class="text-xs font-bold text-[#161B2D]">NalunPOS Web</div>
+        <div class="text-[11px] font-mono text-[#605596] font-medium">v1.0.0-Enterprise</div>
+      </div>
+    </div>
+    <div class="mt-3 pt-2.5 border-t border-[#DEDAF4] flex items-center justify-between text-[10px] text-[#605596] font-medium">
+      <span>Estado</span>
+      <span class="font-bold font-mono text-[#605596]">Online OK</span>
+    </div>
+  </div>
+</aside>
+
+<!-- DRAWER RESPONSIVO MÓVIL (SÓLO CELULARES - APARECE ENCIMA CON FONDO OSCURECIDO Y BOTÓN X) -->
+<div *ngIf="isMobileMenuOpen()" class="md:hidden fixed inset-0 z-50 flex">
+  <!-- Backdrop Oscurecido Suave -->
+  <div
+    (click)="closeMobileMenu()"
+    class="fixed inset-0 bg-[#161B2D]/20 transition-opacity duration-300 animate-in fade-in"
+  ></div>
+
+  <!-- Panel Lateral Flotante -->
+  <div class="relative w-72 max-w-[80vw] h-full bg-[#FAF8FF]/95 backdrop-blur-2xl border-r border-white/80 shadow-2xl py-4 px-5 flex flex-col justify-between z-10 overflow-y-auto animate-in slide-in-from-left duration-300 select-none">
+    <div class="space-y-6">
+      <!-- Identidad de Marca completa + Botón de Cerrar (X) -->
+      <div class="flex items-center justify-between pb-5 border-b border-[#DEDAF4]/70">
+        <div class="flex items-center space-x-3 group cursor-pointer">
+          <div class="relative w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#ACA0E7] via-[#92AAE7] to-[#DBE6FB] p-[1.5px] shadow-glass-glow flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
+            <div class="w-full h-full bg-[#FAF8FF]/70 backdrop-blur-md rounded-[14px] flex items-center justify-center">
+              <svg class="w-5 h-5 text-[#605596]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+            </div>
+          </div>
+          <div class="flex flex-col">
+            <span class="font-display font-black text-xl tracking-tight bg-gradient-to-r from-[#ACA0E7] to-[#92AAE7] bg-clip-text text-transparent">
+              NALUN <span class="font-extrabold text-[#605596]">POS</span>
+            </span>
+            <span class="text-[9px] uppercase font-bold tracking-widest px-2 py-0.5 mt-0.5 rounded-full bg-[#DEDAF4]/80 text-[#605596] border border-[#ACA0E7]/40 shadow-xs w-fit">
+              ADMIN NEGOCIO
+            </span>
+          </div>
+        </div>
+
+        <!-- Botón de Cerrar (X) -->
+        <button
+          (click)="closeMobileMenu()"
+          type="button"
+          class="text-[#ACA0E7] hover:text-[#605596] cursor-pointer text-xs transition p-1 rounded-lg"
+          title="Cerrar menú"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Título Módulos del Negocio -->
+      <div class="flex items-center justify-between px-1">
+        <span class="text-[11px] font-bold uppercase tracking-wider text-[#605596]/80">
+          Módulos del Negocio
+        </span>
+      </div>
+
+      <!-- Enlaces de navegación vertical (Móvil) -->
+      <nav class="space-y-1.5">
+        <a
+          #rlaMob="routerLinkActive"
+          *ngFor="let item of navItems"
+          [routerLink]="item.route"
+          routerLinkActive="bg-white/80 border-[#ACA0E7]/60 shadow-glass-active text-[#161B2D]"
+          [routerLinkActiveOptions]="{ exact: false }"
+          (click)="closeMobileMenu()"
+          class="flex items-center justify-between w-full px-2.5 py-2 rounded-lg text-[#605596] hover:text-[#161B2D] hover:bg-white/70 border border-transparent hover:border-white/80 transition-all duration-300 group"
+        >
+          <div class="flex items-center justify-center shrink-0 gap-3">
+            <div
+              [class]="rlaMob.isActive
+                ? 'w-9 h-9 rounded-lg bg-linear-to-tr from-[#605596] via-[#ACA0E7] to-[#92AAE7] text-white flex items-center justify-center shrink-0 shadow-glass-glow ring-2 ring-white'
+                : 'w-9 h-9 rounded-lg bg-linear-to-tr from-[#DEDAF4] to-[#DBE6FB] border border-white/80 flex items-center justify-center shrink-0 text-[#605596] shadow-xs group-hover:from-[#ACA0E7]/40 group-hover:to-[#92AAE7]/40 transition-colors'"
+            >
+              <ng-container *ngIf="item.icon === 'dashboard'">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                </svg>
+              </ng-container>
+
+              <ng-container *ngIf="item.icon === 'ventas'">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />
+                </svg>
+              </ng-container>
+
+              <ng-container *ngIf="item.icon === 'productos'">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+              </ng-container>
+
+              <ng-container *ngIf="item.icon === 'categorias'">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                </svg>
+              </ng-container>
+
+              <ng-container *ngIf="item.icon === 'inventario'">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M5 8h14M5 8a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v1a2 2 0 01-2 2M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                </svg>
+              </ng-container>
+
+              <ng-container *ngIf="item.icon === 'clientes'">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </ng-container>
+
+              <ng-container *ngIf="item.icon === 'usuarios'">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </ng-container>
+            </div>
+
+            <span
+              [class]="rlaMob.isActive ? 'text-[13px] font-bold text-[#161B2D] tracking-tight truncate' : 'text-[13px] font-medium tracking-tight truncate'"
+            >
+              {{ item.label }}
+            </span>
+          </div>
+
+          <span
+            *ngIf="item.badge"
+            class="px-2 py-0.5 mr-1 text-[10px] font-black uppercase tracking-wider bg-gradient-to-r from-[#ACA0E7] to-[#92AAE7] text-white rounded-full shadow-xs"
+          >
+            {{ item.badge }}
+          </span>
+        </a>
+      </nav>
+    </div>
+
+    <!-- Al pie del drawer -->
+    <div class="mt-6 p-4 rounded-2xl glass-card border border-white relative overflow-hidden">
+      <div class="absolute -right-6 -bottom-6 w-20 h-20 rounded-full bg-[#ACA0E7]/20 blur-xl pointer-events-none"></div>
+      <div class="flex items-center space-x-3">
+        <div class="w-3.5 h-3.5 rounded-full bg-[#92AAE7] ring-4 ring-[#DBE6FB] flex-shrink-0 animate-pulse"></div>
+        <div>
+          <div class="text-xs font-bold text-[#161B2D]">NalunPOS Web</div>
+          <div class="text-[11px] font-mono text-[#605596] font-medium">v1.0.0-Enterprise</div>
+        </div>
+      </div>
+      <div class="mt-3 pt-2.5 border-t border-[#DEDAF4] flex items-center justify-between text-[10px] text-[#605596] font-medium">
+        <span>Estado</span>
+        <span class="font-bold font-mono text-[#605596]">Online OK</span>
+      </div>
+    </div>
+  </div>
+</div>

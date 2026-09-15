@@ -1,5 +1,5 @@
-import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { CreateTenantRequest, PagedResult, TenantDto } from '../models/tenant.model';
@@ -27,6 +27,6 @@ export class TenantApiService {
   }
 
   createTenant(request: CreateTenantRequest): Observable<string> {
-    return this.http.post<string>(this.endpoint, request);
+    return this.http.post(this.endpoint, request, { responseType: 'text' });
   }
 }

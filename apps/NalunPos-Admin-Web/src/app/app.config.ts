@@ -30,12 +30,15 @@ import {
   errorInterceptor,
 } from '@nalunpos/shared/data-access';
 
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+
 function initializeAuth(authService: AuthService): () => void {
   return () => authService.configureApiUrl(environment.apiUrl);
 }
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    provideAnimationsAsync(),
     provideBrowserGlobalErrorListeners(),
     provideRouter(
       appRoutes,

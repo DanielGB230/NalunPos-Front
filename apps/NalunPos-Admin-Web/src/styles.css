@@ -402,4 +402,33 @@ input[type=range].mrr-slider::-webkit-slider-thumb:hover {
   font-weight: 700 !important;
 }
 
+/* =============================================================================
+   MatSnackBar Custom Toast Container Overrides
+   ============================================================================= */
+.mat-mdc-snack-bar-container.custom-toast-container {
+  --mdc-snackbar-container-color: transparent !important;
+  --mdc-snackbar-supporting-text-color: transparent !important;
+  --mat-snack-bar-button-color: transparent !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  margin: 16px 16px !important;
+  padding: 0 !important;
+}
+
+.mat-mdc-snack-bar-container.custom-toast-container .mdc-snackbar__surface,
+.mat-mdc-snack-bar-container.custom-toast-container .mat-mdc-snackbar-surface,
+.mat-mdc-snack-bar-container.custom-toast-container .mdc-snackbar__label,
+.mat-mdc-snack-bar-container.custom-toast-container .mat-mdc-snack-bar-label {
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  min-height: auto !important;
+  border-radius: 0 !important;
+}
+
+
+
 

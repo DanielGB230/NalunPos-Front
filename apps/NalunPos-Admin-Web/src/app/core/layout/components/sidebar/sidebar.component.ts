@@ -7,7 +7,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '@nalunpos/shared/auth';
-import { LayoutService } from '../../../services/layout.service';
+import { LayoutService } from '../../services/layout.service';
 
 interface NavItem {
   label: string;

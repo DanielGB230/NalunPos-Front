@@ -4,7 +4,7 @@
 
 import { Routes } from '@angular/router';
 import { authGuard, roleGuard } from '@nalunpos/shared/auth';
-import { AdminLayoutComponent } from './shared/components/layout/admin-layout/admin-layout.component';
+import { AdminLayoutComponent } from './core/layout/components/admin-layout/admin-layout.component';
 
 export const appRoutes: Routes = [
   {
