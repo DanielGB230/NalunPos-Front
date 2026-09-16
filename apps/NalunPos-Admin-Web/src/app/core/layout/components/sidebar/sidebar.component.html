@@ -3,12 +3,18 @@
   [class.w-20]="isCollapsed()"
   [class.px-6]="!isCollapsed()"
   [class.px-4]="isCollapsed()"
-  class="shrink-0 hidden md:flex flex-col justify-between h-screen min-h-screen border-r border-white/60 bg-white/40 backdrop-blur-xl overflow-y-auto z-30 transition-all duration-300 select-none py-4"
+  class="shrink-0 hidden md:flex flex-col justify-between h-screen min-h-screen border-r border-white/60 bg-white/40 backdrop-blur-xl overflow-hidden z-30 transition-all duration-300 select-none py-4"
 >
-  <div class="space-y-6">
+  <!-- 1. PARTE SUPERIOR FIJA: LOGO NALUN POS SUPERADMIN + TÍTULO DE MÓDULOS -->
+  <div class="shrink-0 space-y-4">
     <!-- Identidad de Marca completa en la parte superior -->
-    <div class="flex items-center justify-between pb-5 border-b border-[#DEDAF4]/70">
-      <div class="flex items-center space-x-3 group cursor-pointer" [class.mx-auto]="isCollapsed()">
+    <div class="flex items-center justify-between pb-4 border-b border-[#DEDAF4]/70">
+      <div
+        class="flex items-center space-x-3 group cursor-pointer"
+        [class.mx-auto]="isCollapsed()"
+        [matTooltip]="isCollapsed() ? 'NALUN POS — SUPERADMIN' : ''"
+        matTooltipPosition="right"
+      >
         <!-- Icono en cápsula -->
         <div class="relative w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#ACA0E7] via-[#92AAE7] to-[#DBE6FB] p-[1.5px] shadow-glass-glow flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
           <div class="w-full h-full bg-[#FAF8FF]/70 backdrop-blur-md rounded-[14px] flex items-center justify-center">
@@ -36,8 +42,10 @@
       </span>
       <button
         (click)="toggleCollapse()"
-        class="text-[#ACA0E7] hover:text-[#605596] cursor-pointer text-xs transition p-1 rounded-lg"
-        title="Contraer / Expandir menú"
+        [matTooltip]="isCollapsed() ? 'Expandir menú' : 'Contraer menú'"
+        matTooltipPosition="right"
+        class="text-[#ACA0E7] hover:text-[#605596] cursor-pointer text-xs transition p-1 rounded-lg focus:outline-none"
+        aria-label="Contraer / Expandir menú"
       >
         <svg
           class="w-4 h-4 transform transition-transform duration-300"
@@ -50,25 +58,30 @@
         </svg>
       </button>
     </div>
+  </div>
 
-    <!-- Enlaces de navegación vertical -->
-    <nav class="space-y-1.5">
+  <!-- 2. ZONA CENTRAL DESPLAZABLE (SCROLL HABILITADO TANTO EXPANDIDO COMO COMPRIMIDO) -->
+  <div class="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar my-3 py-1" [class.pr-2]="!isCollapsed()" [class.pr-1.5]="isCollapsed()">
+    <nav class="space-y-2 overflow-x-hidden">
       <a
         #rla="routerLinkActive"
         *ngFor="let item of navItems"
         [routerLink]="item.route"
         routerLinkActive="bg-white/80 border-[#ACA0E7]/60 shadow-glass-active text-[#161B2D]"
         [routerLinkActiveOptions]="{ exact: false }"
+        [matTooltip]="item.label"
+        [matTooltipDisabled]="!isCollapsed()"
+        matTooltipPosition="right"
         [class.w-full]="!isCollapsed()"
         [class.px-2.5]="!isCollapsed()"
         [class.py-2]="!isCollapsed()"
         [class.justify-between]="!isCollapsed()"
-        [class.w-12]="isCollapsed()"
-        [class.h-12]="isCollapsed()"
-        [class.p-1.5]="isCollapsed()"
+        [class.w-11]="isCollapsed()"
+        [class.h-11]="isCollapsed()"
+        [class.p-1]="isCollapsed()"
         [class.justify-center]="isCollapsed()"
         [class.mx-auto]="isCollapsed()"
-        class="flex items-center rounded-lg text-[#605596] hover:text-[#161B2D] hover:bg-white/70 border border-transparent hover:border-white/80 transition-all duration-300 group"
+        class="flex items-center rounded-lg text-[#605596] hover:text-[#161B2D] hover:bg-white/70 border border-transparent hover:border-white/80 transition-all duration-300 group cursor-pointer"
       >
         <div class="flex items-center justify-center shrink-0" [class.gap-3]="!isCollapsed()">
           <!-- Icon Capsule con degradado activo cuando la ruta está seleccionada -->
@@ -127,8 +140,8 @@
     </nav>
   </div>
 
-  <!-- Al pie del sidebar: tarjeta de estado 'NalunPOS Core v1.0.0-Enterprise' -->
-  <div *ngIf="!isCollapsed()" class="mt-6 p-4 rounded-2xl glass-card border border-white relative overflow-hidden">
+  <!-- 3. PARTE INFERIOR FIJA: TARJETA DE ESTADO NALUNPOS CORE -->
+  <div *ngIf="!isCollapsed()" class="shrink-0 p-4 rounded-2xl glass-card border border-white relative overflow-hidden">
     <div class="absolute -right-6 -bottom-6 w-20 h-20 rounded-full bg-[#ACA0E7]/20 blur-xl pointer-events-none"></div>
     <div class="flex items-center space-x-3">
       <div class="w-3.5 h-3.5 rounded-full bg-[#92AAE7] ring-4 ring-[#DBE6FB] flex-shrink-0 animate-pulse"></div>
@@ -144,7 +157,7 @@
   </div>
 </aside>
 
-<!-- DRAWER RESPONSIVO MÓVIL -->
+<!-- DRAWER RESPONSIVO MÓVIL (SÓLO CELULARES - APARECE ENCIMA CON FONDO OSCURECIDO Y BOTÓN X) -->
 <div *ngIf="isMobileMenuOpen()" class="md:hidden fixed inset-0 z-50 flex">
   <!-- Backdrop Oscurecido Suave -->
   <div
@@ -152,11 +165,11 @@
     class="fixed inset-0 bg-[#161B2D]/20 transition-opacity duration-300 animate-in fade-in"
   ></div>
 
-  <!-- Panel Lateral Flotante -->
-  <div class="relative w-72 max-w-[80vw] h-full bg-[#FAF8FF]/95 backdrop-blur-2xl border-r border-white/80 shadow-2xl py-4 px-5 flex flex-col justify-between z-10 overflow-y-auto animate-in slide-in-from-left duration-300 select-none">
-    <div class="space-y-6">
-      <!-- Identidad de Marca completa + Botón de Cerrar (X) -->
-      <div class="flex items-center justify-between pb-5 border-b border-[#DEDAF4]/70">
+  <!-- Panel Lateral Flotante Móvil -->
+  <div class="relative w-72 max-w-[80vw] h-full bg-[#FAF8FF]/95 backdrop-blur-2xl border-r border-white/80 shadow-2xl py-4 px-5 flex flex-col justify-between z-10 overflow-hidden animate-in slide-in-from-left duration-300 select-none">
+    <!-- Header Fijo Móvil -->
+    <div class="shrink-0 space-y-4">
+      <div class="flex items-center justify-between pb-4 border-b border-[#DEDAF4]/70">
         <div class="flex items-center space-x-3 group cursor-pointer">
           <div class="relative w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#ACA0E7] via-[#92AAE7] to-[#DBE6FB] p-[1.5px] shadow-glass-glow flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
             <div class="w-full h-full bg-[#FAF8FF]/70 backdrop-blur-md rounded-[14px] flex items-center justify-center">
@@ -194,8 +207,10 @@
           Módulos Centrales
         </span>
       </div>
+    </div>
 
-      <!-- Enlaces de navegación vertical -->
+    <!-- Navegación Desplazable Móvil -->
+    <div class="flex-1 overflow-y-auto custom-scrollbar my-3 py-1 pr-0.5">
       <nav class="space-y-1.5">
         <a
           #rlaMob="routerLinkActive"
@@ -261,8 +276,8 @@
       </nav>
     </div>
 
-    <!-- Al pie del drawer -->
-    <div class="mt-6 p-4 rounded-2xl glass-card border border-white relative overflow-hidden">
+    <!-- Footer Fijo Móvil -->
+    <div class="shrink-0 p-4 rounded-2xl glass-card border border-white relative overflow-hidden">
       <div class="absolute -right-6 -bottom-6 w-20 h-20 rounded-full bg-[#ACA0E7]/20 blur-xl pointer-events-none"></div>
       <div class="flex items-center space-x-3">
         <div class="w-3.5 h-3.5 rounded-full bg-[#92AAE7] ring-4 ring-[#DBE6FB] flex-shrink-0 animate-pulse"></div>

@@ -175,18 +175,20 @@
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(172, 160, 231, 0.35);
+  background: rgba(172, 160, 231, 0.45);
   border-radius: 9999px;
+  border: 1px solid transparent;
+  background-clip: padding-box;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(172, 160, 231, 0.6);
+  background: rgba(172, 160, 231, 0.7);
 }
 
 /* =============================================================================
@@ -301,11 +303,12 @@
 
 .mat-mdc-header-cell {
   color: #605596 !important;
-  font-weight: 700 !important;
+  font-weight: 600 !important;
   font-size: 0.6875rem !important;
   text-transform: uppercase !important;
   letter-spacing: 0.05em !important;
   border-bottom: 1px solid #DEDAF4 !important;
+  font-family: 'JetBrains Mono', monospace !important;
 }
 
 .mat-mdc-row {
@@ -320,7 +323,8 @@
 .mat-mdc-cell {
   color: #161B2D !important;
   border-bottom: 1px solid rgba(222, 218, 244, 0.6) !important;
-  font-size: 0.875rem !important;
+  font-size: 0.75rem !important;
+  font-family: 'JetBrains Mono', monospace !important;
 }
 
 .dark-dialog-panel .mat-mdc-dialog-container .mdc-dialog__surface {

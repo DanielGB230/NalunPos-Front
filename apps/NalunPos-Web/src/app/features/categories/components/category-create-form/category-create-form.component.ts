@@ -16,6 +16,7 @@ import {
 } from '@angular/forms/signals';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { AppError } from '@nalunpos/shared/data-access';
+import { NotificationService } from '@nalunpos/shared/ui';
 import { CreateCategoryRequest } from '../../models/category.model';
 import { CategoryApiService } from '../../services/category-api.service';
 
@@ -34,6 +35,7 @@ interface CategoryFormModel {
 export class CategoryCreateFormComponent {
   protected readonly formFieldDirective = FormField;
   private readonly categoryApiService = inject(CategoryApiService);
+  private readonly notificationService = inject(NotificationService);
   private readonly dialogRef = inject(MatDialogRef<CategoryCreateFormComponent>);
 
   // Signal Form - Angular 22
@@ -61,28 +63,40 @@ export class CategoryCreateFormComponent {
   }
 
   protected async onSubmit(): Promise<void> {
-    await submit(this.categoryForm, async () => {
-      const currentModel = this.formModel();
-      const request: CreateCategoryRequest = {
-        name: currentModel.name,
-        description: currentModel.description || null,
-      };
+    await submit(this.categoryForm, {
+      action: async () => {
+        const currentModel = this.formModel();
+        const request: CreateCategoryRequest = {
+          name: currentModel.name,
+          description: currentModel.description || null,
+        };
 
-      this.isLoading.set(true);
-      this.errorMessage.set(null);
+        this.isLoading.set(true);
+        this.errorMessage.set(null);
 
-      this.categoryApiService.createCategory(request).subscribe({
-        next: () => {
-          this.isLoading.set(false);
-          this.close(true);
-        },
-        error: (error: AppError) => {
-          this.isLoading.set(false);
-          this.errorMessage.set(
-            error.message || 'Error al crear la categoría. Verifique los datos e intente nuevamente.'
-          );
-        },
-      });
+        this.categoryApiService.createCategory(request).subscribe({
+          next: () => {
+            this.isLoading.set(false);
+            this.notificationService.success(
+              `La categoría "${request.name}" fue creada exitosamente.`,
+              'Categoría Creada'
+            );
+            this.close(true);
+          },
+          error: (error: AppError) => {
+            this.isLoading.set(false);
+            const msg =
+              error?.message ||
+              'Error al crear la categoría. Verifique los datos e intente nuevamente.';
+            this.errorMessage.set(msg);
+            this.notificationService.error(msg, 'Error de Creación');
+          },
+        });
+      },
+      onInvalid: () => {
+        const msg = 'Por favor, ingrese un nombre de categoría válido.';
+        this.notificationService.warning(msg, 'Datos Incompletos');
+      },
     });
   }
 }

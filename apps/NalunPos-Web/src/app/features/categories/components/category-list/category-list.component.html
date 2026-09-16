@@ -1,130 +1,177 @@
-<div class="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto select-none">
-  
-  <!-- Header Bar Contextual de la Feature -->
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 glass-card p-6 rounded-3xl border border-white/80 shadow-glass">
-    <div class="space-y-1">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#ACA0E7]/20 to-[#92AAE7]/20 border border-[#ACA0E7]/40 flex items-center justify-center text-[#605596] shadow-xs">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-          </svg>
-        </div>
-        <div>
-          <h1 class="text-xl font-bold font-display tracking-wide text-[#161B2D]">Categorías de Productos</h1>
-          <p class="text-xs font-medium text-[#605596]">Gestión de catálogo y organización de inventario del negocio</p>
-        </div>
-      </div>
-    </div>
+<!-- CategoryListComponent — NalunPos-Web -->
+<!-- Smart Component: orquesta datos y pasa config a Dumb Components de @nalunpos/shared/ui -->
+<div class="relative flex-1 flex overflow-hidden h-full w-full select-none">
 
-    <!-- Acciones Principales -->
-    <div class="flex items-center gap-3">
-      <button 
-        type="button" 
-        (click)="openCreateModal()" 
-        class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#ACA0E7] to-[#92AAE7] text-white font-sans font-bold text-xs shadow-glass-glow hover:opacity-95 transition-all cursor-pointer flex items-center gap-2">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+  <main class="flex-1 overflow-y-auto overscroll-contain px-5 lg:px-7 py-6 space-y-6 custom-scrollbar">
+
+    <!-- Hero: lib-page-hero-card (@nalunpos/shared/ui) -->
+    <lib-page-hero-card
+      [config]="heroConfig"
+      (primaryActionClick)="openCreateModal()"
+      (secondaryActionClick)="$event"
+    />
+
+    <!-- Métricas: lib-metrics-bento-grid (@nalunpos/shared/ui) -->
+    <lib-metrics-bento-grid [metrics]="metricsCards()" />
+
+    <!-- Filtros rápidos: lib-quick-filter-bar (@nalunpos/shared/ui) -->
+    <lib-quick-filter-bar
+      [tabs]="filterTabs()"
+      [activeFilter]="selectedStatusFilter()"
+      [searchValue]="searchTerm()"
+      searchPlaceholder="Buscar por nombre o descripción..."
+      [showAdvancedFilters]="showAdvancedFilters()"
+      [activeFilterCount]="2"
+      (filterChange)="setStatusFilter($event)"
+      (searchChange)="onSearchChange($event)"
+      (advancedToggle)="toggleAdvancedFilters()"
+    />
+
+    <!-- Alerta de Error -->
+    @if (errorMessage()) {
+      <div class="flex items-center space-x-3 rounded-2xl border border-rose-300 bg-rose-50/90 p-4 text-rose-800 text-xs font-semibold shadow-xs">
+        <svg class="h-5 w-5 text-rose-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
         </svg>
-        <span>Nueva Categoría</span>
-      </button>
-    </div>
-  </div>
-
-  <!-- Buscador & Barra de Herramientas -->
-  <div class="glass-surface border border-[#DEDAF4] p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xs">
-    <div class="relative w-full sm:w-80">
-      <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#ACA0E7]">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
+        <span>{{ errorMessage() }}</span>
       </div>
-      <input 
-        type="text" 
-        [value]="searchTerm()" 
-        (input)="onSearchInput($event)" 
-        placeholder="Buscar categoría..." 
-        class="w-full pl-10 pr-4 py-2 rounded-xl bg-white/80 border border-[#DEDAF4] text-[#161B2D] placeholder-[#605596]/60 text-xs focus:outline-none focus:border-[#ACA0E7] focus:ring-2 focus:ring-[#ACA0E7]/30 transition-all font-sans shadow-inner"
-      />
-    </div>
+    }
 
-    <div class="text-xs font-mono text-[#605596] flex items-center gap-2">
-      <span>Total registradas:</span>
-      <span class="px-2.5 py-0.5 rounded-full bg-[#DEDAF4] border border-[#ACA0E7]/40 text-[#161B2D] font-bold">{{ totalCount() }}</span>
-    </div>
-  </div>
+    <!-- Loading -->
+    @if (isLoading()) {
+      <div class="flex flex-col items-center justify-center py-12 space-y-3">
+        <div class="w-10 h-10 rounded-full border-4 border-[#ACA0E7] border-t-transparent animate-spin"></div>
+        <p class="text-xs font-semibold text-[#605596]">Cargando catálogo de categorías...</p>
+      </div>
+    } @else {
+      <div class="rounded-3xl glass-card border border-white overflow-hidden shadow-glass">
+        <div class="overflow-x-auto custom-scrollbar">
+          <table mat-table [dataSource]="categories()" class="w-full min-w-[750px] text-left border-collapse">
 
-  <!-- Alerta de Error -->
-  @if (errorMessage()) {
-    <div class="p-4 rounded-2xl bg-rose-500/10 border border-rose-300 text-rose-700 text-xs flex items-center gap-3">
-      <svg class="w-5 h-5 shrink-0 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-      <span>{{ errorMessage() }}</span>
-    </div>
-  }
-
-  <!-- Indicador de Carga -->
-  @if (isLoading()) {
-    <div class="p-12 flex flex-col items-center justify-center gap-3 glass-card rounded-3xl border border-white">
-      <div class="animate-spin rounded-full h-8 w-8 border-2 border-[#ACA0E7] border-t-transparent"></div>
-      <span class="text-xs font-mono text-[#605596]">Cargando catálogo de categorías...</span>
-    </div>
-  } @else {
-    <!-- Tabla Glassmorphism de Categorías -->
-    <div class="glass-card border border-white/80 rounded-3xl overflow-hidden shadow-glass">
-      <table class="w-full text-left text-xs font-sans text-[#161B2D]">
-        <thead class="bg-white/60 border-b border-[#DEDAF4] text-[11px] font-mono uppercase tracking-wider text-[#605596]">
-          <tr>
-            <th class="px-6 py-4">Nombre</th>
-            <th class="px-6 py-4">Descripción</th>
-            <th class="px-6 py-4">Estado</th>
-            <th class="px-6 py-4">Fecha Creación</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-[#DEDAF4]/60">
-          @for (cat of categories(); track cat.id) {
-            <tr class="glass-row">
-              <td class="px-6 py-4 font-bold text-[#161B2D] flex items-center gap-2.5">
-                <span class="p-1.5 rounded-lg bg-[#DEDAF4]/60 text-[#605596]">
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                  </svg>
-                </span>
-                <span>{{ cat.name }}</span>
+            <!-- Nombre Column -->
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef class="border-b border-[#DEDAF4] bg-white/50 py-4 px-6 text-[11px] font-semibold uppercase tracking-wider text-[#605596] font-mono">
+                Categoría / Familia
+              </th>
+              <td mat-cell *matCellDef="let cat" class="py-4 px-6 border-b border-[#DEDAF4]/60">
+                <div class="flex items-center space-x-3.5">
+                  <div class="w-9 h-9 rounded-2xl bg-linear-to-tr from-[#687FE5] to-[#C5D2F8] text-white font-mono font-bold flex items-center justify-center shadow-xs text-xs border border-white shrink-0">
+                    {{ cat.name.substring(0, 2).toUpperCase() }}
+                  </div>
+                  <div>
+                    <div class="font-bold text-[#161B2D] font-mono text-xs">{{ cat.name }}</div>
+                    <div class="font-mono text-xs text-[#605596]/70 font-normal">ID: <span class="text-[#161B2D] font-normal">{{ cat.id.substring(0, 8) }}...</span></div>
+                  </div>
+                </div>
               </td>
-              <td class="px-6 py-4 text-[#605596]">
-                {{ cat.description || 'Sin descripción' }}
+            </ng-container>
+
+            <!-- Descripción Column -->
+            <ng-container matColumnDef="description">
+              <th mat-header-cell *matHeaderCellDef class="border-b border-[#DEDAF4] bg-white/50 py-4 px-6 text-[11px] font-semibold uppercase tracking-wider text-[#605596] font-mono">
+                Descripción
+              </th>
+              <td mat-cell *matCellDef="let cat" class="py-4 px-6 border-b border-[#DEDAF4]/60 text-xs text-[#605596] font-mono font-normal">
+                {{ cat.description || 'Sin descripción asignada' }}
               </td>
-              <td class="px-6 py-4">
+            </ng-container>
+
+            <!-- Estado Column -->
+            <ng-container matColumnDef="isActive">
+              <th mat-header-cell *matHeaderCellDef class="border-b border-[#DEDAF4] bg-white/50 py-4 px-6 text-[11px] font-semibold uppercase tracking-wider text-[#605596] text-center font-mono whitespace-nowrap">
+                Estado Comercial
+              </th>
+              <td mat-cell *matCellDef="let cat" class="py-4 px-6 border-b border-[#DEDAF4]/60 text-center whitespace-nowrap">
                 @if (cat.isActive) {
-                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 font-mono text-[10px] font-bold">
-                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                    Activa
+                  <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-mono font-semibold bg-[#EEF5FE] text-[#2A5BC7] border border-[#92AAE7] shadow-xs whitespace-nowrap">
+                    <span class="relative flex h-2 w-2 mr-2 shrink-0">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#92AAE7] opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-2 w-2 bg-[#2A5BC7]"></span>
+                    </span>
+                    Activa / Visible
                   </span>
                 } @else {
-                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-600 font-mono text-[10px]">
+                  <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-mono font-semibold bg-[#FDF2F7] text-[#9B2C67] border border-[#E8A0BF] shadow-xs whitespace-nowrap">
+                    <span class="w-2 h-2 rounded-full bg-[#E8A0BF] mr-2 shrink-0"></span>
                     Inactiva
                   </span>
                 }
               </td>
-              <td class="px-6 py-4 font-mono text-[#605596]">
-                {{ cat.createdAtUtc | date:'short' }}
+            </ng-container>
+
+            <!-- Fecha Column -->
+            <ng-container matColumnDef="createdAtUtc">
+              <th mat-header-cell *matHeaderCellDef class="border-b border-[#DEDAF4] bg-white/50 py-4 px-6 text-[11px] font-semibold uppercase tracking-wider text-[#605596] font-mono">
+                Fecha Registro
+              </th>
+              <td mat-cell *matCellDef="let cat" class="py-4 px-6 border-b border-[#DEDAF4]/60 text-xs text-[#605596] font-mono font-normal">
+                {{ cat.createdAtUtc | date:'dd/MM/yyyy HH:mm' }}
               </td>
-            </tr>
-          } @empty {
-            <tr>
-              <td colspan="4" class="px-6 py-12 text-center text-[#605596] font-mono">
-                <div class="flex flex-col items-center justify-center gap-2">
-                  <svg class="w-8 h-8 text-[#ACA0E7]/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                  </svg>
-                  <span>No hay categorías registradas en este negocio.</span>
+            </ng-container>
+
+            <!-- Actions Column -->
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef class="border-b border-[#DEDAF4] bg-white/50 py-4 px-6 text-[11px] font-semibold uppercase tracking-wider text-[#605596] text-right font-mono">
+                Acciones
+              </th>
+              <td mat-cell *matCellDef="let cat" class="py-4 px-6 border-b border-[#DEDAF4]/60 text-right">
+                <div class="inline-flex items-center space-x-1">
+                  <button type="button" class="p-2 rounded-xl text-[#283FA7] hover:text-[#161B2D] hover:bg-[#EEF3FE] transition cursor-pointer" title="Ver Productos de la Categoría">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  </button>
                 </div>
               </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-  }
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="glass-row group"></tr>
+          </table>
+        </div>
+
+        <!-- Empty state -->
+        @if (categories().length === 0) {
+          <div class="py-12 text-center text-[#605596]">
+            <svg class="mx-auto h-12 w-12 text-[#ACA0E7] mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+            </svg>
+            <p class="text-sm font-bold text-[#161B2D]">No se encontraron categorías registradas</p>
+            <p class="text-xs text-[#605596] mt-1 font-medium">Intenta con otro término de búsqueda o crea una nueva categoría.</p>
+          </div>
+        }
+
+        <!-- Paginador -->
+        <div class="px-6 py-4 border-t border-[#DEDAF4] bg-white/40 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#605596] font-medium">
+          <div class="flex items-center space-x-2">
+            <span>Mostrando <b class="text-[#161B2D] font-mono">{{ categories().length }}</b> de <b class="text-[#161B2D] font-mono">{{ totalCount() }}</b> categorías</span>
+            <span class="text-[#DEDAF4]">|</span>
+            <button (click)="loadCategories()" type="button" class="text-[#605596] hover:text-[#161B2D] font-semibold cursor-pointer hover:underline font-mono">Sincronizar catálogo</button>
+          </div>
+          <mat-paginator
+            [length]="totalCount()"
+            [pageSize]="pageSize()"
+            [pageIndex]="pageIndex()"
+            [pageSizeOptions]="[5, 10, 25, 50]"
+            (page)="onPageChange($event)"
+            class="bg-transparent text-[#161B2D]"
+          ></mat-paginator>
+        </div>
+      </div>
+    }
+
+  </main>
+
+  <!-- Drawer de filtros: lib-advanced-filter-drawer (@nalunpos/shared/ui) -->
+  <lib-advanced-filter-drawer
+    [isOpen]="showAdvancedFilters()"
+    [config]="drawerConfig"
+    [resultCount]="totalCount()"
+    resultLabel="Categorías"
+    (close)="toggleAdvancedFilters()"
+    (apply)="loadCategories()"
+    (clear)="searchTerm.set('')"
+  />
+
 </div>

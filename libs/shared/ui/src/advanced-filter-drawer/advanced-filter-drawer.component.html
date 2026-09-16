@@ -1,0 +1,141 @@
+<!-- AdvancedFilterDrawerComponent — @nalunpos/shared/ui -->
+<!-- Template: 100% Tailwind CSS — sin SCSS, sin styleUrls -->
+@if (isOpen) {
+
+  <!-- Backdrop: oscurece el área de trabajo al abrir el drawer -->
+  <div
+    class="absolute inset-0 bg-[#161B2D]/20 z-20 transition-opacity cursor-pointer"
+    title="Haz clic para cerrar los filtros"
+    (click)="close.emit()"
+  ></div>
+
+  <!-- Drawer flotante lateral derecho -->
+  <aside class="absolute right-0 top-0 bottom-0 z-30 w-84 sm:w-96 flex flex-col border-l border-white/90 glass-drawer shadow-2xl transition-all duration-300 overflow-hidden">
+
+    <!-- ── Encabezado Fijo ── -->
+    <div class="flex items-center justify-between p-5 pb-4 border-b border-[#DEDAF4] shrink-0 bg-white/40 backdrop-blur-md">
+      <div class="flex items-center space-x-2.5">
+        <!-- Ícono del filtro -->
+        <div class="w-8 h-8 rounded-xl bg-linear-to-tr from-[#687FE5] to-[#C5D2F8] text-[#283FA7] flex items-center justify-center shadow-xs">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+            />
+          </svg>
+        </div>
+        <div>
+          <h3 class="font-display font-bold text-sm text-[#161B2D]">{{ config.title }}</h3>
+          <span class="text-[11px] text-[#605596] font-mono">{{ resultCount }} {{ resultLabel }} encontrados</span>
+        </div>
+      </div>
+
+      <!-- Acciones del header -->
+      <div class="flex items-center space-x-2">
+        <button
+          type="button"
+          class="text-xs text-[#605596] hover:text-[#161B2D] font-semibold hover:underline cursor-pointer"
+          (click)="clear.emit()"
+        >
+          Limpiar todo
+        </button>
+        <button
+          type="button"
+          class="p-1 rounded-lg text-[#605596] hover:text-[#161B2D] hover:bg-white/80 transition cursor-pointer"
+          title="Cerrar panel de filtros"
+          (click)="close.emit()"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Cuerpo Desplazable ── -->
+    <div class="flex-1 overflow-y-auto p-5 space-y-6 custom-scrollbar overscroll-contain">
+
+      @for (section of config.sections; track section.label) {
+
+        <!-- Sección: Checkboxes -->
+        @if (section.type === 'checkboxes') {
+          <div class="space-y-2.5">
+            <label class="text-[11px] font-bold uppercase tracking-wider text-[#605596] flex items-center justify-between">
+              <span>{{ section.label }}</span>
+              @if (section.note) {
+                <span class="text-[10px] font-mono text-[#605596]">{{ section.note }}</span>
+              }
+            </label>
+            <div class="grid grid-cols-2 gap-2">
+              @for (opt of section.options; track opt.value) {
+                <label [class]="getOptionContainerClass(opt.colorVariant)">
+                  <input
+                    type="checkbox"
+                    [checked]="opt.checked"
+                    [class]="getCheckboxClass(opt.colorVariant)"
+                  />
+                  <span [class]="getOptionLabelClass(opt.colorVariant)">{{ opt.label }}</span>
+                </label>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Sección: Select dropdown -->
+        @if (section.type === 'select') {
+          <div class="space-y-2">
+            <label class="text-[11px] font-bold uppercase tracking-wider text-[#605596]">
+              {{ section.label }}
+            </label>
+            <select class="w-full text-xs font-mono py-2 pl-3 pr-8 rounded-xl bg-white/80 border border-[#DEDAF4] focus:outline-none focus:ring-2 focus:ring-[#ACA0E7]/40 text-[#161B2D]">
+              @for (opt of section.selectOptions; track opt.value) {
+                <option [value]="opt.value" [selected]="opt.selected">{{ opt.label }}</option>
+              }
+            </select>
+          </div>
+        }
+
+        <!-- Sección: Range slider -->
+        @if (section.type === 'range' && section.rangeConfig) {
+          <div class="space-y-2">
+            <div class="flex items-center justify-between text-xs">
+              <label class="text-[11px] font-bold uppercase tracking-wider text-[#605596]">
+                {{ section.label }}
+              </label>
+              <span class="font-mono text-[#161B2D] font-bold">
+                &gt; {{ section.rangeConfig.defaultValue ?? section.rangeConfig.min }} {{ section.rangeConfig.unit }}
+              </span>
+            </div>
+            <input
+              type="range"
+              [min]="section.rangeConfig.min"
+              [max]="section.rangeConfig.max"
+              [step]="section.rangeConfig.step ?? 1"
+              [value]="section.rangeConfig.defaultValue ?? section.rangeConfig.min"
+              class="w-full mrr-slider"
+            />
+            @if (section.rangeConfig.ticks?.length) {
+              <div class="flex justify-between text-[10px] text-[#605596] font-mono">
+                @for (tick of section.rangeConfig.ticks; track tick) {
+                  <span>{{ tick }} {{ section.rangeConfig.unit }}</span>
+                }
+              </div>
+            }
+          </div>
+        }
+
+      }
+    </div>
+
+    <!-- ── Pie de Página Fijo ── -->
+    <div class="p-5 border-t border-[#DEDAF4] shrink-0 bg-white/40 backdrop-blur-md">
+      <button
+        type="button"
+        class="w-full py-2.5 rounded-xl bg-linear-to-r from-[#ACA0E7] to-[#92AAE7] text-white font-bold text-xs shadow-glass-glow hover:shadow-lg transition-all cursor-pointer"
+        (click)="apply.emit()"
+      >
+        Aplicar Filtros
+      </button>
+    </div>
+
+  </aside>
+}

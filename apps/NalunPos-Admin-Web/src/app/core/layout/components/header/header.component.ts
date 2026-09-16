@@ -1,11 +1,14 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { filter, map, startWith } from 'rxjs';
 import { AuthService } from '@nalunpos/shared/auth';
 import { LayoutService } from '../../services/layout.service';
 
@@ -24,6 +27,27 @@ export class HeaderComponent {
   protected readonly currentUser = this.authService.currentUser;
   protected readonly systemStatus = signal<'online' | 'maintenance'>('online');
   protected readonly showUserMenu = signal(false);
+
+  // URL de la ruta activa convertida a Signal
+  private readonly currentUrl = toSignal(
+    this.router.events.pipe(
+      filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+      map((e) => e.urlAfterRedirects),
+      startWith(this.router.url)
+    ),
+    { initialValue: this.router.url }
+  );
+
+  // Nombre reactivo del módulo activo
+  protected readonly activeModuleName = computed(() => {
+    const url = this.currentUrl() ?? '';
+    if (url.includes('/tenants')) return 'Tenants & Empresas';
+    if (url.includes('/planes')) return 'Planes & Suscripciones';
+    if (url.includes('/plataforma')) return 'Config. Plataforma';
+    if (url.includes('/usuarios-admin')) return 'Usuarios Admin';
+    if (url.includes('/dashboard')) return 'Dashboard';
+    return 'SuperAdmin';
+  });
 
   protected toggleUserMenu(): void {
     this.showUserMenu.update((prev) => !prev);

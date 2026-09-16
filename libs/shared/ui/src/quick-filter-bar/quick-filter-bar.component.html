@@ -1,0 +1,65 @@
+<!-- QuickFilterBarComponent — @nalunpos/shared/ui -->
+<!-- Template: 100% Tailwind CSS — sin SCSS, sin styleUrls -->
+<div class="glass-surface p-4 rounded-2xl border border-white/90 shadow-xs flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+
+  <!-- Tabs de filtro rápido -->
+  <div class="flex items-center space-x-2 overflow-x-auto pb-1 xl:pb-0">
+    @for (tab of tabs; track tab.key) {
+      <button
+        type="button"
+        [class]="getTabClass(tab, activeFilter === tab.key)"
+        (click)="filterChange.emit(tab.key)"
+      >
+        @if (tab.hasPing) {
+          <span class="w-1.5 h-1.5 rounded-full bg-[#E8A0BF] mr-1.5 animate-ping"></span>
+        }
+        {{ tab.label }}
+      </button>
+    }
+  </div>
+
+  <!-- Buscador + Botón filtros avanzados -->
+  <div class="flex items-center flex-wrap sm:flex-nowrap gap-3">
+
+    <!-- Input de búsqueda -->
+    <div class="relative flex-1 sm:w-64">
+      <input
+        type="text"
+        [value]="searchValue"
+        [placeholder]="searchPlaceholder"
+        (input)="onSearchInput($event)"
+        class="w-full pl-9 pr-3 py-1.5 text-xs bg-white/80 border border-[#DEDAF4] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#ACA0E7]/40 placeholder-[#605596]/60 font-medium"
+      />
+      <svg class="w-4 h-4 text-[#ACA0E7] absolute left-2.5 top-2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+      </svg>
+    </div>
+
+    <!-- Botón Filtros Avanzados -->
+    <button
+      type="button"
+      (click)="advancedToggle.emit()"
+      [class]="showAdvancedFilters
+        ? 'inline-flex items-center px-3.5 py-1.5 rounded-xl bg-linear-to-r from-[#ACA0E7] to-[#92AAE7] text-white text-xs font-bold shadow-glass-glow transition-all group cursor-pointer ring-2 ring-white/60'
+        : 'inline-flex items-center px-3.5 py-1.5 rounded-xl bg-linear-to-r from-[#DEDAF4] to-[#DBE6FB] border border-[#92AAE7]/60 text-[#605596] text-xs font-bold shadow-xs hover:border-[#ACA0E7] transition-all group cursor-pointer'"
+    >
+      <svg
+        class="w-4 h-4 mr-1.5 group-hover:rotate-45 transition-transform"
+        [class]="showAdvancedFilters ? 'text-white' : 'text-[#605596]'"
+        fill="none" stroke="currentColor" viewBox="0 0 24 24"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+        />
+      </svg>
+      <span>Filtros Avanzados</span>
+      @if (activeFilterCount > 0) {
+        <span
+          class="ml-2 w-5 h-5 rounded-full text-[10px] flex items-center justify-center font-mono font-bold"
+          [class]="showAdvancedFilters ? 'bg-white text-[#605596]' : 'bg-[#605596] text-white'"
+        >{{ activeFilterCount }}</span>
+      }
+    </button>
+
+  </div>
+</div>

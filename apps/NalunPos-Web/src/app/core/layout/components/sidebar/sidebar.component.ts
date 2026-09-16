@@ -6,6 +6,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { AuthService } from '@nalunpos/shared/auth';
 import { LayoutService } from '../../services/layout.service';
 
@@ -20,7 +21,7 @@ interface NavItem {
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterLink, RouterLinkActive, MatTooltipModule],
   templateUrl: './sidebar.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -42,7 +43,6 @@ export class SidebarComponent {
       label: 'Ventas & POS',
       route: '/ventas',
       icon: 'ventas',
-      badge: 'POS',
     },
     {
       label: 'Productos',
