@@ -1,0 +1,164 @@
+<!-- StockTransferFormComponent — NalunPos-Web -->
+<!-- Modal de Traspaso entre Almacenes — Signal Forms — Glassmorphism -->
+
+<div class="bg-white rounded-3xl overflow-hidden shadow-2xl min-w-[540px]">
+
+  <!-- Header del Modal -->
+  <div class="bg-linear-to-r from-[#0D7377] to-[#14A085] px-6 py-5">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-white/20 border border-white/30 flex items-center justify-center text-lg">🔄</div>
+        <div>
+          <h2 class="text-sm font-bold text-white font-mono">Traspaso entre Almacenes</h2>
+          <p class="text-[11px] text-white/70">Mueve stock de un almacén a otro con trazabilidad completa</p>
+        </div>
+      </div>
+      <button
+        type="button"
+        (click)="close()"
+        class="p-2 rounded-xl text-white/70 hover:text-white hover:bg-white/20 transition cursor-pointer"
+        aria-label="Cerrar"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Cuerpo del Formulario -->
+  <div class="px-6 py-6 space-y-5 bg-[#FAFBFF]">
+
+    <!-- Error Alert -->
+    @if (errorMessage()) {
+      <div class="flex items-center gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-rose-700 text-xs font-semibold">
+        <svg class="h-4 w-4 text-rose-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        {{ errorMessage() }}
+      </div>
+    }
+
+    <!-- Almacén Origen → Destino -->
+    <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+      <!-- Origen -->
+      <div class="space-y-1.5">
+        <label for="transfer-source" class="text-[11px] font-bold font-mono uppercase tracking-wider text-[#605596]">
+          Origen <span class="text-[#0D7377]">*</span>
+        </label>
+        <select
+          id="transfer-source"
+          [formField]="sourceWarehouseField"
+          class="w-full rounded-xl border border-[#DEDAF4] bg-white px-3 py-2.5 text-xs font-mono font-semibold text-[#161B2D] focus:outline-none focus:ring-2 focus:ring-[#0D7377]/30 focus:border-[#0D7377] transition appearance-none"
+        >
+          @for (wh of dialogData.warehouses; track wh.id) {
+            <option [value]="wh.id">{{ wh.name }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Ícono de flecha -->
+      <div class="mt-5 flex items-center justify-center w-9 h-9 rounded-full bg-[#ECFDF9] border border-[#6EE7D8] text-[#0D7377]">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+        </svg>
+      </div>
+
+      <!-- Destino -->
+      <div class="space-y-1.5">
+        <label for="transfer-destination" class="text-[11px] font-bold font-mono uppercase tracking-wider text-[#605596]">
+          Destino <span class="text-[#0D7377]">*</span>
+        </label>
+        <select
+          id="transfer-destination"
+          [formField]="destinationWarehouseField"
+          class="w-full rounded-xl border border-[#DEDAF4] bg-white px-3 py-2.5 text-xs font-mono font-semibold text-[#161B2D] focus:outline-none focus:ring-2 focus:ring-[#0D7377]/30 focus:border-[#0D7377] transition appearance-none"
+        >
+          @for (wh of dialogData.warehouses; track wh.id) {
+            <option [value]="wh.id">{{ wh.name }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <!-- ID de Producto -->
+    <div class="space-y-1.5">
+      <label for="transfer-product" class="text-[11px] font-bold font-mono uppercase tracking-wider text-[#605596]">
+        ID de Producto <span class="text-[#0D7377]">*</span>
+      </label>
+      <input
+        id="transfer-product"
+        type="text"
+        [formField]="productIdField"
+        placeholder="UUID del producto (ej: 3fa85f64-...)"
+        class="w-full rounded-xl border border-[#DEDAF4] bg-white px-3 py-2.5 text-xs font-mono text-[#161B2D] placeholder:text-[#ACA0E7] focus:outline-none focus:ring-2 focus:ring-[#0D7377]/30 focus:border-[#0D7377] transition"
+      />
+      <p class="text-[10px] text-[#ACA0E7] font-mono">Ingresa el UUID del producto a traspasar.</p>
+    </div>
+
+    <!-- Cantidad -->
+    <div class="space-y-1.5">
+      <label for="transfer-quantity" class="text-[11px] font-bold font-mono uppercase tracking-wider text-[#605596]">
+        Cantidad a Traspasar <span class="text-[#0D7377]">*</span>
+      </label>
+      <div class="flex items-center gap-3">
+        <input
+          id="transfer-quantity"
+          type="number"
+          [formField]="quantityField"
+          placeholder="Cantidad (mínimo 1)"
+          class="flex-1 rounded-xl border border-[#DEDAF4] bg-white px-3 py-2.5 text-xs font-mono font-bold text-[#161B2D] placeholder:text-[#ACA0E7] focus:outline-none focus:ring-2 focus:ring-[#0D7377]/30 focus:border-[#0D7377] transition"
+        />
+        <div class="shrink-0 px-3 py-2.5 rounded-xl bg-[#ECFDF9] border border-[#6EE7D8] text-[#0D7377] text-xs font-mono font-bold">
+          unidades
+        </div>
+      </div>
+      <p class="text-[10px] text-[#ACA0E7] font-mono">Se descontará del almacén origen y se sumará al destino.</p>
+    </div>
+
+    <!-- Notas -->
+    <div class="space-y-1.5">
+      <label for="transfer-notes" class="text-[11px] font-bold font-mono uppercase tracking-wider text-[#605596]">
+        Notas / Observaciones
+      </label>
+      <textarea
+        id="transfer-notes"
+        [formField]="notesField"
+        rows="2"
+        placeholder="Motivo del traspaso (opcional)"
+        class="w-full rounded-xl border border-[#DEDAF4] bg-white px-3 py-2.5 text-xs font-mono text-[#161B2D] placeholder:text-[#ACA0E7] focus:outline-none focus:ring-2 focus:ring-[#0D7377]/30 focus:border-[#0D7377] transition resize-none"
+      ></textarea>
+    </div>
+
+  </div>
+
+  <!-- Footer del Modal -->
+  <div class="px-6 py-4 border-t border-[#DEDAF4] bg-white flex items-center justify-between gap-3">
+    <button
+      type="button"
+      (click)="close()"
+      [disabled]="isLoading()"
+      class="flex-1 py-2.5 rounded-xl text-xs font-bold text-[#605596] border border-[#DEDAF4] bg-white hover:bg-[#F0EDFB] hover:text-[#161B2D] transition cursor-pointer disabled:opacity-40"
+    >
+      Cancelar
+    </button>
+    <button
+      id="btn-confirmar-traspaso"
+      type="button"
+      (click)="onSubmit()"
+      [disabled]="isLoading()"
+      class="flex-1 py-2.5 rounded-xl text-xs font-bold text-white bg-linear-to-r from-[#0D7377] to-[#14A085] shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-pointer disabled:opacity-40 disabled:scale-100 flex items-center justify-center gap-2"
+    >
+      @if (isLoading()) {
+        <div class="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin"></div>
+        Procesando...
+      } @else {
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+        </svg>
+        Confirmar Traspaso
+      }
+    </button>
+  </div>
+
+</div>

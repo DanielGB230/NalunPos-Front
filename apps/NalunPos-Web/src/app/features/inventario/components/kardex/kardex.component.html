@@ -1,0 +1,162 @@
+<!-- KardexComponent — NalunPos-Web -->
+<!-- Historial de movimientos de inventario (Kardex) con filtros y paginación -->
+
+<!-- Cabecera del Kardex -->
+<div class="flex items-center justify-between mb-4">
+  <div>
+    <h2 class="text-sm font-bold text-[#161B2D] font-mono">📋 Kardex de Movimientos</h2>
+    <p class="text-[11px] text-[#605596]">Trazabilidad completa de entradas, salidas, ajustes y traspasos.</p>
+  </div>
+  <button
+    type="button"
+    (click)="loadMovements()"
+    class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-[#605596] border border-[#DEDAF4] bg-white hover:bg-[#F0EDFB] hover:text-[#161B2D] transition cursor-pointer"
+  >
+    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+    </svg>
+    Actualizar
+  </button>
+</div>
+
+<!-- Filtros rápidos -->
+<lib-quick-filter-bar
+  [tabs]="filterTabs()"
+  [activeFilter]="movTypeFilter()"
+  [searchValue]="searchTerm()"
+  searchPlaceholder="Buscar por referencia o notas..."
+  [showAdvancedFilters]="false"
+  [activeFilterCount]="0"
+  (filterChange)="onFilterChange($event)"
+  (searchChange)="onSearchChange($event)"
+/>
+
+<!-- Error -->
+@if (errorMessage()) {
+  <div class="flex items-center space-x-3 rounded-2xl border border-rose-300 bg-rose-50/90 p-4 text-rose-800 text-xs font-semibold shadow-xs mt-4">
+    <svg class="h-5 w-5 text-rose-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+    </svg>
+    <span>{{ errorMessage() }}</span>
+  </div>
+}
+
+<!-- Loading -->
+@if (isLoading()) {
+  <div class="flex flex-col items-center justify-center py-16 space-y-3 mt-4">
+    <div class="w-10 h-10 rounded-full border-4 border-[#283FA7] border-t-transparent animate-spin"></div>
+    <p class="text-xs font-semibold text-[#605596]">Cargando Kardex de movimientos...</p>
+  </div>
+} @else {
+  <!-- Tabla del Kardex con Carga Diferida (@defer) -->
+  @defer (on viewport) {
+    <div class="rounded-3xl glass-card border border-white overflow-hidden shadow-glass mt-4">
+      <div class="overflow-x-auto custom-scrollbar">
+        <table mat-table [dataSource]="filteredMovements()" class="w-full min-w-[850px] text-left border-collapse">
+
+          <!-- Fecha Column -->
+          <ng-container matColumnDef="fecha">
+            <th mat-header-cell *matHeaderCellDef class="border-b border-[#DEDAF4] bg-white/50 py-4 px-5 text-[11px] font-semibold uppercase tracking-wider text-[#605596] font-mono whitespace-nowrap">
+              Fecha / Hora
+            </th>
+            <td mat-cell *matCellDef="let mov" class="py-3.5 px-5 border-b border-[#DEDAF4]/60">
+              <div class="font-mono text-xs font-semibold text-[#161B2D]">{{ mov.createdAtUtc | date:'dd/MM/yyyy' }}</div>
+              <div class="font-mono text-[10px] text-[#605596]">{{ mov.createdAtUtc | date:'HH:mm:ss' }}</div>
+            </td>
+          </ng-container>
+
+          <!-- Tipo Column -->
+          <ng-container matColumnDef="tipo">
+            <th mat-header-cell *matHeaderCellDef class="border-b border-[#DEDAF4] bg-white/50 py-4 px-5 text-[11px] font-semibold uppercase tracking-wider text-[#605596] font-mono">
+              Tipo Movimiento
+            </th>
+            <td mat-cell *matCellDef="let mov" class="py-3.5 px-5 border-b border-[#DEDAF4]/60">
+              <span
+                [class]="'inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold border shadow-xs whitespace-nowrap ' + getMovementStyle(mov.movementType).bg + ' ' + getMovementStyle(mov.movementType).color + ' ' + getMovementStyle(mov.movementType).border"
+              >
+                {{ getMovementLabel(mov.movementType) }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Producto Column -->
+          <ng-container matColumnDef="producto">
+            <th mat-header-cell *matHeaderCellDef class="border-b border-[#DEDAF4] bg-white/50 py-4 px-5 text-[11px] font-semibold uppercase tracking-wider text-[#605596] font-mono">
+              Producto
+            </th>
+            <td mat-cell *matCellDef="let mov" class="py-3.5 px-5 border-b border-[#DEDAF4]/60">
+              <span class="font-mono text-xs font-semibold text-[#161B2D]">{{ mov.productId.substring(0, 8) }}...</span>
+            </td>
+          </ng-container>
+
+          <!-- Cantidad Column -->
+          <ng-container matColumnDef="cantidad">
+            <th mat-header-cell *matHeaderCellDef class="border-b border-[#DEDAF4] bg-white/50 py-4 px-5 text-[11px] font-semibold uppercase tracking-wider text-[#605596] font-mono text-center">
+              Cantidad
+            </th>
+            <td mat-cell *matCellDef="let mov" class="py-3.5 px-5 border-b border-[#DEDAF4]/60 text-center">
+              <span [class]="'font-mono text-sm font-bold ' + getMovementStyle(mov.movementType).color">
+                {{ getQuantitySign(mov.movementType) }}{{ mov.quantity }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Referencia Column -->
+          <ng-container matColumnDef="referencia">
+            <th mat-header-cell *matHeaderCellDef class="border-b border-[#DEDAF4] bg-white/50 py-4 px-5 text-[11px] font-semibold uppercase tracking-wider text-[#605596] font-mono">
+              Referencia
+            </th>
+            <td mat-cell *matCellDef="let mov" class="py-3.5 px-5 border-b border-[#DEDAF4]/60">
+              @if (mov.referenceId) {
+                <span class="font-mono text-[11px] text-[#605596] border border-[#DEDAF4] bg-white px-2 py-0.5 rounded-lg">{{ mov.referenceId.substring(0, 8) }}...</span>
+              } @else {
+                <span class="text-[#ACA0E7] font-mono text-[11px]">—</span>
+              }
+            </td>
+          </ng-container>
+
+          <!-- Notas Column -->
+          <ng-container matColumnDef="notas">
+            <th mat-header-cell *matHeaderCellDef class="border-b border-[#DEDAF4] bg-white/50 py-4 px-5 text-[11px] font-semibold uppercase tracking-wider text-[#605596] font-mono">
+              Notas
+            </th>
+            <td mat-cell *matCellDef="let mov" class="py-3.5 px-5 border-b border-[#DEDAF4]/60">
+              <span class="text-xs text-[#605596] font-normal max-w-[180px] truncate block">{{ mov.notes || '—' }}</span>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="glass-row group"></tr>
+        </table>
+      </div>
+
+      <!-- Empty State -->
+      @if (filteredMovements().length === 0) {
+        <div class="py-12 text-center text-[#605596]">
+          <svg class="mx-auto h-12 w-12 text-[#ACA0E7] mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+          </svg>
+          <p class="text-sm font-bold text-[#161B2D]">Sin movimientos registrados</p>
+          <p class="text-xs text-[#605596] mt-1">No hay movimientos en el período seleccionado.</p>
+        </div>
+      }
+
+      <!-- Paginador -->
+      <div class="px-5 py-4 border-t border-[#DEDAF4] bg-white/40 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#605596] font-medium">
+        <span>Mostrando <b class="text-[#161B2D] font-mono">{{ filteredMovements().length }}</b> de <b class="text-[#161B2D] font-mono">{{ totalCount() }}</b> movimientos</span>
+        <mat-paginator
+          [length]="totalCount()"
+          [pageSize]="pageSize()"
+          [pageIndex]="pageIndex()"
+          [pageSizeOptions]="[10, 20, 50, 100]"
+          (page)="onPageChange($event)"
+          class="bg-transparent text-[#161B2D]"
+        ></mat-paginator>
+      </div>
+    </div>
+  } @placeholder {
+    <div class="rounded-3xl glass-card border border-white/60 p-12 text-center text-xs text-[#605596] font-mono animate-pulse mt-4">
+      ⚡ Cargando trazabilidad del Kardex en viewport...
+    </div>
+  }
+}

@@ -1,195 +1,287 @@
+<!-- SIDEBAR LATERAL IZQUIERDO DE ALTURA COMPLETA (DESKTOP - NALUNPOS WEB) -->
 <aside
+  (mouseenter)="onMouseEnter()"
+  (mouseleave)="onMouseLeave($event)"
   [class.w-64]="!isCollapsed()"
   [class.w-20]="isCollapsed()"
-  [class.px-6]="!isCollapsed()"
-  [class.px-4]="isCollapsed()"
-  class="shrink-0 hidden md:flex flex-col justify-between h-screen min-h-screen border-r border-white/60 bg-white/40 backdrop-blur-xl overflow-hidden z-30 transition-all duration-300 select-none py-4"
+  [class.px-5]="!isCollapsed()"
+  [class.px-3]="isCollapsed()"
+  class="shrink-0 hidden md:flex flex-col justify-between h-screen min-h-screen border-r border-white/60 bg-white/40 backdrop-blur-xl p-5 overflow-hidden z-40 transition-all duration-300 select-none"
 >
-  <!-- 1. PARTE SUPERIOR FIJA: LOGO DE LA EMPRESA + TÍTULO DE MÓDULOS -->
-  <div class="shrink-0 space-y-4">
-    <!-- Identidad de Marca en la parte superior -->
-    <div class="flex items-center justify-between pb-4 border-b border-[#DEDAF4]/70">
-      <div
-        class="flex items-center space-x-3 group cursor-pointer"
-        [class.mx-auto]="isCollapsed()"
-        [matTooltip]="isCollapsed() ? 'NALUN POS — ADMIN NEGOCIO' : ''"
-        matTooltipPosition="right"
-      >
-        <!-- Icono en cápsula -->
-        <div class="relative w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#ACA0E7] via-[#92AAE7] to-[#DBE6FB] p-[1.5px] shadow-glass-glow flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
-          <div class="w-full h-full bg-[#FAF8FF]/70 backdrop-blur-md rounded-[14px] flex items-center justify-center">
-            <svg class="w-5 h-5 text-[#605596]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-            </svg>
-          </div>
-        </div>
-        <!-- Texto NALUN POS con badge ADMIN NEGOCIO -->
-        <div *ngIf="!isCollapsed()" class="flex flex-col">
-          <span class="font-display font-black text-xl tracking-tight bg-gradient-to-r from-[#ACA0E7] to-[#92AAE7] bg-clip-text text-transparent">
-            NALUN <span class="font-extrabold text-[#605596]">POS</span>
-          </span>
-          <span class="text-[9px] uppercase font-bold tracking-widest px-2 py-0.5 mt-0.5 rounded-full bg-[#DEDAF4]/80 text-[#605596] border border-[#ACA0E7]/40 shadow-xs w-fit">
-            ADMIN NEGOCIO
-          </span>
+  <!-- Identidad de Marca Fija en la Parte Superior -->
+  <div class="shrink-0 pb-4 border-b border-[#DEDAF4]/70 mb-2">
+    <div
+      class="flex items-center space-x-3 group cursor-pointer"
+      [class.mx-auto]="isCollapsed()"
+      [matTooltip]="isCollapsed() ? 'NALUN POS — ADMIN NEGOCIO' : ''"
+      matTooltipPosition="right"
+    >
+      <div class="relative w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#ACA0E7] via-[#92AAE7] to-[#DBE6FB] p-[1.5px] shadow-glass-glow flex items-center justify-center transition-transform duration-300 group-hover:scale-105 shrink-0">
+        <div class="w-full h-full bg-[#FAF8FF]/70 backdrop-blur-md rounded-[14px] flex items-center justify-center">
+          <svg class="w-5 h-5 text-[#605596]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+          </svg>
         </div>
       </div>
-    </div>
-
-    <!-- Título Módulos del Negocio -->
-    <div class="flex items-center justify-between px-1" [class.justify-center]="isCollapsed()">
-      <span *ngIf="!isCollapsed()" class="text-[11px] font-bold uppercase tracking-wider text-[#605596]/80">
-        Módulos del Negocio
-      </span>
-      <button
-        (click)="toggleCollapse()"
-        [matTooltip]="isCollapsed() ? 'Expandir menú' : 'Contraer menú'"
-        matTooltipPosition="right"
-        class="text-[#ACA0E7] hover:text-[#605596] cursor-pointer text-xs transition p-1 rounded-lg focus:outline-none"
-        aria-label="Contraer / Expandir menú"
-      >
-        <svg
-          class="w-4 h-4 transform transition-transform duration-300"
-          [class.rotate-180]="isCollapsed()"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-        </svg>
-      </button>
+      <div *ngIf="!isCollapsed()" class="flex flex-col">
+        <span class="font-display font-black text-lg tracking-tight bg-gradient-to-r from-[#ACA0E7] to-[#92AAE7] bg-clip-text text-transparent">
+          NALUN <span class="font-extrabold text-[#605596]">POS</span>
+        </span>
+        <span class="text-[9px] uppercase font-bold tracking-widest px-2 py-0.5 mt-0.5 rounded-full bg-[#DEDAF4]/80 text-[#605596] border border-[#ACA0E7]/40 shadow-xs w-fit">
+          ADMIN NEGOCIO
+        </span>
+      </div>
     </div>
   </div>
 
-  <!-- 2. ZONA CENTRAL DESPLAZABLE (SCROLL HABILITADO TANTO EXPANDIDO COMO COMPRIMIDO) -->
-  <div class="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar my-3 py-1" [class.pr-2]="!isCollapsed()" [class.pr-1.5]="isCollapsed()">
-    <nav class="space-y-2 overflow-x-hidden">
-      <a
-        #rla="routerLinkActive"
-        *ngFor="let item of navItems"
-        [routerLink]="item.route"
-        routerLinkActive="bg-white/80 border-[#ACA0E7]/60 shadow-glass-active text-[#161B2D]"
-        [routerLinkActiveOptions]="{ exact: false }"
-        [matTooltip]="item.label"
-        [matTooltipDisabled]="!isCollapsed()"
-        matTooltipPosition="right"
-        [class.w-full]="!isCollapsed()"
-        [class.px-2.5]="!isCollapsed()"
-        [class.py-2]="!isCollapsed()"
-        [class.justify-between]="!isCollapsed()"
-        [class.w-11]="isCollapsed()"
-        [class.h-11]="isCollapsed()"
-        [class.p-1]="isCollapsed()"
-        [class.justify-center]="isCollapsed()"
-        [class.mx-auto]="isCollapsed()"
-        class="flex items-center rounded-lg text-[#605596] hover:text-[#161B2D] hover:bg-white/70 border border-transparent hover:border-white/80 transition-all duration-300 group cursor-pointer"
+  <!-- Sección Central de Módulos con Scroll Independiente -->
+  <div class="flex-1 overflow-y-auto space-y-4 my-2 pr-0.5 custom-scrollbar">
+    <!-- Título Módulos del Negocio + Botón Colapsar Todo -->
+    <div *ngIf="!isCollapsed()" class="flex items-center justify-between px-2 pb-1">
+      <div class="flex items-center gap-2">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#ACA0E7]"></span>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-[#605596]/80 font-display">Módulos del Negocio</span>
+      </div>
+      <button
+        type="button"
+        (click)="toggleMasterCollapse()"
+        class="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg text-[10px] font-semibold text-[#605596] hover:text-[#161B2D] hover:bg-[#DEDAF4]/40 border border-[#DEDAF4]/60 transition-all shadow-xs cursor-pointer"
       >
-        <div class="flex items-center justify-center shrink-0" [class.gap-3]="!isCollapsed()">
-          <!-- Icon Capsule con degradado activo cuando la ruta está seleccionada -->
-          <div
-            [class]="rla.isActive 
-              ? 'w-9 h-9 rounded-lg bg-linear-to-tr from-[#605596] via-[#ACA0E7] to-[#92AAE7] text-white flex items-center justify-center shrink-0 shadow-glass-glow ring-2 ring-white' 
-              : 'w-9 h-9 rounded-lg bg-linear-to-tr from-[#DEDAF4] to-[#DBE6FB] border border-white/80 flex items-center justify-center shrink-0 text-[#605596] shadow-xs group-hover:from-[#ACA0E7]/40 group-hover:to-[#92AAE7]/40 transition-colors'"
+        <svg class="w-3 h-3 text-[#ACA0E7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
+        </svg>
+        <span>{{ isMasterCollapsed() ? 'Expandir' : 'Contraer' }}</span>
+      </button>
+    </div>
+
+    <!-- Enlaces de navegación vertical (Grupos Acordeón) -->
+    <nav class="space-y-3.5">
+      <div *ngFor="let group of navGroups" class="nav-group space-y-1">
+        <!-- Header del Grupo -->
+        <button
+          *ngIf="!isCollapsed()"
+          type="button"
+          (click)="toggleGroup(group.key)"
+          class="w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl hover:bg-[#DEDAF4]/30 text-left transition-colors group cursor-pointer"
+        >
+          <div class="flex items-center space-x-2">
+            <span [class]="'w-1.5 h-1.5 rounded-full ' + group.colorDot"></span>
+            <div [class]="'w-4 h-4 flex items-center justify-center shrink-0 ' + group.groupIconColor">
+              <ng-container *ngIf="group.groupIcon === 'comercial'">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+              </ng-container>
+              <ng-container *ngIf="group.groupIcon === 'inventario'">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+              </ng-container>
+              <ng-container *ngIf="group.groupIcon === 'admin'">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+              </ng-container>
+            </div>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-[#605596] font-display group-hover:text-[#161B2D] transition-colors">
+              {{ group.title }}
+            </span>
+          </div>
+          <svg
+            class="w-3.5 h-3.5 text-[#ACA0E7] group-hover:text-[#605596] transition-transform duration-200"
+            [class.rotate-180]="!groupCollapsedState()[group.key]"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
           >
-            <!-- Icono Dashboard -->
-            <ng-container *ngIf="item.icon === 'dashboard'">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+
+        <!-- Icono Indicador de Título de Módulo (Modo Contraído - Indicador visual no clickeable) -->
+        <div
+          *ngIf="isCollapsed()"
+          [matTooltip]="group.title"
+          matTooltipPosition="right"
+          class="w-9 h-9 mx-auto rounded-xl bg-white/40 border border-white/60 flex items-center justify-center text-[#605596] shadow-xs my-1 select-none cursor-default"
+        >
+          <div [class]="'w-5 h-5 flex items-center justify-center shrink-0 ' + group.groupIconColor">
+            <ng-container *ngIf="group.groupIcon === 'comercial'">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
               </svg>
             </ng-container>
-
-            <!-- Icono Ventas -->
-            <ng-container *ngIf="item.icon === 'ventas'">
+            <ng-container *ngIf="group.groupIcon === 'inventario'">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
               </svg>
             </ng-container>
-
-            <!-- Icono Productos -->
-            <ng-container *ngIf="item.icon === 'productos'">
+            <ng-container *ngIf="group.groupIcon === 'admin'">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-              </svg>
-            </ng-container>
-
-            <!-- Icono Categorías -->
-            <ng-container *ngIf="item.icon === 'categorias'">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-              </svg>
-            </ng-container>
-
-            <!-- Icono Inventario -->
-            <ng-container *ngIf="item.icon === 'inventario'">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M5 8h14M5 8a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v1a2 2 0 01-2 2M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-              </svg>
-            </ng-container>
-
-            <!-- Icono Clientes -->
-            <ng-container *ngIf="item.icon === 'clientes'">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-            </ng-container>
-
-            <!-- Icono Usuarios -->
-            <ng-container *ngIf="item.icon === 'usuarios'">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
               </svg>
             </ng-container>
           </div>
-
-          <span
-            *ngIf="!isCollapsed()"
-            [class]="rla.isActive ? 'text-[13px] font-bold text-[#161B2D] tracking-tight truncate' : 'text-[13px] font-medium tracking-tight truncate'"
-          >
-            {{ item.label }}
-          </span>
         </div>
 
-        <span
-          *ngIf="!isCollapsed() && item.badge"
-          class="px-2 py-0.5 mr-1 text-[10px] font-black uppercase tracking-wider bg-gradient-to-r from-[#ACA0E7] to-[#92AAE7] text-white rounded-full shadow-xs"
-        >
-          {{ item.badge }}
-        </span>
-      </a>
+        <!-- Contenido del Grupo (SÓLO VISIBLE EN MODO EXPANDIDO) -->
+        <div *ngIf="!isCollapsed() && !groupCollapsedState()[group.key]" class="space-y-1 pt-0.5">
+          <a
+            #rla="routerLinkActive"
+            *ngFor="let item of group.items"
+            [routerLink]="item.route"
+            routerLinkActive="bg-white/85 border-[#ACA0E7]/60 shadow-glass-active text-[#161B2D]"
+            [routerLinkActiveOptions]="{ exact: false }"
+            [matTooltip]="item.label"
+            [matTooltipDisabled]="!isCollapsed()"
+            matTooltipPosition="right"
+            [class.justify-between]="!isCollapsed()"
+            [class.justify-center]="isCollapsed()"
+            [class.px-2.5]="!isCollapsed()"
+            [class.py-1.5]="!isCollapsed()"
+            [class.w-11]="isCollapsed()"
+            [class.h-11]="isCollapsed()"
+            [class.mx-auto]="isCollapsed()"
+            class="flex items-center gap-3 rounded-2xl text-[#605596] hover:text-[#161B2D] hover:bg-white/70 border border-transparent hover:border-white/80 transition-all duration-200 group cursor-pointer"
+          >
+            <div class="flex items-center gap-3">
+              <!-- Icon Capsule -->
+              <div
+                [class]="rla.isActive
+                  ? 'w-8 h-8 rounded-xl bg-gradient-to-tr from-[#605596] via-[#ACA0E7] to-[#92AAE7] text-white flex items-center justify-center shrink-0 shadow-glass-glow ring-2 ring-white'
+                  : 'w-8 h-8 rounded-xl bg-gradient-to-tr from-[#DEDAF4] to-[#DBE6FB] border border-white/80 flex items-center justify-center shrink-0 text-[#605596] shadow-xs group-hover:from-[#ACA0E7]/40 group-hover:to-[#92AAE7]/40 transition-colors'"
+              >
+                <!-- Icono Dashboard -->
+                <ng-container *ngIf="item.icon === 'dashboard'">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                  </svg>
+                </ng-container>
+
+                <!-- Icono Ventas / POS -->
+                <ng-container *ngIf="item.icon === 'ventas'">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                </ng-container>
+
+                <!-- Icono Clientes -->
+                <ng-container *ngIf="item.icon === 'clientes'">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                </ng-container>
+
+                <!-- Icono Productos -->
+                <ng-container *ngIf="item.icon === 'productos'">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                  </svg>
+                </ng-container>
+
+                <!-- Icono Categorías -->
+                <ng-container *ngIf="item.icon === 'categorias'">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                  </svg>
+                </ng-container>
+
+                <!-- Icono Inventario -->
+                <ng-container *ngIf="item.icon === 'inventario'">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M5 8h14M5 8a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v1a2 2 0 01-2 2M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                  </svg>
+                </ng-container>
+
+                <!-- Icono Compras -->
+                <ng-container *ngIf="item.icon === 'compras'">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                  </svg>
+                </ng-container>
+
+                <!-- Icono Proveedores -->
+                <ng-container *ngIf="item.icon === 'proveedores'">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                </ng-container>
+
+                <!-- Icono Usuarios -->
+                <ng-container *ngIf="item.icon === 'usuarios'">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </ng-container>
+              </div>
+
+              <span
+                *ngIf="!isCollapsed()"
+                [class]="rla.isActive ? 'text-xs font-bold text-[#161B2D] tracking-tight' : 'text-xs font-medium tracking-tight'"
+              >
+                {{ item.label }}
+              </span>
+            </div>
+
+            <span
+              *ngIf="!isCollapsed() && item.badge"
+              class="px-1.5 py-0.5 mr-1 text-[9px] font-black uppercase tracking-wider bg-gradient-to-r from-[#ACA0E7] to-[#92AAE7] text-white rounded-full shadow-xs"
+            >
+              {{ item.badge }}
+            </span>
+          </a>
+        </div>
+      </div>
     </nav>
   </div>
 
-  <!-- 3. PARTE INFERIOR FIJA: TARJETA DE ESTADO NALUNPOS WEB -->
-  <div *ngIf="!isCollapsed()" class="shrink-0 p-4 rounded-2xl glass-card border border-white relative overflow-hidden">
-    <div class="absolute -right-6 -bottom-6 w-20 h-20 rounded-full bg-[#ACA0E7]/20 blur-xl pointer-events-none"></div>
-    <div class="flex items-center space-x-3">
-      <div class="w-3.5 h-3.5 rounded-full bg-[#92AAE7] ring-4 ring-[#DBE6FB] flex-shrink-0 animate-pulse"></div>
-      <div>
-        <div class="text-xs font-bold text-[#161B2D]">NalunPOS Web</div>
-        <div class="text-[11px] font-mono text-[#605596] font-medium">v1.0.0-Enterprise</div>
-      </div>
+  <!-- Pie del Sidebar Fijo en el Fondo -->
+  <div class="shrink-0 pt-3 space-y-3 border-t border-[#DEDAF4]/60">
+    <!-- Botón Cerrar Sesión -->
+    <div class="pt-2">
+      <button
+        type="button"
+        (click)="logout()"
+        [matTooltip]="isCollapsed() ? 'Cerrar Sesión' : ''"
+        matTooltipPosition="right"
+        class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-[#605596] hover:text-[#9B2C67] hover:bg-[#FDF2F7]/50 border border-transparent hover:border-[#E8A0BF]/50 text-xs font-semibold transition-all shadow-xs cursor-pointer"
+      >
+        <svg class="w-4 h-4 text-[#E8A0BF] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+        </svg>
+        <span *ngIf="!isCollapsed()">Cerrar Sesión</span>
+      </button>
     </div>
-    <div class="mt-3 pt-2.5 border-t border-[#DEDAF4] flex items-center justify-between text-[10px] text-[#605596] font-medium">
-      <span>Estado</span>
-      <span class="font-bold font-mono text-[#605596]">Online OK</span>
+
+    <!-- Tarjeta Empresa / Estado (Sola Línea) -->
+    <div *ngIf="!isCollapsed()" class="px-3.5 py-2.5 rounded-2xl glass-card border border-white/90 relative overflow-hidden shadow-glass flex items-center justify-between gap-2">
+      <div class="absolute -right-6 -bottom-6 w-20 h-20 rounded-full bg-gradient-to-tr from-[#ACA0E7]/20 to-[#92AAE7]/20 blur-xl pointer-events-none"></div>
+      <div class="flex items-center space-x-2.5 min-w-0">
+        <span class="relative flex h-2 w-2 shrink-0">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#92AAE7] opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-[#2A5BC7]"></span>
+        </span>
+        <span class="text-[11px] font-extrabold text-[#161B2D] truncate font-display">Empresa Activa</span>
+      </div>
+      <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#EEF5FE] text-[#283FA7] border border-[#92AAE7]/40 shadow-xs shrink-0">
+        ONLINE
+      </span>
     </div>
   </div>
 </aside>
 
-<!-- DRAWER RESPONSIVO MÓVIL (SÓLO CELULARES - APARECE ENCIMA CON FONDO OSCURECIDO Y BOTÓN X) -->
+<!-- DRAWER RESPONSIVO MÓVIL (SÓLO CELULARES - CONSERVANDO 100% EL RESPONSIVO EXISTENTE) -->
 <div *ngIf="isMobileMenuOpen()" class="md:hidden fixed inset-0 z-50 flex">
-  <!-- Backdrop Oscurecido Suave -->
   <div
     (click)="closeMobileMenu()"
     class="fixed inset-0 bg-[#161B2D]/20 transition-opacity duration-300 animate-in fade-in"
   ></div>
 
-  <!-- Panel Lateral Flotante Móvil -->
   <div class="relative w-72 max-w-[80vw] h-full bg-[#FAF8FF]/95 backdrop-blur-2xl border-r border-white/80 shadow-2xl py-4 px-5 flex flex-col justify-between z-10 overflow-hidden animate-in slide-in-from-left duration-300 select-none">
-    <!-- Header Fijo Móvil -->
     <div class="shrink-0 space-y-4">
       <div class="flex items-center justify-between pb-4 border-b border-[#DEDAF4]/70">
         <div class="flex items-center space-x-3 group cursor-pointer">
-          <div class="relative w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#ACA0E7] via-[#92AAE7] to-[#DBE6FB] p-[1.5px] shadow-glass-glow flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
+          <div class="relative w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#ACA0E7] via-[#92AAE7] to-[#DBE6FB] p-[1.5px] shadow-glass-glow flex items-center justify-center">
             <div class="w-full h-full bg-[#FAF8FF]/70 backdrop-blur-md rounded-[14px] flex items-center justify-center">
               <svg class="w-5 h-5 text-[#605596]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
@@ -206,11 +298,10 @@
           </div>
         </div>
 
-        <!-- Botón de Cerrar (X) -->
         <button
           (click)="closeMobileMenu()"
           type="button"
-          class="text-[#ACA0E7] hover:text-[#605596] cursor-pointer text-xs transition p-1 rounded-lg"
+          class="w-9 h-9 rounded-xl bg-white/40 hover:bg-white/70 border border-white/60 hover:border-white/80 text-[#605596] hover:text-[#161B2D] flex items-center justify-center transition-all shadow-xs cursor-pointer focus:outline-none"
           title="Cerrar menú"
         >
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -219,105 +310,186 @@
         </button>
       </div>
 
-      <!-- Título Módulos del Negocio -->
       <div class="flex items-center justify-between px-1">
-        <span class="text-[11px] font-bold uppercase tracking-wider text-[#605596]/80">
-          Módulos del Negocio
-        </span>
+        <div class="flex items-center gap-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-[#ACA0E7]"></span>
+          <span class="text-[10px] font-bold uppercase tracking-wider text-[#605596]/80 font-display">
+            Módulos del Negocio
+          </span>
+        </div>
+        <button
+          type="button"
+          (click)="toggleMasterCollapse()"
+          class="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg text-[10px] font-semibold text-[#605596] hover:text-[#161B2D] hover:bg-[#DEDAF4]/40 border border-[#DEDAF4]/60 transition-all shadow-xs cursor-pointer"
+        >
+          <svg class="w-3 h-3 text-[#ACA0E7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
+          </svg>
+          <span>{{ isMasterCollapsed() ? 'Expandir' : 'Contraer' }}</span>
+        </button>
       </div>
     </div>
 
-    <!-- Navegación Desplazable Móvil -->
-    <div class="flex-1 overflow-y-auto custom-scrollbar my-3 py-1 pr-0.5">
-      <nav class="space-y-1.5">
-        <a
-          #rlaMob="routerLinkActive"
-          *ngFor="let item of navItems"
-          [routerLink]="item.route"
-          routerLinkActive="bg-white/80 border-[#ACA0E7]/60 shadow-glass-active text-[#161B2D]"
-          [routerLinkActiveOptions]="{ exact: false }"
-          (click)="closeMobileMenu()"
-          class="flex items-center justify-between w-full px-2.5 py-2 rounded-lg text-[#605596] hover:text-[#161B2D] hover:bg-white/70 border border-transparent hover:border-white/80 transition-all duration-300 group"
+    <!-- Navegación Móvil -->
+    <div class="flex-1 overflow-y-auto custom-scrollbar my-3 py-1 pr-0.5 space-y-3">
+      <div *ngFor="let group of navGroups" class="space-y-1">
+        <!-- Header del Grupo Móvil Acordeón -->
+        <button
+          type="button"
+          (click)="toggleGroup(group.key)"
+          class="w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl hover:bg-[#DEDAF4]/30 text-left transition-colors group cursor-pointer"
         >
-          <div class="flex items-center justify-center shrink-0 gap-3">
-            <div
-              [class]="rlaMob.isActive
-                ? 'w-9 h-9 rounded-lg bg-linear-to-tr from-[#605596] via-[#ACA0E7] to-[#92AAE7] text-white flex items-center justify-center shrink-0 shadow-glass-glow ring-2 ring-white'
-                : 'w-9 h-9 rounded-lg bg-linear-to-tr from-[#DEDAF4] to-[#DBE6FB] border border-white/80 flex items-center justify-center shrink-0 text-[#605596] shadow-xs group-hover:from-[#ACA0E7]/40 group-hover:to-[#92AAE7]/40 transition-colors'"
-            >
-              <ng-container *ngIf="item.icon === 'dashboard'">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+          <div class="flex items-center space-x-2">
+            <span [class]="'w-1.5 h-1.5 rounded-full ' + group.colorDot"></span>
+            <div [class]="'w-4 h-4 flex items-center justify-center shrink-0 ' + group.groupIconColor">
+              <ng-container *ngIf="group.groupIcon === 'comercial'">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                 </svg>
               </ng-container>
-
-              <ng-container *ngIf="item.icon === 'ventas'">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />
+              <ng-container *ngIf="group.groupIcon === 'inventario'">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                 </svg>
               </ng-container>
-
-              <ng-container *ngIf="item.icon === 'productos'">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                </svg>
-              </ng-container>
-
-              <ng-container *ngIf="item.icon === 'categorias'">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                </svg>
-              </ng-container>
-
-              <ng-container *ngIf="item.icon === 'inventario'">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M5 8h14M5 8a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v1a2 2 0 01-2 2M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                </svg>
-              </ng-container>
-
-              <ng-container *ngIf="item.icon === 'clientes'">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-              </ng-container>
-
-              <ng-container *ngIf="item.icon === 'usuarios'">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              <ng-container *ngIf="group.groupIcon === 'admin'">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                 </svg>
               </ng-container>
             </div>
-
-            <span
-              [class]="rlaMob.isActive ? 'text-[13px] font-bold text-[#161B2D] tracking-tight truncate' : 'text-[13px] font-medium tracking-tight truncate'"
-            >
-              {{ item.label }}
+            <span class="text-[10px] font-bold uppercase tracking-wider text-[#605596] font-display group-hover:text-[#161B2D] transition-colors">
+              {{ group.title }}
             </span>
           </div>
-
-          <span
-            *ngIf="item.badge"
-            class="px-2 py-0.5 mr-1 text-[10px] font-black uppercase tracking-wider bg-gradient-to-r from-[#ACA0E7] to-[#92AAE7] text-white rounded-full shadow-xs"
+          <svg
+            class="w-3.5 h-3.5 text-[#ACA0E7] group-hover:text-[#605596] transition-transform duration-200"
+            [class.rotate-180]="!groupCollapsedState()[group.key]"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
           >
-            {{ item.badge }}
-          </span>
-        </a>
-      </nav>
-    </div>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
 
-    <!-- Footer Fijo Móvil -->
-    <div class="shrink-0 p-4 rounded-2xl glass-card border border-white relative overflow-hidden">
-      <div class="absolute -right-6 -bottom-6 w-20 h-20 rounded-full bg-[#ACA0E7]/20 blur-xl pointer-events-none"></div>
-      <div class="flex items-center space-x-3">
-        <div class="w-3.5 h-3.5 rounded-full bg-[#92AAE7] ring-4 ring-[#DBE6FB] flex-shrink-0 animate-pulse"></div>
-        <div>
-          <div class="text-xs font-bold text-[#161B2D]">NalunPOS Web</div>
-          <div class="text-[11px] font-mono text-[#605596] font-medium">v1.0.0-Enterprise</div>
+        <!-- Contenido del Grupo Móvil -->
+        <div *ngIf="!groupCollapsedState()[group.key]" class="space-y-1 pt-0.5">
+          <a
+            #rlaMob="routerLinkActive"
+            *ngFor="let item of group.items"
+            [routerLink]="item.route"
+            routerLinkActive="bg-white/85 border-[#ACA0E7]/60 shadow-glass-active text-[#161B2D]"
+            [routerLinkActiveOptions]="{ exact: false }"
+            (click)="closeMobileMenu()"
+            class="flex items-center justify-between w-full px-2.5 py-2 rounded-2xl text-[#605596] hover:text-[#161B2D] hover:bg-white/70 border border-transparent hover:border-white/80 transition-all duration-200 group cursor-pointer"
+          >
+            <div class="flex items-center justify-center shrink-0 gap-3">
+              <div
+                [class]="rlaMob.isActive
+                  ? 'w-8 h-8 rounded-xl bg-gradient-to-tr from-[#605596] via-[#ACA0E7] to-[#92AAE7] text-white flex items-center justify-center shrink-0 shadow-glass-glow ring-2 ring-white'
+                  : 'w-8 h-8 rounded-xl bg-gradient-to-tr from-[#DEDAF4] to-[#DBE6FB] border border-white/80 flex items-center justify-center shrink-0 text-[#605596] shadow-xs group-hover:from-[#ACA0E7]/40 group-hover:to-[#92AAE7]/40 transition-colors'"
+              >
+                <ng-container *ngIf="item.icon === 'dashboard'">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                  </svg>
+                </ng-container>
+
+                <ng-container *ngIf="item.icon === 'ventas'">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                </ng-container>
+
+                <ng-container *ngIf="item.icon === 'clientes'">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                </ng-container>
+
+                <ng-container *ngIf="item.icon === 'productos'">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                  </svg>
+                </ng-container>
+
+                <ng-container *ngIf="item.icon === 'categorias'">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                  </svg>
+                </ng-container>
+
+                <ng-container *ngIf="item.icon === 'inventario'">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M5 8h14M5 8a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v1a2 2 0 01-2 2M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                  </svg>
+                </ng-container>
+
+                <ng-container *ngIf="item.icon === 'compras'">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                  </svg>
+                </ng-container>
+
+                <ng-container *ngIf="item.icon === 'proveedores'">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                </ng-container>
+
+                <ng-container *ngIf="item.icon === 'usuarios'">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </ng-container>
+              </div>
+
+              <span [class]="rlaMob.isActive ? 'text-xs font-bold text-[#161B2D] tracking-tight' : 'text-xs font-medium tracking-tight'">
+                {{ item.label }}
+              </span>
+            </div>
+
+            <span
+              *ngIf="item.badge"
+              class="px-2 py-0.5 mr-1 text-[10px] font-black uppercase tracking-wider bg-gradient-to-r from-[#ACA0E7] to-[#92AAE7] text-white rounded-full shadow-xs"
+            >
+              {{ item.badge }}
+            </span>
+          </a>
         </div>
       </div>
-      <div class="mt-3 pt-2.5 border-t border-[#DEDAF4] flex items-center justify-between text-[10px] text-[#605596] font-medium">
-        <span>Estado</span>
-        <span class="font-bold font-mono text-[#605596]">Online OK</span>
+    </div>
+
+    <!-- Pie del Sidebar Móvil Fijo en el Fondo -->
+    <div class="shrink-0 pt-3 space-y-3 border-t border-[#DEDAF4]/60">
+      <!-- Botón Cerrar Sesión Móvil -->
+      <div class="pt-2">
+        <button
+          type="button"
+          (click)="logout()"
+          class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-[#605596] hover:text-[#9B2C67] hover:bg-[#FDF2F7]/50 border border-transparent hover:border-[#E8A0BF]/50 text-xs font-semibold transition-all shadow-xs cursor-pointer"
+        >
+          <svg class="w-4 h-4 text-[#E8A0BF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          <span>Cerrar Sesión</span>
+        </button>
+      </div>
+
+      <!-- Tarjeta Empresa / Estado (Sola Línea) -->
+      <div class="px-3.5 py-2.5 rounded-2xl glass-card border border-white/90 relative overflow-hidden shadow-glass flex items-center justify-between gap-2">
+        <div class="absolute -right-6 -bottom-6 w-20 h-20 rounded-full bg-gradient-to-tr from-[#ACA0E7]/20 to-[#92AAE7]/20 blur-xl pointer-events-none"></div>
+        <div class="flex items-center space-x-2.5 min-w-0">
+          <span class="relative flex h-2 w-2 shrink-0">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#92AAE7] opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-[#2A5BC7]"></span>
+          </span>
+          <span class="text-[11px] font-extrabold text-[#161B2D] truncate font-display">Empresa Activa</span>
+        </div>
+        <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#EEF5FE] text-[#283FA7] border border-[#92AAE7]/40 shadow-xs shrink-0">
+          ONLINE
+        </span>
       </div>
     </div>
   </div>

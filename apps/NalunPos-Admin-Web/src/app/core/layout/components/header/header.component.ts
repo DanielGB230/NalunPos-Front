@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -5,11 +6,10 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { NavigationEnd, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { filter, map, startWith } from 'rxjs';
+import { NavigationEnd, Router } from '@angular/router';
 import { AuthService } from '@nalunpos/shared/auth';
+import { filter, map, startWith } from 'rxjs';
 import { LayoutService } from '../../services/layout.service';
 
 @Component({
@@ -49,8 +49,14 @@ export class HeaderComponent {
     return 'SuperAdmin';
   });
 
+  protected readonly isSidebarCollapsed = this.layoutService.isSidebarCollapsed;
+
   protected toggleUserMenu(): void {
     this.showUserMenu.update((prev) => !prev);
+  }
+
+  protected toggleSidebar(): void {
+    this.layoutService.toggleSidebar();
   }
 
   protected toggleMobileMenu(): void {

@@ -1,0 +1,189 @@
+<!-- Modal Nueva Orden de Compra — 100% Pure Signals (Zero ReactiveFormsModule) -->
+<div class="p-6 sm:p-8 max-w-3xl w-full">
+  <!-- Encabezado -->
+  <div class="flex items-center justify-between pb-4 border-b border-[#DEDAF4] mb-6">
+    <div class="flex items-center space-x-3">
+      <div class="w-10 h-10 rounded-2xl bg-linear-to-tr from-[#283FA7] to-[#687FE5] text-white flex items-center justify-center font-bold text-lg shadow-sm">
+        🛒
+      </div>
+      <div>
+        <h3 class="text-base font-bold text-[#161B2D] font-mono">Nueva Orden de Compra</h3>
+        <p class="text-xs text-[#605596]">Cree una nueva orden de compra en estado Borrador.</p>
+      </div>
+    </div>
+    <button
+      (click)="onClose()"
+      type="button"
+      class="text-[#605596] hover:text-[#161B2D] p-1.5 rounded-xl hover:bg-[#F0EDFB] transition cursor-pointer"
+    >
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+  </div>
+
+  <form (submit)="onSubmit(); $event.preventDefault()" class="space-y-5">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+      <!-- Proveedor -->
+      <div>
+        <label class="block text-xs font-semibold text-[#161B2D] mb-1 font-mono">
+          Proveedor <span class="text-rose-500">*</span>
+        </label>
+        <select
+          [value]="supplierId()"
+          (change)="supplierId.set($any($event.target).value)"
+          class="w-full px-3.5 py-2.5 rounded-xl border border-[#DEDAF4] bg-white text-xs text-[#161B2D] focus:outline-none focus:border-[#687FE5] font-mono transition"
+        >
+          <option value="">Seleccione un proveedor...</option>
+          @for (s of suppliers(); track s.id) {
+            <option [value]="s.id">{{ s.name }} ({{ s.taxId }})</option>
+          }
+        </select>
+      </div>
+
+      <!-- Almacén Destino -->
+      <div>
+        <label class="block text-xs font-semibold text-[#161B2D] mb-1 font-mono">
+          Almacén Destino <span class="text-rose-500">*</span>
+        </label>
+        <select
+          [value]="warehouseId()"
+          (change)="warehouseId.set($any($event.target).value)"
+          class="w-full px-3.5 py-2.5 rounded-xl border border-[#DEDAF4] bg-white text-xs text-[#161B2D] focus:outline-none focus:border-[#687FE5] font-mono transition"
+        >
+          <option value="">Seleccione un almacén...</option>
+          @for (w of warehouses(); track w.id) {
+            <option [value]="w.id">{{ w.name }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Notas -->
+      <div class="sm:col-span-2">
+        <label class="block text-xs font-semibold text-[#161B2D] mb-1 font-mono">Observaciones / Notas</label>
+        <input
+          type="text"
+          [value]="notes()"
+          (input)="notes.set($any($event.target).value)"
+          placeholder="Ej: Entrega requerida antes del viernes 15"
+          class="w-full px-3.5 py-2.5 rounded-xl border border-[#DEDAF4] bg-white/70 text-xs text-[#161B2D] focus:outline-none focus:border-[#687FE5] font-mono transition"
+        />
+      </div>
+
+    </div>
+
+    <!-- Líneas de Producto -->
+    <div class="space-y-3 pt-4 border-t border-[#DEDAF4]">
+      <div class="flex items-center justify-between">
+        <h4 class="text-xs font-bold text-[#161B2D] font-mono uppercase tracking-wider">📦 Ítems Solicitados</h4>
+        <button
+          type="button"
+          (click)="addLine()"
+          class="px-3 py-1.5 rounded-xl text-xs font-semibold text-[#283FA7] border border-[#DEDAF4] bg-[#F0EDFB] hover:bg-[#283FA7] hover:text-white transition cursor-pointer flex items-center space-x-1"
+        >
+          <span>+ Agregar Ítem</span>
+        </button>
+      </div>
+
+      <div class="space-y-2.5 max-h-[260px] overflow-y-auto custom-scrollbar pr-1">
+        @for (line of lines(); track $index) {
+          <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 bg-white/80 p-3 rounded-2xl border border-[#DEDAF4]">
+
+            <!-- Product ID / SKU -->
+            <div class="flex-1 min-w-[180px]">
+              <label class="block text-[10px] text-[#605596] font-mono mb-0.5">ID / SKU Producto</label>
+              <input
+                type="text"
+                [value]="line.productId"
+                (input)="updateLineField($index, 'productId', $any($event.target).value)"
+                placeholder="ID o SKU..."
+                class="w-full px-3 py-1.5 rounded-lg border border-[#DEDAF4] bg-white text-xs font-mono text-[#161B2D] focus:outline-none focus:border-[#687FE5]"
+              />
+            </div>
+
+            <!-- Cantidad Solicitada -->
+            <div class="w-24">
+              <label class="block text-[10px] text-[#605596] font-mono mb-0.5">Cantidad</label>
+              <input
+                type="number"
+                [value]="line.quantityOrdered"
+                (input)="updateLineField($index, 'quantityOrdered', +$any($event.target).value)"
+                min="1"
+                class="w-full px-3 py-1.5 rounded-lg border border-[#DEDAF4] bg-white text-xs font-mono text-[#161B2D] focus:outline-none focus:border-[#687FE5] text-center"
+              />
+            </div>
+
+            <!-- Costo Unitario -->
+            <div class="w-28">
+              <label class="block text-[10px] text-[#605596] font-mono mb-0.5">Costo Unit.</label>
+              <input
+                type="number"
+                step="0.01"
+                [value]="line.unitCostAmount"
+                (input)="updateLineField($index, 'unitCostAmount', +$any($event.target).value)"
+                min="0"
+                class="w-full px-3 py-1.5 rounded-lg border border-[#DEDAF4] bg-white text-xs font-mono text-[#161B2D] focus:outline-none focus:border-[#687FE5] text-right"
+              />
+            </div>
+
+            <!-- Moneda -->
+            <div class="w-20">
+              <label class="block text-[10px] text-[#605596] font-mono mb-0.5">Moneda</label>
+              <select
+                [value]="line.currency"
+                (change)="updateLineField($index, 'currency', $any($event.target).value)"
+                class="w-full px-2 py-1.5 rounded-lg border border-[#DEDAF4] bg-white text-xs font-mono text-[#161B2D] focus:outline-none focus:border-[#687FE5]"
+              >
+                <option value="USD">USD</option>
+                <option value="PEN">PEN</option>
+              </select>
+            </div>
+
+            <!-- Eliminar -->
+            <div class="pt-4 shrink-0">
+              <button
+                type="button"
+                (click)="removeLine($index)"
+                [disabled]="lines().length <= 1"
+                class="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 transition cursor-pointer disabled:opacity-30"
+              >
+                🗑️
+              </button>
+            </div>
+
+          </div>
+        }
+      </div>
+
+      <!-- Resumen Total Computado de Signals -->
+      <div class="flex items-center justify-between p-3.5 rounded-2xl bg-[#EEF5FE] border border-[#92AAE7]">
+        <span class="text-xs font-bold text-[#161B2D] font-mono">Total Calculado Estimado:</span>
+        <span class="text-base font-bold text-[#2A5BC7] font-mono">${{ totalAmount() | number:'1.2-2' }}</span>
+      </div>
+    </div>
+
+    <!-- Botones de Acción -->
+    <div class="flex items-center justify-end space-x-3 pt-4 border-t border-[#DEDAF4]">
+      <button
+        type="button"
+        (click)="onClose()"
+        class="px-4 py-2.5 rounded-xl border border-[#DEDAF4] bg-white text-xs font-semibold text-[#605596] hover:bg-[#F0EDFB] transition cursor-pointer"
+      >
+        Cancelar
+      </button>
+      <button
+        type="submit"
+        [disabled]="isSaving()"
+        class="px-5 py-2.5 rounded-xl bg-linear-to-r from-[#283FA7] to-[#687FE5] text-white text-xs font-bold font-mono shadow-xs hover:opacity-90 transition disabled:opacity-50 cursor-pointer flex items-center space-x-2"
+      >
+        @if (isSaving()) {
+          <div class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+          <span>Guardando...</span>
+        } @else {
+          <span>Crear Orden de Compra</span>
+        }
+      </button>
+    </div>
+  </form>
+</div>

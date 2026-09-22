@@ -1,0 +1,183 @@
+<!-- SupplierListComponent — NalunPos-Web -->
+<div class="space-y-6">
+
+  <!-- Hero Card Header -->
+  <lib-page-hero-card
+    [config]="heroConfig"
+    (primaryActionClick)="openSupplierDialog()"
+  />
+
+  <!-- Bento Metrics Grid -->
+  <lib-metrics-bento-grid [metrics]="metricsCards()" />
+
+  <!-- Quick Filter Bar -->
+  <lib-quick-filter-bar
+    [tabs]="filterTabs()"
+    [activeFilter]="activeFilter()"
+    [searchValue]="searchTerm()"
+    searchPlaceholder="Buscar por nombre, RUC, email o teléfono..."
+    [showAdvancedFilters]="false"
+    [activeFilterCount]="0"
+    (filterChange)="onFilterChange($event)"
+    (searchChange)="onSearchChange($event)"
+  />
+
+  <!-- Error Message -->
+  @if (errorMessage()) {
+    <div class="flex items-center space-x-3 rounded-2xl border border-rose-300 bg-rose-50/90 p-4 text-rose-800 text-xs font-semibold shadow-xs">
+      <svg class="h-5 w-5 text-rose-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+      </svg>
+      <span>{{ errorMessage() }}</span>
+    </div>
+  }
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="flex flex-col items-center justify-center py-16 space-y-3">
+      <div class="w-10 h-10 rounded-full border-4 border-[#283FA7] border-t-transparent animate-spin"></div>
+      <p class="text-xs font-semibold text-[#605596]">Cargando proveedores...</p>
+    </div>
+  } @else {
+
+    <!-- Tabla con Carga Diferida (@defer) -->
+    @defer (on viewport) {
+      <div class="rounded-3xl glass-card border border-white overflow-hidden shadow-glass">
+        <div class="overflow-x-auto custom-scrollbar">
+          <table mat-table [dataSource]="suppliers()" class="w-full min-w-[800px] text-left border-collapse">
+
+            <!-- Proveedor Column -->
+            <ng-container matColumnDef="proveedor">
+              <th mat-header-cell *matHeaderCellDef class="border-b border-[#DEDAF4] bg-white/50 py-4 px-6 text-[11px] font-semibold uppercase tracking-wider text-[#605596] font-mono">
+                Proveedor / Razón Social
+              </th>
+              <td mat-cell *matCellDef="let s" class="py-4 px-6 border-b border-[#DEDAF4]/60">
+                <div class="flex items-center space-x-3.5">
+                  <div class="w-9 h-9 rounded-2xl bg-linear-to-tr from-[#283FA7] to-[#687FE5] text-white font-bold flex items-center justify-center shadow-xs text-sm shrink-0">
+                    🏢
+                  </div>
+                  <div>
+                    <div class="font-bold text-[#161B2D] text-xs font-mono">{{ s.name }}</div>
+                    <div class="text-[11px] text-[#605596] font-mono">{{ s.email }}</div>
+                  </div>
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Contacto Column -->
+            <ng-container matColumnDef="contacto">
+              <th mat-header-cell *matHeaderCellDef class="border-b border-[#DEDAF4] bg-white/50 py-4 px-6 text-[11px] font-semibold uppercase tracking-wider text-[#605596] font-mono">
+                Contacto / Teléfono
+              </th>
+              <td mat-cell *matCellDef="let s" class="py-4 px-6 border-b border-[#DEDAF4]/60">
+                <div class="text-xs font-semibold text-[#161B2D] font-mono">{{ s.contactName }}</div>
+                <div class="text-[11px] text-[#605596] font-mono">{{ s.phone }}</div>
+              </td>
+            </ng-container>
+
+            <!-- Tax ID Column -->
+            <ng-container matColumnDef="taxId">
+              <th mat-header-cell *matHeaderCellDef class="border-b border-[#DEDAF4] bg-white/50 py-4 px-6 text-[11px] font-semibold uppercase tracking-wider text-[#605596] font-mono">
+                Tax ID / RUC
+              </th>
+              <td mat-cell *matCellDef="let s" class="py-4 px-6 border-b border-[#DEDAF4]/60">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-[#F0EDFB] text-[#283FA7] border border-[#DEDAF4]">
+                  {{ s.taxId }} ({{ s.taxCountryCode }})
+                </span>
+              </td>
+            </ng-container>
+
+            <!-- Ubicacion Column -->
+            <ng-container matColumnDef="ubicacion">
+              <th mat-header-cell *matHeaderCellDef class="border-b border-[#DEDAF4] bg-white/50 py-4 px-6 text-[11px] font-semibold uppercase tracking-wider text-[#605596] font-mono">
+                Ubicación
+              </th>
+              <td mat-cell *matCellDef="let s" class="py-4 px-6 border-b border-[#DEDAF4]/60">
+                <div class="text-xs text-[#161B2D] font-mono">{{ s.city }}, {{ s.country }}</div>
+                <div class="text-[10px] text-[#605596] truncate max-w-[150px]">{{ s.street }}</div>
+              </td>
+            </ng-container>
+
+            <!-- Estado Column -->
+            <ng-container matColumnDef="estado">
+              <th mat-header-cell *matHeaderCellDef class="border-b border-[#DEDAF4] bg-white/50 py-4 px-6 text-[11px] font-semibold uppercase tracking-wider text-[#605596] font-mono text-center">
+                Estado
+              </th>
+              <td mat-cell *matCellDef="let s" class="py-4 px-6 border-b border-[#DEDAF4]/60 text-center">
+                @if (s.isActive) {
+                  <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-mono font-semibold bg-[#EEF5FE] text-[#2A5BC7] border border-[#92AAE7] shadow-xs">
+                    Activo
+                  </span>
+                } @else {
+                  <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-mono font-semibold bg-[#FDF2F7] text-[#9B2C67] border border-[#E8A0BF] shadow-xs">
+                    Inactivo
+                  </span>
+                }
+              </td>
+            </ng-container>
+
+            <!-- Acciones Column -->
+            <ng-container matColumnDef="acciones">
+              <th mat-header-cell *matHeaderCellDef class="border-b border-[#DEDAF4] bg-white/50 py-4 px-6 text-[11px] font-semibold uppercase tracking-wider text-[#605596] font-mono text-right">
+                Acciones
+              </th>
+              <td mat-cell *matCellDef="let s" class="py-4 px-6 border-b border-[#DEDAF4]/60 text-right">
+                <div class="flex items-center justify-end space-x-2">
+                  <button
+                    (click)="openSupplierDialog(s)"
+                    type="button"
+                    class="p-1.5 rounded-lg text-[#605596] hover:text-[#283FA7] hover:bg-[#F0EDFB] transition cursor-pointer"
+                    title="Editar proveedor"
+                  >
+                    ✏️
+                  </button>
+                  @if (s.isActive) {
+                    <button
+                      (click)="onDeactivate(s)"
+                      type="button"
+                      class="p-1.5 rounded-lg text-[#605596] hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
+                      title="Desactivar proveedor"
+                    >
+                      🚫
+                    </button>
+                  }
+                </div>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="glass-row group"></tr>
+          </table>
+        </div>
+
+        <!-- Empty State -->
+        @if (suppliers().length === 0 && !isLoading()) {
+          <div class="py-16 text-center text-[#605596]">
+            <svg class="mx-auto h-12 w-12 text-[#ACA0E7] mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+            </svg>
+            <p class="text-sm font-bold text-[#161B2D]">Sin proveedores registrados</p>
+            <p class="text-xs text-[#605596] mt-1">Haga clic en "Nuevo Proveedor" para agregar el primero al catálogo.</p>
+          </div>
+        }
+
+        <!-- Paginador -->
+        <div class="px-6 py-4 border-t border-[#DEDAF4] bg-white/40 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#605596] font-medium">
+          <span>Mostrando <b class="text-[#161B2D] font-mono">{{ suppliers().length }}</b> de <b class="text-[#161B2D] font-mono">{{ totalCount() }}</b> proveedores</span>
+          <mat-paginator
+            [length]="totalCount()"
+            [pageSize]="pageSize()"
+            [pageIndex]="pageIndex()"
+            [pageSizeOptions]="[5, 10, 25, 50]"
+            (page)="onPageChange($event)"
+            class="bg-transparent text-[#161B2D]"
+          ></mat-paginator>
+        </div>
+      </div>
+    } @placeholder {
+      <div class="rounded-3xl glass-card border border-white/60 p-12 text-center text-xs text-[#605596] font-mono animate-pulse">
+        ⚡ Cargando tabla de proveedores en viewport...
+      </div>
+    }
+  }
+</div>

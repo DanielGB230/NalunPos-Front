@@ -1,0 +1,153 @@
+<!-- StockAdjustmentFormComponent — NalunPos-Web -->
+<!-- Modal de Ajuste de Stock — Signal Forms — Glassmorphism -->
+
+<div class="bg-white rounded-3xl overflow-hidden shadow-2xl min-w-[520px]">
+
+  <!-- Header del Modal -->
+  <div class="bg-linear-to-r from-[#605596] to-[#9B2C67] px-6 py-5">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-white/20 border border-white/30 flex items-center justify-center text-lg">⚖️</div>
+        <div>
+          <h2 class="text-sm font-bold text-white font-mono">Ajuste de Inventario</h2>
+          <p class="text-[11px] text-white/70">Registra diferencias de conteo, mermas o correcciones</p>
+        </div>
+      </div>
+      <button
+        type="button"
+        (click)="close()"
+        class="p-2 rounded-xl text-white/70 hover:text-white hover:bg-white/20 transition cursor-pointer"
+        aria-label="Cerrar"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Cuerpo del Formulario -->
+  <div class="px-6 py-6 space-y-5 bg-[#FAFBFF]">
+
+    <!-- Error Alert -->
+    @if (errorMessage()) {
+      <div class="flex items-center gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-rose-700 text-xs font-semibold">
+        <svg class="h-4 w-4 text-rose-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        {{ errorMessage() }}
+      </div>
+    }
+
+    <!-- Almacén -->
+    <div class="space-y-1.5">
+      <label for="adj-warehouse" class="text-[11px] font-bold font-mono uppercase tracking-wider text-[#605596]">
+        Almacén <span class="text-[#9B2C67]">*</span>
+      </label>
+      <select
+        id="adj-warehouse"
+        [formField]="warehouseIdField"
+        class="w-full rounded-xl border border-[#DEDAF4] bg-white px-3 py-2.5 text-xs font-mono font-semibold text-[#161B2D] focus:outline-none focus:ring-2 focus:ring-[#9B2C67]/30 focus:border-[#9B2C67] transition appearance-none"
+      >
+        @for (wh of dialogData.warehouses; track wh.id) {
+          <option [value]="wh.id">{{ wh.name }} {{ wh.isDefault ? '(Principal)' : '' }}</option>
+        }
+      </select>
+    </div>
+
+    <!-- ID de Producto -->
+    <div class="space-y-1.5">
+      <label for="adj-product" class="text-[11px] font-bold font-mono uppercase tracking-wider text-[#605596]">
+        ID de Producto <span class="text-[#9B2C67]">*</span>
+      </label>
+      <input
+        id="adj-product"
+        type="text"
+        [formField]="productIdField"
+        placeholder="UUID del producto (ej: 3fa85f64-...)"
+        class="w-full rounded-xl border border-[#DEDAF4] bg-white px-3 py-2.5 text-xs font-mono text-[#161B2D] placeholder:text-[#ACA0E7] focus:outline-none focus:ring-2 focus:ring-[#9B2C67]/30 focus:border-[#9B2C67] transition"
+      />
+      <p class="text-[10px] text-[#ACA0E7] font-mono">Ingresa el UUID del producto a ajustar.</p>
+    </div>
+
+    <!-- Cantidad + Motivo (2 columnas) -->
+    <div class="grid grid-cols-2 gap-4">
+      <!-- Cantidad -->
+      <div class="space-y-1.5">
+        <label for="adj-quantity" class="text-[11px] font-bold font-mono uppercase tracking-wider text-[#605596]">
+          Cantidad <span class="text-[#9B2C67]">*</span>
+        </label>
+        <input
+          id="adj-quantity"
+          type="number"
+          [formField]="quantityField"
+          placeholder="Ej: -5 o +10"
+          class="w-full rounded-xl border border-[#DEDAF4] bg-white px-3 py-2.5 text-xs font-mono font-bold text-[#161B2D] placeholder:text-[#ACA0E7] focus:outline-none focus:ring-2 focus:ring-[#9B2C67]/30 focus:border-[#9B2C67] transition"
+        />
+        <p class="text-[10px] text-[#ACA0E7] font-mono">Negativo = merma. Positivo = entrada.</p>
+      </div>
+
+      <!-- Motivo -->
+      <div class="space-y-1.5">
+        <label for="adj-reason" class="text-[11px] font-bold font-mono uppercase tracking-wider text-[#605596]">
+          Motivo <span class="text-[#9B2C67]">*</span>
+        </label>
+        <select
+          id="adj-reason"
+          [value]="formModel().reason"
+          (change)="onReasonChange($event)"
+          class="w-full rounded-xl border border-[#DEDAF4] bg-white px-3 py-2.5 text-xs font-mono font-semibold text-[#161B2D] focus:outline-none focus:ring-2 focus:ring-[#9B2C67]/30 focus:border-[#9B2C67] transition appearance-none"
+        >
+          @for (opt of reasonOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <!-- Notas -->
+    <div class="space-y-1.5">
+      <label for="adj-notes" class="text-[11px] font-bold font-mono uppercase tracking-wider text-[#605596]">
+        Notas / Observaciones
+      </label>
+      <textarea
+        id="adj-notes"
+        [formField]="notesField"
+        rows="3"
+        placeholder="Descripción del ajuste (opcional)"
+        class="w-full rounded-xl border border-[#DEDAF4] bg-white px-3 py-2.5 text-xs font-mono text-[#161B2D] placeholder:text-[#ACA0E7] focus:outline-none focus:ring-2 focus:ring-[#9B2C67]/30 focus:border-[#9B2C67] transition resize-none"
+      ></textarea>
+    </div>
+
+  </div>
+
+  <!-- Footer del Modal -->
+  <div class="px-6 py-4 border-t border-[#DEDAF4] bg-white flex items-center justify-between gap-3">
+    <button
+      type="button"
+      (click)="close()"
+      [disabled]="isLoading()"
+      class="flex-1 py-2.5 rounded-xl text-xs font-bold text-[#605596] border border-[#DEDAF4] bg-white hover:bg-[#F0EDFB] hover:text-[#161B2D] transition cursor-pointer disabled:opacity-40"
+    >
+      Cancelar
+    </button>
+    <button
+      id="btn-guardar-ajuste"
+      type="button"
+      (click)="onSubmit()"
+      [disabled]="isLoading()"
+      class="flex-1 py-2.5 rounded-xl text-xs font-bold text-white bg-linear-to-r from-[#605596] to-[#9B2C67] shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-pointer disabled:opacity-40 disabled:scale-100 flex items-center justify-center gap-2"
+    >
+      @if (isLoading()) {
+        <div class="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin"></div>
+        Procesando...
+      } @else {
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+        </svg>
+        Registrar Ajuste
+      }
+    </button>
+  </div>
+
+</div>

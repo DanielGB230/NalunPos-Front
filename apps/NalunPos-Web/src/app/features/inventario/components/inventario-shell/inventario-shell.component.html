@@ -1,0 +1,190 @@
+<!-- InventarioShellComponent — NalunPos-Web -->
+<!-- Smart Shell: Hero + Métricas + Tabs + Selector de Almacén -->
+<div class="relative flex-1 flex overflow-hidden h-full w-full select-none">
+
+  <main class="flex-1 overflow-y-auto overscroll-contain px-5 lg:px-7 py-6 space-y-6 custom-scrollbar">
+
+    <!-- Hero: lib-page-hero-card (@nalunpos/shared/ui) -->
+    <lib-page-hero-card
+      [config]="heroConfig"
+      (primaryActionClick)="openAdjustmentDialog()"
+      (secondaryActionClick)="canTransfer() ? openTransferDialog() : null"
+    />
+
+    <!-- Métricas: lib-metrics-bento-grid (@nalunpos/shared/ui) -->
+    <lib-metrics-bento-grid [metrics]="metricsCards()" />
+
+    <!-- ── Selector de Almacén + Tabs ── -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+
+      <!-- Tabs de navegación -->
+      <div class="flex items-center gap-1 p-1 rounded-2xl bg-[#F0EDFB] border border-[#DEDAF4]">
+        <button
+          id="tab-stock"
+          type="button"
+          (click)="setTab('stock')"
+          [class]="activeTab() === 'stock'
+            ? 'px-4 py-2 rounded-xl text-xs font-bold bg-[#161B2D] text-white shadow-xs transition-all duration-200'
+            : 'px-4 py-2 rounded-xl text-xs font-semibold text-[#605596] hover:text-[#161B2D] hover:bg-white/80 transition-all duration-200 cursor-pointer'"
+        >
+          📦 Stock Actual
+        </button>
+        <button
+          id="tab-kardex"
+          type="button"
+          (click)="setTab('kardex')"
+          [class]="activeTab() === 'kardex'
+            ? 'px-4 py-2 rounded-xl text-xs font-bold bg-[#283FA7] text-white shadow-xs transition-all duration-200'
+            : 'px-4 py-2 rounded-xl text-xs font-semibold text-[#283FA7] hover:text-[#161B2D] hover:bg-white/80 transition-all duration-200 cursor-pointer'"
+        >
+          📋 Kardex
+        </button>
+        <button
+          id="tab-ajustes"
+          type="button"
+          (click)="setTab('ajustes')"
+          [class]="activeTab() === 'ajustes'
+            ? 'px-4 py-2 rounded-xl text-xs font-bold bg-[#9B2C67] text-white shadow-xs transition-all duration-200'
+            : 'px-4 py-2 rounded-xl text-xs font-semibold text-[#9B2C67] hover:text-[#161B2D] hover:bg-white/80 transition-all duration-200 cursor-pointer'"
+        >
+          ⚖️ Ajustes
+        </button>
+        @if (canTransfer()) {
+          <button
+            id="tab-traspasos"
+            type="button"
+            (click)="setTab('traspasos')"
+            [class]="activeTab() === 'traspasos'
+              ? 'px-4 py-2 rounded-xl text-xs font-bold bg-[#0D7377] text-white shadow-xs transition-all duration-200'
+              : 'px-4 py-2 rounded-xl text-xs font-semibold text-[#0D7377] hover:text-[#161B2D] hover:bg-white/80 transition-all duration-200 cursor-pointer'"
+          >
+            🔄 Traspasos
+          </button>
+        }
+      </div>
+
+      <!-- Selector de Almacén -->
+      @if (warehouses().length > 0) {
+        <div class="flex items-center gap-2">
+          <span class="text-[10px] font-mono font-semibold text-[#605596] uppercase tracking-wider">Almacén:</span>
+          <div class="relative">
+            <select
+              id="warehouse-selector"
+              [value]="selectedWarehouseId()"
+              (change)="onSelectWarehouse($event)"
+              class="appearance-none pl-3 pr-8 py-1.5 rounded-xl border border-[#DEDAF4] bg-white text-xs font-mono font-semibold text-[#161B2D] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#687FE5]/40 focus:border-[#687FE5] transition shadow-xs min-w-[160px]"
+            >
+              @for (wh of warehouses(); track wh.id) {
+                <option [value]="wh.id">
+                  {{ wh.name }} {{ wh.isDefault ? '(Principal)' : '' }}
+                </option>
+              }
+            </select>
+            <svg class="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#605596] pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- ── Contenido de Tab: Stock Actual ── -->
+    @if (activeTab() === 'stock') {
+      @defer (on viewport) {
+        <app-stock-list
+          [warehouseId]="selectedWarehouseId()"
+          [refreshTick]="refreshTick()"
+        />
+      } @placeholder {
+        <div class="rounded-3xl glass-card border border-white/10 p-12 flex items-center justify-center">
+          <div class="w-8 h-8 rounded-full border-4 border-[#ACA0E7] border-t-transparent animate-spin"></div>
+        </div>
+      }
+    }
+
+    <!-- ── Contenido de Tab: Kardex ── -->
+    @if (activeTab() === 'kardex') {
+      @defer (on viewport) {
+        <app-kardex
+          [warehouseId]="selectedWarehouseId()"
+          [refreshTick]="refreshTick()"
+        />
+      } @placeholder {
+        <div class="rounded-3xl glass-card border border-white/10 p-12 flex items-center justify-center">
+          <div class="w-8 h-8 rounded-full border-4 border-[#687FE5] border-t-transparent animate-spin"></div>
+        </div>
+      }
+    }
+
+    <!-- ── Contenido de Tab: Ajustes (Panel inline de historial) ── -->
+    @if (activeTab() === 'ajustes') {
+      <div class="rounded-3xl glass-card border border-[#DEDAF4] overflow-hidden shadow-glass">
+        <div class="px-6 py-5 border-b border-[#DEDAF4]/60 flex items-center justify-between">
+          <div>
+            <h2 class="text-sm font-bold text-[#161B2D] font-mono">⚖️ Ajustes de Inventario</h2>
+            <p class="text-[11px] text-[#605596] mt-0.5">Registra diferencias de conteo, mermas, daños o carga inicial.</p>
+          </div>
+          <button
+            id="btn-nuevo-ajuste"
+            type="button"
+            (click)="openAdjustmentDialog()"
+            class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-linear-to-r from-[#605596] to-[#9B2C67] text-white shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-pointer"
+          >
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+            </svg>
+            Nuevo Ajuste
+          </button>
+        </div>
+        <div class="px-6 py-12 text-center text-[#605596]">
+          <svg class="mx-auto h-12 w-12 text-[#ACA0E7] mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18M3 12h18M3 18h18"/>
+          </svg>
+          <p class="text-sm font-bold text-[#161B2D]">Historial de Ajustes</p>
+          <p class="text-xs text-[#605596] mt-1">Haz clic en "Nuevo Ajuste" para registrar una diferencia de inventario.</p>
+          <p class="text-[10px] text-[#ACA0E7] mt-2 font-mono">El historial de ajustes se visualiza en el Kardex de movimientos.</p>
+        </div>
+      </div>
+    }
+
+    <!-- ── Contenido de Tab: Traspasos ── -->
+    @if (activeTab() === 'traspasos') {
+      @if (canTransfer()) {
+        <div class="rounded-3xl glass-card border border-[#DEDAF4] overflow-hidden shadow-glass">
+          <div class="px-6 py-5 border-b border-[#DEDAF4]/60 flex items-center justify-between">
+            <div>
+              <h2 class="text-sm font-bold text-[#161B2D] font-mono">🔄 Traspasos entre Almacenes</h2>
+              <p class="text-[11px] text-[#605596] mt-0.5">Mueve stock de un almacén a otro con trazabilidad completa.</p>
+            </div>
+            <button
+              id="btn-nuevo-traspaso"
+              type="button"
+              (click)="openTransferDialog()"
+              class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-linear-to-r from-[#0D7377] to-[#14A085] text-white shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-pointer"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+              </svg>
+              Nuevo Traspaso
+            </button>
+          </div>
+          <div class="px-6 py-12 text-center text-[#605596]">
+            <svg class="mx-auto h-12 w-12 text-[#ACA0E7] mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+            </svg>
+            <p class="text-sm font-bold text-[#161B2D]">Historial de Traspasos</p>
+            <p class="text-xs text-[#605596] mt-1">Haz clic en "Nuevo Traspaso" para mover stock entre almacenes.</p>
+            <p class="text-[10px] text-[#ACA0E7] mt-2 font-mono">Todos los traspasos quedan registrados en el Kardex con trazabilidad completa.</p>
+          </div>
+        </div>
+      } @else {
+        <!-- Fallback: no debería mostrarse porque el tab se oculta, pero por seguridad -->
+        <div class="rounded-3xl border border-[#DEDAF4] bg-[#FAFAFA] p-8 text-center">
+          <p class="text-sm font-bold text-[#605596]">Función no disponible con un único almacén</p>
+        </div>
+      }
+    }
+
+  </main>
+
+</div>

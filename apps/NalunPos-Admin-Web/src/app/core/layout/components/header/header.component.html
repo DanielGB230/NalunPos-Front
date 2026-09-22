@@ -1,15 +1,33 @@
 <header class="h-[62px] shrink-0 sticky top-0 z-40 px-4 sm:px-6 border-b border-white/80 bg-white/70 backdrop-blur-2xl transition-all shadow-[0_4px_25px_rgba(172,160,231,0.08)] flex items-center justify-between">
-  <!-- Indicador 'Consola En Línea' + Botón Hamburguesa de 3 Rayas Móvil -->
-  <div class="flex items-center space-x-3 sm:space-x-5">
+  <!-- Indicador 'Consola En Línea' + Botones de Navegación -->
+  <div class="flex items-center space-x-3 sm:space-x-4">
     <!-- Botón de 3 Rayas Móvil -->
     <button
       (click)="toggleMobileMenu()"
       type="button"
-      class="md:hidden p-2 rounded-xl text-[#161B2D] hover:text-[#605596] hover:bg-white/80 border border-[#DEDAF4] transition shadow-xs cursor-pointer focus:outline-none"
+      class="md:hidden w-9 h-9 rounded-xl bg-white/40 hover:bg-white/70 border border-white/60 hover:border-white/80 text-[#605596] hover:text-[#161B2D] flex items-center justify-center transition-all shadow-xs cursor-pointer focus:outline-none"
       title="Abrir menú de módulos"
     >
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+
+    <!-- Botón Contraer/Expandir Sidebar (Desktop) -->
+    <button
+      type="button"
+      (click)="toggleSidebar()"
+      [title]="isSidebarCollapsed() ? 'Expandir menú lateral' : 'Contraer menú lateral'"
+      class="hidden md:flex w-9 h-9 rounded-xl bg-white/40 hover:bg-white/70 border border-white/60 hover:border-white/80 text-[#605596] hover:text-[#161B2D] items-center justify-center transition-all shadow-xs group cursor-pointer focus:outline-none"
+    >
+      <svg
+        class="w-4 h-4 transition-transform duration-200"
+        [class.rotate-180]="isSidebarCollapsed()"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
       </svg>
     </button>
 

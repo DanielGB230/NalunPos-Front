@@ -80,6 +80,22 @@ export const appRoutes: Routes = [
         title: 'Usuarios — NalunPos',
       },
       {
+        path: 'compras',
+        loadChildren: () =>
+          import('./features/purchases/purchases.routes').then(
+            (m) => m.purchasesRoutes,
+          ),
+        title: 'Compras — NalunPos',
+      },
+      {
+        path: 'proveedores',
+        loadChildren: () =>
+          import('./features/suppliers/suppliers.routes').then(
+            (m) => m.suppliersRoutes,
+          ),
+        title: 'Proveedores — NalunPos',
+      },
+      {
         path: 'categorias',
         loadChildren: () =>
           import('./features/categories/categories.routes').then(

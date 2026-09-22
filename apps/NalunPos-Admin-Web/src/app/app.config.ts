@@ -7,7 +7,9 @@ import {
   APP_INITIALIZER,
   ApplicationConfig,
   provideBrowserGlobalErrorListeners,
+  provideZonelessChangeDetection,
 } from '@angular/core';
+
 import {
   provideRouter,
   withComponentInputBinding,
@@ -38,6 +40,7 @@ function initializeAuth(authService: AuthService): () => void {
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    provideZonelessChangeDetection(),
     provideAnimationsAsync(),
     provideBrowserGlobalErrorListeners(),
     provideRouter(

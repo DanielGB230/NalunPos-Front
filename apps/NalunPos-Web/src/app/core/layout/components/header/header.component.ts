@@ -51,8 +51,14 @@ export class HeaderComponent {
     return 'POS Operations';
   });
 
+  protected readonly isSidebarCollapsed = this.layoutService.isSidebarCollapsed;
+
   protected toggleMobileMenu(): void {
     this.layoutService.toggleMobileMenu();
+  }
+
+  protected toggleSidebar(): void {
+    this.layoutService.toggleSidebar();
   }
 
   protected toggleUserMenu(): void {
