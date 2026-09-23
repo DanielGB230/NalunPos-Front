@@ -7,12 +7,12 @@
     <!-- Hero: lib-page-hero-card (@nalunpos/shared/ui) -->
     <lib-page-hero-card
       [config]="heroConfig"
-      (primaryActionClick)="openCreateModal()"
+      (primaryActionClick)="openCategoryDialog()"
       (secondaryActionClick)="$event"
     />
 
     <!-- Métricas: lib-metrics-bento-grid (@nalunpos/shared/ui) -->
-    <lib-metrics-bento-grid [metrics]="metricsCards()" />
+    <lib-metrics-bento-grid [metrics]="metricsCards()" [isLoading]="isLoading()" />
 
     <!-- Filtros rápidos: lib-quick-filter-bar (@nalunpos/shared/ui) -->
     <lib-quick-filter-bar
@@ -27,33 +27,137 @@
       (advancedToggle)="toggleAdvancedFilters()"
     />
 
-    <!-- Alerta de Error -->
-    @if (errorMessage()) {
-      <div class="flex items-center space-x-3 rounded-2xl border border-rose-300 bg-rose-50/90 p-4 text-rose-800 text-xs font-semibold shadow-xs">
-        <svg class="h-5 w-5 text-rose-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-        </svg>
-        <span>{{ errorMessage() }}</span>
-      </div>
-    }
 
-    <!-- Loading -->
+    <!-- Loading Skeleton -->
     @if (isLoading()) {
-      <div class="flex flex-col items-center justify-center py-12 space-y-3">
-        <div class="w-10 h-10 rounded-full border-4 border-[#ACA0E7] border-t-transparent animate-spin"></div>
-        <p class="text-xs font-semibold text-[#605596]">Cargando catálogo de categorías...</p>
+      <div class="rounded-3xl glass-card border border-white overflow-hidden shadow-glass">
+        <div class="overflow-x-auto custom-scrollbar">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-purple-soft bg-white/50 text-[11px] font-bold uppercase tracking-wider text-[#605596] font-mono">
+                <th class="py-4 px-6">Categoría / Familia</th>
+                <th class="py-4 px-6 font-mono">Descripción</th>
+                <th class="py-4 px-6 text-center font-mono">Estado Comercial</th>
+                <th class="py-4 px-6 font-mono">Fecha Registro</th>
+                <th class="py-4 px-6 text-right font-mono">Acciones</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-purple-soft/60 text-sm">
+              <tr class="glass-row">
+                <td class="py-4 px-6">
+                  <div class="space-y-1.5">
+                    <div class="w-36 h-4 rounded-md bg-linear-to-r from-[#DEDAF4]/60 via-white/80 to-[#DEDAF4]/60 animate-pulse"></div>
+                    <div class="w-24 h-3 rounded-md bg-purple-soft/50 animate-pulse"></div>
+                  </div>
+                </td>
+                <td class="py-4 px-6">
+                  <div class="w-36 h-4 rounded-md bg-linear-to-r from-[#DBE6FB]/80 via-white/80 to-[#DBE6FB]/80 animate-pulse"></div>
+                </td>
+                <td class="py-4 px-6 text-center">
+                  <div class="inline-flex items-center justify-center">
+                    <div class="w-32 h-6 rounded-full bg-linear-to-r from-[#FCE7F0]/80 via-[#DEDAF4]/60 to-[#EEF3FE]/80 border border-white/80 animate-pulse shadow-xs"></div>
+                  </div>
+                </td>
+                <td class="py-4 px-6">
+                  <div class="w-24 h-3.5 rounded-md bg-purple-soft/60 animate-pulse"></div>
+                </td>
+                <td class="py-4 px-6 text-right">
+                  <div class="inline-flex items-center space-x-1.5 justify-end">
+                    <div class="w-8 h-8 rounded-xl bg-linear-to-r from-[#DEDAF4]/60 via-white/80 to-[#DEDAF4]/60 animate-pulse"></div>
+                    <div class="w-8 h-8 rounded-xl bg-linear-to-r from-[#DEDAF4]/60 via-white/80 to-[#DEDAF4]/60 animate-pulse"></div>
+                  </div>
+                </td>
+              </tr>
+              <tr class="glass-row">
+                <td class="py-4 px-6">
+                  <div class="space-y-1.5">
+                    <div class="w-40 h-4 rounded-md bg-linear-to-r from-[#DEDAF4]/60 via-white/80 to-[#DEDAF4]/60 animate-pulse"></div>
+                    <div class="w-20 h-3 rounded-md bg-purple-soft/50 animate-pulse"></div>
+                  </div>
+                </td>
+                <td class="py-4 px-6">
+                  <div class="w-44 h-4 rounded-md bg-linear-to-r from-[#DBE6FB]/80 via-white/80 to-[#DBE6FB]/80 animate-pulse"></div>
+                </td>
+                <td class="py-4 px-6 text-center">
+                  <div class="inline-flex items-center justify-center">
+                    <div class="w-28 h-6 rounded-full bg-linear-to-r from-[#EEF5FE] via-white/80 to-[#EEF5FE] border border-white/80 animate-pulse shadow-xs"></div>
+                  </div>
+                </td>
+                <td class="py-4 px-6">
+                  <div class="w-24 h-3.5 rounded-md bg-purple-soft/60 animate-pulse"></div>
+                </td>
+                <td class="py-4 px-6 text-right">
+                  <div class="inline-flex items-center space-x-1.5 justify-end">
+                    <div class="w-8 h-8 rounded-xl bg-linear-to-r from-[#DEDAF4]/60 via-white/80 to-[#DEDAF4]/60 animate-pulse"></div>
+                    <div class="w-8 h-8 rounded-xl bg-linear-to-r from-[#DEDAF4]/60 via-white/80 to-[#DEDAF4]/60 animate-pulse"></div>
+                  </div>
+                </td>
+              </tr>
+              <tr class="glass-row">
+                <td class="py-4 px-6">
+                  <div class="space-y-1.5">
+                    <div class="w-36 h-4 rounded-md bg-linear-to-r from-[#DEDAF4]/60 via-white/80 to-[#DEDAF4]/60 animate-pulse"></div>
+                    <div class="w-24 h-3 rounded-md bg-purple-soft/50 animate-pulse"></div>
+                  </div>
+                </td>
+                <td class="py-4 px-6">
+                  <div class="w-28 h-4 rounded-md bg-linear-to-r from-[#DBE6FB]/80 via-white/80 to-[#DBE6FB]/80 animate-pulse"></div>
+                </td>
+                <td class="py-4 px-6 text-center">
+                  <div class="inline-flex items-center justify-center">
+                    <div class="w-32 h-6 rounded-full bg-linear-to-r from-[#FCE7F0]/80 via-[#DEDAF4]/60 to-[#EEF3FE]/80 border border-white/80 animate-pulse shadow-xs"></div>
+                  </div>
+                </td>
+                <td class="py-4 px-6">
+                  <div class="w-24 h-3.5 rounded-md bg-purple-soft/60 animate-pulse"></div>
+                </td>
+                <td class="py-4 px-6 text-right">
+                  <div class="inline-flex items-center space-x-1.5 justify-end">
+                    <div class="w-8 h-8 rounded-xl bg-linear-to-r from-[#DEDAF4]/60 via-white/80 to-[#DEDAF4]/60 animate-pulse"></div>
+                    <div class="w-8 h-8 rounded-xl bg-linear-to-r from-[#DEDAF4]/60 via-white/80 to-[#DEDAF4]/60 animate-pulse"></div>
+                  </div>
+                </td>
+              </tr>
+              <tr class="glass-row">
+                <td class="py-4 px-6">
+                  <div class="space-y-1.5">
+                    <div class="w-32 h-4 rounded-md bg-linear-to-r from-[#DEDAF4]/60 via-white/80 to-[#DEDAF4]/60 animate-pulse"></div>
+                    <div class="w-24 h-3 rounded-md bg-purple-soft/50 animate-pulse"></div>
+                  </div>
+                </td>
+                <td class="py-4 px-6">
+                  <div class="w-40 h-4 rounded-md bg-linear-to-r from-[#DBE6FB]/80 via-white/80 to-[#DBE6FB]/80 animate-pulse"></div>
+                </td>
+                <td class="py-4 px-6 text-center">
+                  <div class="inline-flex items-center justify-center">
+                    <div class="w-28 h-6 rounded-full bg-linear-to-r from-[#EEF5FE] via-white/80 to-[#EEF5FE] border border-white/80 animate-pulse shadow-xs"></div>
+                  </div>
+                </td>
+                <td class="py-4 px-6">
+                  <div class="w-24 h-3.5 rounded-md bg-purple-soft/60 animate-pulse"></div>
+                </td>
+                <td class="py-4 px-6 text-right">
+                  <div class="inline-flex items-center space-x-1.5 justify-end">
+                    <div class="w-8 h-8 rounded-xl bg-linear-to-r from-[#DEDAF4]/60 via-white/80 to-[#DEDAF4]/60 animate-pulse"></div>
+                    <div class="w-8 h-8 rounded-xl bg-linear-to-r from-[#DEDAF4]/60 via-white/80 to-[#DEDAF4]/60 animate-pulse"></div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     } @else {
       <div class="rounded-3xl glass-card border border-white overflow-hidden shadow-glass">
         <div class="overflow-x-auto custom-scrollbar">
-          <table mat-table [dataSource]="categories()" class="w-full min-w-[750px] text-left border-collapse">
+          <table mat-table [dataSource]="categories()" class="w-full min-w-187.5 text-left border-collapse">
 
             <!-- Nombre Column -->
             <ng-container matColumnDef="name">
-              <th mat-header-cell *matHeaderCellDef class="border-b border-[#DEDAF4] bg-white/50 py-4 px-6 text-[11px] font-semibold uppercase tracking-wider text-[#605596] font-mono">
+              <th mat-header-cell *matHeaderCellDef class="border-b border-purple-soft bg-white/50 py-4 px-6 text-[11px] font-semibold uppercase tracking-wider text-[#605596] font-mono">
                 Categoría / Familia
               </th>
-              <td mat-cell *matCellDef="let cat" class="py-4 px-6 border-b border-[#DEDAF4]/60">
+              <td mat-cell *matCellDef="let cat" class="py-4 px-6 border-b border-purple-soft">
                 <div class="flex items-center space-x-3.5">
                   <div class="w-9 h-9 rounded-2xl bg-linear-to-tr from-[#687FE5] to-[#C5D2F8] text-white font-mono font-bold flex items-center justify-center shadow-xs text-xs border border-white shrink-0">
                     {{ cat.name.substring(0, 2).toUpperCase() }}
@@ -68,31 +172,31 @@
 
             <!-- Descripción Column -->
             <ng-container matColumnDef="description">
-              <th mat-header-cell *matHeaderCellDef class="border-b border-[#DEDAF4] bg-white/50 py-4 px-6 text-[11px] font-semibold uppercase tracking-wider text-[#605596] font-mono">
+              <th mat-header-cell *matHeaderCellDef class="border-b border-purple-soft bg-white/50 py-4 px-6 text-[11px] font-semibold uppercase tracking-wider text-[#605596] font-mono">
                 Descripción
               </th>
-              <td mat-cell *matCellDef="let cat" class="py-4 px-6 border-b border-[#DEDAF4]/60 text-xs text-[#605596] font-mono font-normal">
+              <td mat-cell *matCellDef="let cat" class="py-4 px-6 border-b border-purple-soft text-xs text-[#605596] font-mono font-normal">
                 {{ cat.description || 'Sin descripción asignada' }}
               </td>
             </ng-container>
 
             <!-- Estado Column -->
             <ng-container matColumnDef="isActive">
-              <th mat-header-cell *matHeaderCellDef class="border-b border-[#DEDAF4] bg-white/50 py-4 px-6 text-[11px] font-semibold uppercase tracking-wider text-[#605596] text-center font-mono whitespace-nowrap">
+              <th mat-header-cell *matHeaderCellDef class="border-b border-purple-soft bg-white/50 py-4 px-6 text-[11px] font-semibold uppercase tracking-wider text-[#605596] text-center font-mono whitespace-nowrap">
                 Estado Comercial
               </th>
-              <td mat-cell *matCellDef="let cat" class="py-4 px-6 border-b border-[#DEDAF4]/60 text-center whitespace-nowrap">
+              <td mat-cell *matCellDef="let cat" class="py-4 px-6 border-b border-purple-soft text-center whitespace-nowrap">
                 @if (cat.isActive) {
-                  <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-mono font-semibold bg-[#EEF5FE] text-[#2A5BC7] border border-[#92AAE7] shadow-xs whitespace-nowrap">
+                  <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-mono font-semibold bg-[#EEF5FE] text-[#2A5BC7] border border-sky-bright shadow-xs whitespace-nowrap">
                     <span class="relative flex h-2 w-2 mr-2 shrink-0">
-                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#92AAE7] opacity-75"></span>
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-bright opacity-75"></span>
                       <span class="relative inline-flex rounded-full h-2 w-2 bg-[#2A5BC7]"></span>
                     </span>
                     Activa / Visible
                   </span>
                 } @else {
-                  <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-mono font-semibold bg-[#FDF2F7] text-[#9B2C67] border border-[#E8A0BF] shadow-xs whitespace-nowrap">
-                    <span class="w-2 h-2 rounded-full bg-[#E8A0BF] mr-2 shrink-0"></span>
+                  <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-mono font-semibold bg-orchid-bg text-orchid border border-orchid-light shadow-xs whitespace-nowrap">
+                    <span class="w-2 h-2 rounded-full bg-orchid-light mr-2 shrink-0"></span>
                     Inactiva
                   </span>
                 }
@@ -101,25 +205,39 @@
 
             <!-- Fecha Column -->
             <ng-container matColumnDef="createdAtUtc">
-              <th mat-header-cell *matHeaderCellDef class="border-b border-[#DEDAF4] bg-white/50 py-4 px-6 text-[11px] font-semibold uppercase tracking-wider text-[#605596] font-mono">
+              <th mat-header-cell *matHeaderCellDef class="border-b border-purple-soft bg-white/50 py-4 px-6 text-[11px] font-semibold uppercase tracking-wider text-[#605596] font-mono">
                 Fecha Registro
               </th>
-              <td mat-cell *matCellDef="let cat" class="py-4 px-6 border-b border-[#DEDAF4]/60 text-xs text-[#605596] font-mono font-normal">
+              <td mat-cell *matCellDef="let cat" class="py-4 px-6 border-b border-purple-soft text-xs text-[#605596] font-mono font-normal">
                 {{ cat.createdAtUtc | date:'dd/MM/yyyy HH:mm' }}
               </td>
             </ng-container>
 
             <!-- Actions Column -->
             <ng-container matColumnDef="actions">
-              <th mat-header-cell *matHeaderCellDef class="border-b border-[#DEDAF4] bg-white/50 py-4 px-6 text-[11px] font-semibold uppercase tracking-wider text-[#605596] text-right font-mono">
+              <th mat-header-cell *matHeaderCellDef class="border-b border-purple-soft bg-white/50 py-4 px-6 text-[11px] font-semibold uppercase tracking-wider text-[#605596] text-right font-mono">
                 Acciones
               </th>
-              <td mat-cell *matCellDef="let cat" class="py-4 px-6 border-b border-[#DEDAF4]/60 text-right">
-                <div class="inline-flex items-center space-x-1">
-                  <button type="button" class="p-2 rounded-xl text-[#283FA7] hover:text-[#161B2D] hover:bg-[#EEF3FE] transition cursor-pointer" title="Ver Productos de la Categoría">
+              <td mat-cell *matCellDef="let cat" class="py-4 px-6 border-b border-purple-soft text-right">
+                <div class="inline-flex items-center space-x-1 justify-end">
+                  <button 
+                    type="button" 
+                    (click)="openCategoryDialog(cat)" 
+                    class="p-2 rounded-xl text-cobalt hover:text-[#161B2D] hover:bg-cobalt-bg transition cursor-pointer" 
+                    title="Editar Categoría"
+                  >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                  </button>
+                  <button 
+                    type="button" 
+                    (click)="onDeactivate(cat)" 
+                    class="p-2 rounded-xl text-rose-500 hover:text-rose-700 hover:bg-rose-50 transition cursor-pointer" 
+                    title="Desactivar Categoría"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
                     </svg>
                   </button>
                 </div>
@@ -134,7 +252,7 @@
         <!-- Empty state -->
         @if (categories().length === 0) {
           <div class="py-12 text-center text-[#605596]">
-            <svg class="mx-auto h-12 w-12 text-[#ACA0E7] mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <svg class="mx-auto h-12 w-12 text-primary-container mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
             </svg>
             <p class="text-sm font-bold text-[#161B2D]">No se encontraron categorías registradas</p>
@@ -143,10 +261,10 @@
         }
 
         <!-- Paginador -->
-        <div class="px-6 py-4 border-t border-[#DEDAF4] bg-white/40 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#605596] font-medium">
+        <div class="px-6 py-4 border-t border-purple-soft bg-white/40 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#605596] font-medium">
           <div class="flex items-center space-x-2">
             <span>Mostrando <b class="text-[#161B2D] font-mono">{{ categories().length }}</b> de <b class="text-[#161B2D] font-mono">{{ totalCount() }}</b> categorías</span>
-            <span class="text-[#DEDAF4]">|</span>
+            <span class="text-purple-soft">|</span>
             <button (click)="loadCategories()" type="button" class="text-[#605596] hover:text-[#161B2D] font-semibold cursor-pointer hover:underline font-mono">Sincronizar catálogo</button>
           </div>
           <mat-paginator

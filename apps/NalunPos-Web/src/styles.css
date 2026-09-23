@@ -136,17 +136,13 @@
 
 .glass-row {
   background: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-bottom: 1px solid rgba(222, 218, 244, 0.5);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border-bottom: 1px solid #DEDAF4;
+  transition: background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .glass-row:hover {
   background: rgba(255, 255, 255, 0.9);
-  transform: translateY(-1px);
-  box-shadow: 0 8px 20px -4px rgba(172, 160, 231, 0.2);
-  border-color: rgba(172, 160, 231, 0.5);
+  box-shadow: 0 4px 12px -2px rgba(172, 160, 231, 0.15);
 }
 
 .shadow-glass {
@@ -312,8 +308,8 @@
 }
 
 .mat-mdc-row {
-  border-bottom: 1px solid rgba(222, 218, 244, 0.6) !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  border-bottom: 1px solid #DEDAF4 !important;
+  transition: background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 .mat-mdc-row:hover {
@@ -322,7 +318,7 @@
 
 .mat-mdc-cell {
   color: #161B2D !important;
-  border-bottom: 1px solid rgba(222, 218, 244, 0.6) !important;
+  border-bottom: 1px solid #DEDAF4 !important;
   font-size: 0.75rem !important;
   font-family: 'JetBrains Mono', monospace !important;
 }
@@ -334,6 +330,15 @@
   border-radius: 1.5rem !important;
   box-shadow: 0 20px 50px -10px rgba(146, 170, 231, 0.3) !important;
   padding: 0 !important;
+}
+
+.confirmation-dialog-panel .mat-mdc-dialog-container .mdc-dialog__surface {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  padding: 0 !important;
+  border-radius: 2.25rem !important;
+  overflow: visible !important;
 }
 
 .mat-mdc-select-panel {

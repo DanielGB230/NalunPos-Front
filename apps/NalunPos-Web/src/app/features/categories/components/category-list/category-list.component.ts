@@ -13,17 +13,19 @@ import { MatTableModule } from '@angular/material/table';
 import { AppError } from '@nalunpos/shared/data-access';
 import {
   AdvancedFilterDrawerComponent,
+  ConfirmationDialogService,
   FilterDrawerConfig,
   MetricCardConfig,
   MetricsBentoGridComponent,
+  NotificationService,
   PageHeroCardComponent,
   PageHeroConfig,
   QuickFilterBarComponent,
   QuickFilterTab,
 } from '@nalunpos/shared/ui';
-import { CategoryCreateFormComponent } from '../category-create-form/category-create-form.component';
 import { CategoryDto } from '../../models/category.model';
 import { CategoryApiService } from '../../services/category-api.service';
+import { CategoryFormComponent } from '../category-form/category-form.component';
 
 @Component({
   selector: 'app-category-list',
@@ -45,6 +47,8 @@ import { CategoryApiService } from '../../services/category-api.service';
 export class CategoryListComponent implements OnInit {
   private readonly categoryApiService = inject(CategoryApiService);
   private readonly dialog = inject(MatDialog);
+  private readonly notification = inject(NotificationService);
+  private readonly confirmationService = inject(ConfirmationDialogService);
 
   protected readonly displayedColumns: string[] = [
     'name',
@@ -165,8 +169,16 @@ export class CategoryListComponent implements OnInit {
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
+    const filterVal = this.selectedStatusFilter();
+    const isActiveOnly =
+      filterVal === 'Active'
+        ? true
+        : filterVal === 'Inactive'
+          ? false
+          : undefined;
+
     this.categoryApiService
-      .getCategories(this.pageIndex() + 1, this.pageSize(), this.searchTerm())
+      .getCategories(this.pageIndex() + 1, this.pageSize(), this.searchTerm(), isActiveOnly)
       .subscribe({
         next: (result) => {
           this.categories.set(result.items);
@@ -196,22 +208,53 @@ export class CategoryListComponent implements OnInit {
 
   protected setStatusFilter(filter: string): void {
     this.selectedStatusFilter.set(filter as 'all' | 'Active' | 'Inactive');
+    this.pageIndex.set(0);
+    this.loadCategories();
   }
 
   protected toggleAdvancedFilters(): void {
     this.showAdvancedFilters.update((v) => !v);
   }
 
-  protected openCreateModal(): void {
-    const dialogRef = this.dialog.open(CategoryCreateFormComponent, {
+  protected openCategoryDialog(category?: CategoryDto): void {
+    const dialogRef = this.dialog.open(CategoryFormComponent, {
       width: '520px',
       maxWidth: '95vw',
       panelClass: 'dark-dialog-panel',
       disableClose: true,
+      data: { category },
     });
 
     dialogRef.afterClosed().subscribe((saved: boolean) => {
       if (saved) this.loadCategories();
     });
+  }
+
+  protected onDeactivate(category: CategoryDto): void {
+    const newStatus = !category.isActive;
+    const actionTitle = newStatus ? 'Activar Categoría' : 'Desactivar Categoría';
+    const actionLabel = newStatus ? 'activar' : 'desactivar';
+
+    this.confirmationService
+      .confirm({
+        title: actionTitle,
+        message: `¿Estás seguro de que deseas ${actionLabel} la categoría "${category.name}"?`,
+        confirmText: newStatus ? 'SÍ, ACTIVAR' : 'SÍ, DESACTIVAR',
+        variant: newStatus ? 'purple' : 'orchid',
+      })
+      .subscribe((confirmed) => {
+        if (confirmed) {
+          this.categoryApiService.changeCategoryStatus(category.id, newStatus).subscribe({
+            next: () => {
+              this.notification.success(`La categoría "${category.name}" fue ${newStatus ? 'activada' : 'desactivada'} correctamente.`, 'Éxito');
+              this.loadCategories();
+            },
+            error: (err) => {
+              const detail = err?.error?.detail || err?.error?.message || `No se pudo ${actionLabel} la categoría.`;
+              this.notification.error(detail, 'Error');
+            },
+          });
+        }
+      });
   }
 }

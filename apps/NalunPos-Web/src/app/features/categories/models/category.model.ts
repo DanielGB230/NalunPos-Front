@@ -20,3 +20,10 @@ export interface CreateCategoryRequest {
   name: string;
   description?: string | null;
 }
+
+export interface UpdateCategoryRequest {
+  id: string;
+  name: string;
+  description?: string | null;
+  isActive?: boolean;
+}

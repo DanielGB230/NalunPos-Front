@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.base.json",
+  "files": [],
+  "include": ["libs/**/*.ts"],
+  "references": [
+    { "path": "./apps/NalunPos-Web/tsconfig.app.json" },
+    { "path": "./libs/shared/ui/tsconfig.json" }
+  ]
+}

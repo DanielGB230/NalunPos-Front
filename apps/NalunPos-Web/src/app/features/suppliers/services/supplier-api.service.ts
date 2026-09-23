@@ -48,10 +48,10 @@ export class SupplierApiService {
   }
 
   updateSupplier(id: string, request: UpdateSupplierRequest): Observable<Supplier> {
-    return this.http.put<Supplier>(`${this.endpoint}/${id}`, request);
+    return this.http.patch<Supplier>(`${this.endpoint}/${id}`, request);
   }
 
-  deactivateSupplier(id: string): Observable<void> {
-    return this.http.patch<void>(`${this.endpoint}/${id}/deactivate`, {});
+  changeSupplierStatus(id: string, isActive: boolean): Observable<void> {
+    return this.http.patch<void>(`${this.endpoint}/${id}/status`, { isActive });
   }
 }

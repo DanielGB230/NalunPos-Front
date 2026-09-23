@@ -19,3 +19,9 @@ export * from './quick-filter-bar/quick-filter-bar.component';
 
 export * from './advanced-filter-drawer/advanced-filter-drawer.model';
 export * from './advanced-filter-drawer/advanced-filter-drawer.component';
+
+// ── Modal Global de Confirmación ──
+export * from './confirmation-dialog/confirmation-dialog.model';
+export * from './confirmation-dialog/confirmation-dialog.component';
+export * from './confirmation-dialog/confirmation-dialog.service';
+

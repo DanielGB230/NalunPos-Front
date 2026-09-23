@@ -30,4 +30,5 @@ export interface CreateSupplierRequest {
 
 export interface UpdateSupplierRequest extends CreateSupplierRequest {
   id: string;
+  isActive?: boolean;
 }

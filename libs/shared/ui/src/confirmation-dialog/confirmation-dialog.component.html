@@ -1,0 +1,106 @@
+<!-- ConfirmationDialogComponent — @nalunpos/shared/ui -->
+<!-- Modal Global de Confirmación de Acciones — Glassmorphism & Signal-driven (Ultra Compact & High Contrast) -->
+<div 
+  class="relative w-full max-w-[390px] rounded-[24px] bg-white/98 backdrop-blur-2xl border border-white/90 p-5 sm:p-5.5 shadow-2xl transition-all mx-auto"
+  style="box-shadow: 0 16px 40px -8px rgba(22, 27, 45, 0.22), 0 0 0 1px rgba(255, 255, 255, 0.95);"
+>
+  
+  <!-- Header con Ícono Dinámico y Título -->
+  <div class="flex items-center gap-3 mb-3">
+    <!-- Icon Badge Box -->
+    <div 
+      class="w-9 h-9 rounded-xl flex items-center justify-center shadow-xs shrink-0 border transition-all"
+      [ngClass]="{
+        'bg-[#F0EDFC] border-[#DEDAF4] text-[#7C3AED]': variant() === 'purple',
+        'bg-[#FCE7F0] border-[#E8A0BF] text-[#9B2C67]': variant() === 'danger' || variant() === 'orchid',
+        'bg-amber-50 border-amber-200 text-amber-600': variant() === 'warning',
+        'bg-[#EEF3FE] border-[#C5D2F8] text-[#283FA7]': variant() === 'info',
+        'bg-emerald-50 border-emerald-200 text-emerald-600': variant() === 'success'
+      }"
+    >
+      @switch (variant()) {
+        @case ('danger') {
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        }
+        @case ('orchid') {
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"></circle>
+            <path d="M12 8v4m0 4h.01" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+          </svg>
+        }
+        @case ('warning') {
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"></circle>
+            <path d="M12 8v4m0 4h.01" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+          </svg>
+        }
+        @case ('success') {
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"></circle>
+            <path d="M8.5 12.5l2.5 2.5 4.5-5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+          </svg>
+        }
+        @case ('info') {
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"></circle>
+            <path d="M12 16v-4m0-4h.01" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+          </svg>
+        }
+        @default {
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"></circle>
+            <path d="M9.5 9.5a2.5 2.5 0 014.8 1c0 1.5-2.3 2-2.3 3.5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+            <circle cx="12" cy="17.5" fill="currentColor" r="1"></circle>
+          </svg>
+        }
+      }
+    </div>
+
+    <!-- Título de Acción -->
+    <h3 class="text-xs sm:text-sm font-bold text-[#161B2D] tracking-tight font-mono">
+      {{ title() }}
+    </h3>
+  </div>
+
+  <!-- Mensaje Principal -->
+  <p class="text-[#605596] text-[11px] sm:text-xs font-mono font-normal mb-4 text-left leading-relaxed">
+    {{ message() }}
+  </p>
+
+  @if (subMessage()) {
+    <p class="text-[10px] text-[#605596] -mt-2 mb-4 font-mono bg-[#F0EDFB]/60 px-3 py-1.5 rounded-lg border border-[#DEDAF4]">
+      {{ subMessage() }}
+    </p>
+  }
+
+  <!-- Botones de Acción -->
+  <div class="flex items-center justify-end gap-2.5 pt-1 font-mono">
+    <button 
+      type="button" 
+      (click)="onCancel()"
+      class="px-4 py-2 rounded-full text-[11px] font-bold tracking-wider uppercase text-[#475569] hover:text-[#161B2D] hover:bg-[#F0EDFC]/60 transition-colors cursor-pointer font-mono"
+    >
+      {{ cancelText() }}
+    </button>
+    <button 
+      type="button" 
+      (click)="onConfirm()"
+      class="px-4.5 py-2 rounded-full text-white text-[11px] font-bold tracking-wider uppercase shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-1.5 cursor-pointer border-0 font-mono"
+      [ngClass]="{
+        'bg-[#7C3AED] hover:bg-[#6D28D9] shadow-[#7C3AED]/30': variant() === 'purple',
+        'bg-[#9B2C67] hover:bg-[#852357] shadow-[#9B2C67]/35': variant() === 'danger' || variant() === 'orchid',
+        'bg-amber-600 hover:bg-amber-700 shadow-amber-600/30': variant() === 'warning',
+        'bg-[#283FA7] hover:bg-[#1E2B78] shadow-[#283FA7]/30': variant() === 'info',
+        'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/30': variant() === 'success'
+      }"
+    >
+      <span class="text-white font-bold">{{ confirmText() }}</span>
+      <svg class="w-3.5 h-3.5 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"></circle>
+        <path d="M8.5 12.5l2.5 2.5 4.5-5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+      </svg>
+    </button>
+  </div>
+</div>

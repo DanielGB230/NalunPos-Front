@@ -5,6 +5,8 @@ import { NotificationService } from '@nalunpos/shared/ui';
 import { Supplier, CreateSupplierRequest, UpdateSupplierRequest } from '../../interfaces/supplier.interface';
 import { SupplierApiService } from '../../services/supplier-api.service';
 
+import { FormsModule } from '@angular/forms';
+
 export interface SupplierDialogData {
   supplier?: Supplier;
 }
@@ -12,7 +14,7 @@ export interface SupplierDialogData {
 @Component({
   selector: 'app-supplier-form',
   standalone: true,
-  imports: [CommonModule, MatDialogModule],
+  imports: [CommonModule, FormsModule, MatDialogModule],
   templateUrl: './supplier-form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -72,6 +74,7 @@ export class SupplierFormComponent {
       const updateReq: UpdateSupplierRequest = {
         id: this.data.supplier.id,
         ...formValue,
+        isActive: this.data.supplier.isActive ?? true,
       };
       this.supplierApi.updateSupplier(this.data.supplier.id, updateReq).subscribe({
         next: () => {

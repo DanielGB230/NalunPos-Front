@@ -39,6 +39,9 @@ export class MetricsBentoGridComponent {
   /** Array de 4 tarjetas de métricas a renderizar */
   @Input({ required: true }) metrics!: MetricCardConfig[];
 
+  /** Estado de carga para renderizar esqueletos de métricas */
+  @Input() isLoading = false;
+
   /**
    * Mapa de clases Tailwind por variante cromática.
    * Todas las clases son literales completos para garantizar inclusión
