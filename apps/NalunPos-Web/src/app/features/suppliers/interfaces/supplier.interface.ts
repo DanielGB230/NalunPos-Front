@@ -15,6 +15,8 @@ export interface Supplier {
   updatedAtUtc?: string | null;
 }
 
+export type SupplierDto = Supplier;
+
 export interface CreateSupplierRequest {
   name: string;
   contactName: string;

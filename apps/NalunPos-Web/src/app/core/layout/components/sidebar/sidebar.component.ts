@@ -96,6 +96,7 @@ export class SidebarComponent {
       groupIconColor: 'text-[#92AAE7]',
       items: [
         { label: 'Stock & Bodegas', route: '/inventario', icon: 'inventario' },
+        { label: 'Almacenes', route: '/almacenes', icon: 'inventario' },
         { label: 'Productos', route: '/productos', icon: 'productos' },
         { label: 'Categorías', route: '/categorias', icon: 'categorias' },
         { label: 'Órdenes de Compra', route: '/compras', icon: 'compras' },

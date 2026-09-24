@@ -4,5 +4,6 @@
 // =============================================================================
 
 export * from './models/app-error.model';
+export * from './interfaces/paged-result.interface';
 export * from './interceptors/correlation-id.interceptor';
 export * from './interceptors/error.interceptor';

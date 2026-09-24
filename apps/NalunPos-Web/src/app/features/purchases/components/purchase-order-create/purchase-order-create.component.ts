@@ -4,8 +4,8 @@ import { MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { NotificationService } from '@nalunpos/shared/ui';
 import { Supplier } from '../../../suppliers/interfaces/supplier.interface';
 import { SupplierApiService } from '../../../suppliers/services/supplier-api.service';
-import { Warehouse } from '../../../inventario/interfaces/warehouse.interface';
-import { WarehouseApiService } from '../../../inventario/services/warehouse-api.service';
+import { Warehouse } from '../../../warehouses/interfaces/warehouse.interface';
+import { WarehouseApiService } from '../../../warehouses/services/warehouse-api.service';
 import { CreatePurchaseOrderRequest } from '../../interfaces/purchase-order.interface';
 import { PurchaseOrderApiService } from '../../services/purchase-order-api.service';
 

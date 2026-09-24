@@ -6,7 +6,7 @@ import {
   CreateStockTransferRequest,
   StockTransfer,
 } from '../interfaces/stock-transfer.interface';
-import { PagedResult } from './stock-level-api.service';
+import { PagedResult } from '@nalunpos/shared/data-access';
 
 @Injectable({
   providedIn: 'root',

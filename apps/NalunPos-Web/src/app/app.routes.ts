@@ -103,6 +103,14 @@ export const appRoutes: Routes = [
           ),
         title: 'Categorías — NalunPos',
       },
+      {
+        path: 'almacenes',
+        loadChildren: () =>
+          import('./features/warehouses/warehouses.routes').then(
+            (m) => m.warehousesRoutes,
+          ),
+        title: 'Almacenes — NalunPos',
+      },
     ],
   },
 

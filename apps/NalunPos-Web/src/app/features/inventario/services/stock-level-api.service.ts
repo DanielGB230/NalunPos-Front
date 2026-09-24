@@ -8,19 +8,12 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
+import { PagedResult } from '@nalunpos/shared/data-access';
 import {
   InventoryMovement,
   ProductStock,
   StockLevel,
 } from '../interfaces/stock-level.interface';
-
-export interface PagedResult<T> {
-  items: T[];
-  pageNumber: number;
-  pageSize: number;
-  totalCount: number;
-  totalPages: number;
-}
 
 @Injectable({
   providedIn: 'root',

@@ -173,7 +173,7 @@ export class SupplierListComponent implements OnInit {
     this.errorMessage.set(null);
 
     const filterVal = this.selectedStatusFilter();
-    const isActiveOnly =
+    const isActive =
       filterVal === 'active'
         ? true
         : filterVal === 'inactive'
@@ -185,7 +185,7 @@ export class SupplierListComponent implements OnInit {
         this.pageIndex() + 1,
         this.pageSize(),
         this.searchTerm(),
-        isActiveOnly
+        isActive
       )
       .subscribe({
         next: (result) => {

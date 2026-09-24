@@ -32,6 +32,8 @@ export interface PurchaseOrder {
   updatedAtUtc?: string | null;
 }
 
+export type PurchaseOrderDto = PurchaseOrder;
+
 export interface CreatePurchaseOrderLineRequest {
   productId: string;
   quantityOrdered: number;

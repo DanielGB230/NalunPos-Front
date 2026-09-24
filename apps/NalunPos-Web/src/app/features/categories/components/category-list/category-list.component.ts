@@ -23,7 +23,7 @@ import {
   QuickFilterBarComponent,
   QuickFilterTab,
 } from '@nalunpos/shared/ui';
-import { CategoryDto } from '../../models/category.model';
+import { CategoryDto } from '../../interfaces/category.interface';
 import { CategoryApiService } from '../../services/category-api.service';
 import { CategoryFormComponent } from '../category-form/category-form.component';
 
@@ -170,7 +170,7 @@ export class CategoryListComponent implements OnInit {
     this.errorMessage.set(null);
 
     const filterVal = this.selectedStatusFilter();
-    const isActiveOnly =
+    const isActive =
       filterVal === 'Active'
         ? true
         : filterVal === 'Inactive'
@@ -178,7 +178,7 @@ export class CategoryListComponent implements OnInit {
           : undefined;
 
     this.categoryApiService
-      .getCategories(this.pageIndex() + 1, this.pageSize(), this.searchTerm(), isActiveOnly)
+      .getCategories(this.pageIndex() + 1, this.pageSize(), this.searchTerm(), isActive)
       .subscribe({
         next: (result) => {
           this.categories.set(result.items);
@@ -190,6 +190,7 @@ export class CategoryListComponent implements OnInit {
           this.errorMessage.set(
             error.message || 'No se pudieron cargar las categorías del tenant activo.'
           );
+          this.notification.error('Error al conectar con el servidor.', 'Error de carga');
         },
       });
   }
@@ -250,7 +251,7 @@ export class CategoryListComponent implements OnInit {
               this.loadCategories();
             },
             error: (err) => {
-              const detail = err?.error?.detail || err?.error?.message || `No se pudo ${actionLabel} la categoría.`;
+              const detail = err?.error?.detail || err?.error?.message || 'Error al conectar con el servidor.';
               this.notification.error(detail, 'Error');
             },
           });

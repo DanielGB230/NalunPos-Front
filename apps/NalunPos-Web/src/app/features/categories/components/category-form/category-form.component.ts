@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { NotificationService } from '@nalunpos/shared/ui';
-import { CategoryDto, CreateCategoryRequest, UpdateCategoryRequest } from '../../models/category.model';
+import { CategoryDto, CreateCategoryRequest, UpdateCategoryRequest } from '../../interfaces/category.interface';
 import { CategoryApiService } from '../../services/category-api.service';
 
 import { FormsModule } from '@angular/forms';
@@ -65,7 +65,7 @@ export class CategoryFormComponent {
         },
         error: (err) => {
           this.isSaving.set(false);
-          const detail = err?.error?.detail || err?.error?.message || 'No se pudo actualizar la categoría.';
+          const detail = err?.error?.detail || err?.error?.message || 'Error al conectar con el servidor.';
           this.notification.error(detail, 'Error');
         },
       });
@@ -79,7 +79,7 @@ export class CategoryFormComponent {
         },
         error: (err) => {
           this.isSaving.set(false);
-          const detail = err?.error?.detail || err?.error?.message || 'No se pudo registrar la categoría.';
+          const detail = err?.error?.detail || err?.error?.message || 'Error al conectar con el servidor.';
           this.notification.error(detail, 'Error');
         },
       });

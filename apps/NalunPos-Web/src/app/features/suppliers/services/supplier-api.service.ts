@@ -7,7 +7,7 @@ import {
   Supplier,
   UpdateSupplierRequest,
 } from '../interfaces/supplier.interface';
-import { PagedResult } from '../../inventario/services/stock-level-api.service';
+import { PagedResult } from '@nalunpos/shared/data-access';
 
 @Injectable({
   providedIn: 'root',
@@ -23,7 +23,7 @@ export class SupplierApiService {
     pageNumber = 1,
     pageSize = 10,
     searchTerm?: string,
-    isActiveOnly?: boolean
+    isActive?: boolean
   ): Observable<PagedResult<Supplier>> {
     let params = new HttpParams()
       .set('pageNumber', pageNumber.toString())
@@ -32,8 +32,8 @@ export class SupplierApiService {
     if (searchTerm && searchTerm.trim().length > 0) {
       params = params.set('searchTerm', searchTerm.trim());
     }
-    if (isActiveOnly !== undefined && isActiveOnly !== null) {
-      params = params.set('isActiveOnly', isActiveOnly.toString());
+    if (isActive !== undefined && isActive !== null) {
+      params = params.set('isActive', isActive.toString());
     }
 
     return this.http.get<PagedResult<Supplier>>(this.endpoint, { params });
