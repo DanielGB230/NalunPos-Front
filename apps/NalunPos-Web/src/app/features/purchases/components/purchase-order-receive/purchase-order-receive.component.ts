@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import type { OnInit} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { NotificationService } from '@nalunpos/shared/ui';
-import { PurchaseOrder, ReceivePurchaseOrderLineRequest } from '../../interfaces/purchase-order.interface';
+import type { PurchaseOrder, ReceivePurchaseOrderLineRequest } from '../../interfaces/purchase-order.interface';
 import { PurchaseOrderApiService } from '../../services/purchase-order-api.service';
 
 export interface ReceiveOrderDialogData {
@@ -69,6 +70,21 @@ export class PurchaseOrderReceiveComponent implements OnInit {
     this.lines.update((items) =>
       items.map((item, i) => (i === index ? { ...item, [field]: value } : item))
     );
+  }
+
+  protected onQtyInput(index: number, event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.updateLineField(index, 'receivedQuantity', +target.value);
+  }
+
+  protected onBatchInput(index: number, event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.updateLineField(index, 'batchNumber', target.value);
+  }
+
+  protected onExpirationInput(index: number, event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.updateLineField(index, 'expirationDate', target.value);
   }
 
   protected onSubmit(): void {

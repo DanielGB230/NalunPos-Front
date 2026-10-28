@@ -3,7 +3,7 @@
 // Rutas del módulo de inventario. El Shell se carga de forma lazy.
 // =============================================================================
 
-import { Routes } from '@angular/router';
+import type { Routes } from '@angular/router';
 
 export const inventarioRoutes: Routes = [
   {

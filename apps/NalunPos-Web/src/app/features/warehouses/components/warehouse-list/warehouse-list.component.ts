@@ -1,21 +1,24 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import type { OnInit} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import type { PageEvent } from '@angular/material/paginator';
+import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import {
-  AdvancedFilterDrawerComponent,
+import type {
   FilterDrawerConfig,
   MetricCardConfig,
+  PageHeroConfig,
+  QuickFilterTab} from '@nalunpos/shared/ui';
+import {
+  AdvancedFilterDrawerComponent,
   MetricsBentoGridComponent,
   NotificationService,
   PageHeroCardComponent,
-  PageHeroConfig,
-  QuickFilterBarComponent,
-  QuickFilterTab,
+  QuickFilterBarComponent
 } from '@nalunpos/shared/ui';
-import { Warehouse } from '../../interfaces/warehouse.interface';
+import type { Warehouse } from '../../interfaces/warehouse.interface';
 import { WarehouseApiService } from '../../services/warehouse-api.service';
 import { WarehouseFormComponent } from '../warehouse-form/warehouse-form.component';
 

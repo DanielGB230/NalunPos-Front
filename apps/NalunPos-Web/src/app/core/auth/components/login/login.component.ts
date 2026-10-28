@@ -16,7 +16,7 @@ import {
 } from '@angular/forms/signals';
 import { AuthService } from '@nalunpos/shared/auth';
 import type { LoginRequest } from '@nalunpos/shared/auth';
-import { AppError } from '@nalunpos/shared/data-access';
+import type { AppError } from '@nalunpos/shared/data-access';
 
 interface LoginFormModel {
   email: string;

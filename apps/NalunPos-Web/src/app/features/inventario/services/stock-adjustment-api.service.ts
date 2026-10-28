@@ -1,8 +1,8 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import type { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import {
+import type {
   CreateStockAdjustmentRequest,
   StockAdjustment,
 } from '../interfaces/stock-adjustment.interface';

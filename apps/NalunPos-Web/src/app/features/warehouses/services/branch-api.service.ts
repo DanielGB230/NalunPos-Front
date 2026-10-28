@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import type { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { Branch } from '../interfaces/branch.interface';
+import type { Branch } from '../interfaces/branch.interface';
 
 import { HttpParams } from '@angular/common/http';
 

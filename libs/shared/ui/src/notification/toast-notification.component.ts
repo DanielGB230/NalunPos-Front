@@ -4,15 +4,23 @@
 // Paleta Morado (#ACA0E7) & Celeste (#92AAE7) - Versión Compacta Slim
 // =============================================================================
 
-import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
+import { NgClass } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  type OnInit,
+  type OnDestroy,
+  signal,
+  type WritableSignal,
+} from '@angular/core';
 import { MAT_SNACK_BAR_DATA, MatSnackBarRef } from '@angular/material/snack-bar';
-import { NotificationData } from './notification.model';
+import type { NotificationData } from './notification.model';
 
 @Component({
   selector: 'app-toast-notification',
   standalone: true,
-  imports: [CommonModule],
+  imports: [NgClass],
   template: `
     <div
       class="glass-pill-snackbar rounded-xl p-3 border relative overflow-hidden group w-full min-w-[320px] max-w-md"
@@ -22,7 +30,7 @@ import { NotificationData } from './notification.model';
     >
       <!-- Auto-drain progress bar at bottom -->
       <div
-        class="absolute bottom-0 left-0 h-[2px] progress-bar-anim rounded-full"
+        class="absolute bottom-0 left-0 h-0.5 progress-bar-anim rounded-full"
         [ngClass]="progressClass"
         [style.animationDuration.ms]="durationMs"
         [style.animationPlayState]="isPaused() ? 'paused' : 'running'"
@@ -123,21 +131,21 @@ export class ToastNotificationComponent implements OnInit, OnDestroy {
   readonly data = inject<NotificationData>(MAT_SNACK_BAR_DATA);
   readonly snackBarRef = inject(MatSnackBarRef<ToastNotificationComponent>);
 
-  isPaused = signal(false);
-  private timeoutId: any;
-  private remainingTime: number = 0;
-  private startTime: number = 0;
+  readonly isPaused: WritableSignal<boolean> = signal(false);
+  private timeoutId: ReturnType<typeof setTimeout> | null = null;
+  private remainingTime = 0;
+  private startTime = 0;
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.remainingTime = this.durationMs;
     this.startTimer();
   }
 
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     this.clearTimer();
   }
 
-  startTimer() {
+  startTimer(): void {
     if (this.remainingTime <= 0) {
       this.dismiss();
       return;
@@ -148,20 +156,20 @@ export class ToastNotificationComponent implements OnInit, OnDestroy {
     }, this.remainingTime);
   }
 
-  clearTimer() {
-    if (this.timeoutId) {
+  clearTimer(): void {
+    if (this.timeoutId !== null) {
       clearTimeout(this.timeoutId);
       this.timeoutId = null;
     }
   }
 
-  onMouseEnter() {
+  onMouseEnter(): void {
     this.isPaused.set(true);
     this.clearTimer();
     this.remainingTime -= (Date.now() - this.startTime);
   }
 
-  onMouseLeave() {
+  onMouseLeave(): void {
     this.isPaused.set(false);
     this.startTimer();
   }

@@ -1,29 +1,32 @@
 import { DatePipe } from '@angular/common';
+import type {
+  OnInit} from '@angular/core';
 import {
   ChangeDetectionStrategy,
   Component,
-  OnInit,
   computed,
   inject,
   signal,
 } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import type { PageEvent } from '@angular/material/paginator';
+import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
-import { AppError } from '@nalunpos/shared/data-access';
+import type { AppError } from '@nalunpos/shared/data-access';
+import type {
+  FilterDrawerConfig,
+  MetricCardConfig,
+  PageHeroConfig,
+  QuickFilterTab} from '@nalunpos/shared/ui';
 import {
   AdvancedFilterDrawerComponent,
   ConfirmationDialogService,
-  FilterDrawerConfig,
-  MetricCardConfig,
   MetricsBentoGridComponent,
   NotificationService,
   PageHeroCardComponent,
-  PageHeroConfig,
-  QuickFilterBarComponent,
-  QuickFilterTab,
+  QuickFilterBarComponent
 } from '@nalunpos/shared/ui';
-import { CategoryDto } from '../../interfaces/category.interface';
+import type { CategoryDto } from '../../interfaces/category.interface';
 import { CategoryApiService } from '../../services/category-api.service';
 import { CategoryFormComponent } from '../category-form/category-form.component';
 

@@ -5,23 +5,25 @@
 // Angular 22 — Zoneless — Standalone — Tailwind v4 only
 // =============================================================================
 
+import type {
+  OnInit} from '@angular/core';
 import {
   ChangeDetectionStrategy,
   Component,
-  OnInit,
   computed,
   inject,
   signal,
 } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import type {
+  PageHeroConfig,
+  MetricCardConfig} from '@nalunpos/shared/ui';
 import {
   PageHeroCardComponent,
-  PageHeroConfig,
   MetricsBentoGridComponent,
-  MetricCardConfig,
   NotificationService,
 } from '@nalunpos/shared/ui';
-import { Warehouse } from '../../interfaces/warehouse.interface';
+import type { Warehouse } from '../../interfaces/warehouse.interface';
 import { WarehouseApiService } from '../../services/warehouse-api.service';
 import { StockListComponent } from '../stock-list/stock-list.component';
 import { KardexComponent } from '../kardex/kardex.component';

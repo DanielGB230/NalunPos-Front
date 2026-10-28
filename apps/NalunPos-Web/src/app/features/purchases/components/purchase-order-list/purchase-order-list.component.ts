@@ -1,18 +1,22 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import type { OnInit} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import type { PageEvent } from '@angular/material/paginator';
+import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
+import type {
+  PageHeroConfig,
+  MetricCardConfig,
+  QuickFilterTab} from '@nalunpos/shared/ui';
 import {
   PageHeroCardComponent,
-  PageHeroConfig,
   MetricsBentoGridComponent,
-  MetricCardConfig,
   QuickFilterBarComponent,
-  QuickFilterTab,
   NotificationService,
 } from '@nalunpos/shared/ui';
-import { PurchaseOrder, PurchaseOrderStatus } from '../../interfaces/purchase-order.interface';
+import type { PurchaseOrder} from '../../interfaces/purchase-order.interface';
+import { PurchaseOrderStatus } from '../../interfaces/purchase-order.interface';
 import { PurchaseOrderApiService } from '../../services/purchase-order-api.service';
 import { PurchaseOrderCreateComponent } from '../purchase-order-create/purchase-order-create.component';
 import { PurchaseOrderReceiveComponent } from '../purchase-order-receive/purchase-order-receive.component';

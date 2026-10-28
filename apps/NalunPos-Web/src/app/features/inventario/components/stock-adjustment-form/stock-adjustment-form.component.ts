@@ -20,13 +20,14 @@ import {
   max,
 } from '@angular/forms/signals';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { AppError } from '@nalunpos/shared/data-access';
+import type { AppError } from '@nalunpos/shared/data-access';
 import { NotificationService } from '@nalunpos/shared/ui';
+import type {
+  CreateStockAdjustmentRequest} from '../../interfaces/stock-adjustment.interface';
 import {
-  CreateStockAdjustmentRequest,
   StockAdjustmentReason,
 } from '../../interfaces/stock-adjustment.interface';
-import { Warehouse } from '../../interfaces/warehouse.interface';
+import type { Warehouse } from '../../interfaces/warehouse.interface';
 import { StockAdjustmentApiService } from '../../services/stock-adjustment-api.service';
 
 export interface AdjustmentDialogData {

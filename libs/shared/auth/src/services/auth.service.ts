@@ -5,11 +5,11 @@
 // ADR-0003: Token en sessionStorage (nunca localStorage).
 // =============================================================================
 
-import { Injectable, computed, inject, signal } from '@angular/core';
+import { Injectable, computed, inject, signal, type Signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
-import type { AuthResponse, LoginRequest } from '../interfaces/auth.interfaces';
+import type { AuthResponse, LoginRequest, UserRole } from '../interfaces/auth.interfaces';
 import { UserSession } from '../models/user-session.model';
 
 const SESSION_STORAGE_KEY = 'nalunpos_session';
@@ -25,13 +25,13 @@ export class AuthService {
     this.restoreSessionFromStorage(),
   );
 
-  readonly currentUser = this._currentUser.asReadonly();
-  readonly isAuthenticated = computed(() => {
+  readonly currentUser: Signal<UserSession | null> = this._currentUser.asReadonly();
+  readonly isAuthenticated: Signal<boolean> = computed(() => {
     const user = this._currentUser();
     return user !== null && !user.isExpired;
   });
-  readonly userRole = computed(() => this._currentUser()?.role ?? null);
-  readonly tenantId = computed(() => this._currentUser()?.tenantId ?? null);
+  readonly userRole: Signal<UserRole | null> = computed(() => this._currentUser()?.role ?? null);
+  readonly tenantId: Signal<string | null> = computed(() => this._currentUser()?.tenantId ?? null);
 
   private apiUrl = '';
 
@@ -85,7 +85,7 @@ export class AuthService {
         id: string;
         name: string;
         email: string;
-        role: import('../interfaces/auth.interfaces').UserRole;
+        role: UserRole;
         tenantId: string | null;
         token: string;
         expiresAt: string;

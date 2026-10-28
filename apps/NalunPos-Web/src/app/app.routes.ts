@@ -3,7 +3,7 @@
 // Definición de rutas raíz de la aplicación con Layout Glassmorphism Enterprise.
 // =============================================================================
 
-import { Routes } from '@angular/router';
+import type { Routes } from '@angular/router';
 import { authGuard } from '@nalunpos/shared/auth';
 import { WebLayoutComponent } from './core/layout/components/web-layout/web-layout.component';
 

@@ -5,21 +5,24 @@
 // Angular 22 — Zoneless — Standalone — Tailwind v4 only
 // =============================================================================
 
+import type {
+  OnChanges,
+  SimpleChanges} from '@angular/core';
 import {
   ChangeDetectionStrategy,
   Component,
   Input,
-  OnChanges,
-  SimpleChanges,
   computed,
   inject,
   signal,
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { QuickFilterBarComponent, QuickFilterTab } from '@nalunpos/shared/ui';
-import { InventoryMovement } from '../../interfaces/stock-level.interface';
+import type { PageEvent } from '@angular/material/paginator';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import type { QuickFilterTab } from '@nalunpos/shared/ui';
+import { QuickFilterBarComponent } from '@nalunpos/shared/ui';
+import type { InventoryMovement } from '../../interfaces/stock-level.interface';
 import { StockLevelApiService } from '../../services/stock-level-api.service';
 
 // Tipos de movimiento que corresponden al Enum del backend (InventoryMovementType)

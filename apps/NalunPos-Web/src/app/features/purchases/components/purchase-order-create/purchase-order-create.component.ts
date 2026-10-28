@@ -1,12 +1,13 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import type { OnInit} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { NotificationService } from '@nalunpos/shared/ui';
-import { Supplier } from '../../../suppliers/interfaces/supplier.interface';
+import type { Supplier } from '../../../suppliers/interfaces/supplier.interface';
 import { SupplierApiService } from '../../../suppliers/services/supplier-api.service';
-import { Warehouse } from '../../../warehouses/interfaces/warehouse.interface';
+import type { Warehouse } from '../../../warehouses/interfaces/warehouse.interface';
 import { WarehouseApiService } from '../../../warehouses/services/warehouse-api.service';
-import { CreatePurchaseOrderRequest } from '../../interfaces/purchase-order.interface';
+import type { CreatePurchaseOrderRequest } from '../../interfaces/purchase-order.interface';
 import { PurchaseOrderApiService } from '../../services/purchase-order-api.service';
 
 export interface PurchaseOrderLineModel {
@@ -90,6 +91,41 @@ export class PurchaseOrderCreateComponent implements OnInit {
     this.lines.update((items) =>
       items.map((item, i) => (i === index ? { ...item, [field]: value } : item))
     );
+  }
+
+  protected onSupplierChange(event: Event): void {
+    const target = event.target as HTMLSelectElement;
+    this.supplierId.set(target.value);
+  }
+
+  protected onWarehouseChange(event: Event): void {
+    const target = event.target as HTMLSelectElement;
+    this.warehouseId.set(target.value);
+  }
+
+  protected onNotesInput(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.notes.set(target.value);
+  }
+
+  protected onLineProductInput(index: number, event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.updateLineField(index, 'productId', target.value);
+  }
+
+  protected onLineQtyInput(index: number, event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.updateLineField(index, 'quantityOrdered', +target.value);
+  }
+
+  protected onLineCostInput(index: number, event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.updateLineField(index, 'unitCostAmount', +target.value);
+  }
+
+  protected onLineCurrencyChange(index: number, event: Event): void {
+    const target = event.target as HTMLSelectElement;
+    this.updateLineField(index, 'currency', target.value);
   }
 
   protected onSubmit(): void {

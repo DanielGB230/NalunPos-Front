@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { NotificationService } from '@nalunpos/shared/ui';
-import { Supplier, CreateSupplierRequest, UpdateSupplierRequest } from '../../interfaces/supplier.interface';
+import type { Supplier, CreateSupplierRequest, UpdateSupplierRequest } from '../../interfaces/supplier.interface';
 import { SupplierApiService } from '../../services/supplier-api.service';
 
 import { FormsModule } from '@angular/forms';
@@ -38,6 +38,14 @@ export class SupplierFormComponent {
   protected readonly city = signal(this.data?.supplier?.city ?? '');
   protected readonly zipCode = signal(this.data?.supplier?.zipCode ?? '');
   protected readonly country = signal(this.data?.supplier?.country ?? 'Perú');
+
+  protected onInput(
+    field: 'name' | 'contactName' | 'email' | 'phone' | 'taxId' | 'taxCountryCode' | 'street' | 'city' | 'zipCode' | 'country',
+    event: Event
+  ): void {
+    const target = event.target as HTMLInputElement;
+    this[field].set(target.value);
+  }
 
   protected onSubmit(): void {
     if (

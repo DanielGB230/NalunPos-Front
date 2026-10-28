@@ -1,10 +1,11 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import type { OnInit} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { NotificationService } from '@nalunpos/shared/ui';
-import { Warehouse, CreateWarehouseRequest } from '../../interfaces/warehouse.interface';
-import { Branch } from '../../interfaces/branch.interface';
+import type { Warehouse, CreateWarehouseRequest } from '../../interfaces/warehouse.interface';
+import type { Branch } from '../../interfaces/branch.interface';
 import { WarehouseApiService } from '../../services/warehouse-api.service';
 import { BranchApiService } from '../../services/branch-api.service';
 
@@ -35,6 +36,26 @@ export class WarehouseFormComponent implements OnInit {
   protected readonly description = signal(this.data?.warehouse?.description ?? '');
   protected readonly branchId = signal(this.data?.warehouse?.branchId ?? '');
   protected readonly isDefault = signal(this.data?.warehouse?.isDefault ?? false);
+
+  protected onNameInput(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.name.set(target.value);
+  }
+
+  protected onBranchChange(event: Event): void {
+    const target = event.target as HTMLSelectElement;
+    this.branchId.set(target.value);
+  }
+
+  protected onDescriptionInput(event: Event): void {
+    const target = event.target as HTMLTextAreaElement;
+    this.description.set(target.value);
+  }
+
+  protected onDefaultChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.isDefault.set(target.checked);
+  }
 
   ngOnInit(): void {
     this.loadBranches();

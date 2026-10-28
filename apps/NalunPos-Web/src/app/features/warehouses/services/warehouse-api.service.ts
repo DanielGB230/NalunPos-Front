@@ -1,8 +1,9 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
+import type { Observable} from 'rxjs';
+import { throwError } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { CreateWarehouseRequest, UpdateWarehouseRequest, Warehouse } from '../interfaces/warehouse.interface';
+import type { CreateWarehouseRequest, UpdateWarehouseRequest, Warehouse } from '../interfaces/warehouse.interface';
 
 @Injectable({
   providedIn: 'root',

@@ -19,10 +19,10 @@ import {
   min,
 } from '@angular/forms/signals';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { AppError } from '@nalunpos/shared/data-access';
+import type { AppError } from '@nalunpos/shared/data-access';
 import { NotificationService } from '@nalunpos/shared/ui';
-import { CreateStockTransferRequest } from '../../interfaces/stock-transfer.interface';
-import { Warehouse } from '../../interfaces/warehouse.interface';
+import type { CreateStockTransferRequest } from '../../interfaces/stock-transfer.interface';
+import type { Warehouse } from '../../interfaces/warehouse.interface';
 import { StockTransferApiService } from '../../services/stock-transfer-api.service';
 
 export interface TransferDialogData {

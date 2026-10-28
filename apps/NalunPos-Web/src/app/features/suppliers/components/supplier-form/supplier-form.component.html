@@ -45,14 +45,15 @@
 
         <!-- Razón Social / Nombre -->
         <div class="sm:col-span-2 space-y-1.5">
-          <label class="text-[11px] font-bold uppercase tracking-wider text-[#605596] flex items-center justify-between font-mono">
+          <label for="supplier-name-input" class="text-[11px] font-bold uppercase tracking-wider text-[#605596] flex items-center justify-between font-mono">
             <span>Razón Social / Nombre Empresa</span>
             <span class="text-[10px] text-[#4338CA]">Requerido</span>
           </label>
           <input
+            id="supplier-name-input"
             type="text"
             [value]="name()"
-            (input)="name.set($any($event.target).value)"
+            (input)="onInput('name', $event)"
             placeholder="Ej: Distribuidora Central S.A.C."
             class="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-white/70 border border-purple-soft rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ACA0E7]/50 focus:border-primary-container text-[#161B2D] shadow-inner font-mono font-medium transition"
           />
@@ -60,14 +61,15 @@
 
         <!-- Nombre Contacto -->
         <div class="space-y-1.5">
-          <label class="text-[11px] font-bold uppercase tracking-wider text-[#605596] flex items-center justify-between font-mono">
+          <label for="supplier-contact-input" class="text-[11px] font-bold uppercase tracking-wider text-[#605596] flex items-center justify-between font-mono">
             <span>Nombre de Contacto</span>
             <span class="text-[10px] text-[#4338CA]">Requerido</span>
           </label>
           <input
+            id="supplier-contact-input"
             type="text"
             [value]="contactName()"
-            (input)="contactName.set($any($event.target).value)"
+            (input)="onInput('contactName', $event)"
             placeholder="Ej: Juan Pérez"
             class="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-white/70 border border-purple-soft rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ACA0E7]/50 focus:border-primary-container text-[#161B2D] shadow-inner font-mono font-medium transition"
           />
@@ -75,14 +77,15 @@
 
         <!-- Tax ID (RUC/RFC) -->
         <div class="space-y-1.5">
-          <label class="text-[11px] font-bold uppercase tracking-wider text-[#605596] flex items-center justify-between font-mono">
+          <label for="supplier-tax-input" class="text-[11px] font-bold uppercase tracking-wider text-[#605596] flex items-center justify-between font-mono">
             <span>Tax ID / RUC / RFC</span>
             <span class="text-[10px] text-[#4338CA]">Requerido</span>
           </label>
           <input
+            id="supplier-tax-input"
             type="text"
             [value]="taxId()"
-            (input)="taxId.set($any($event.target).value)"
+            (input)="onInput('taxId', $event)"
             placeholder="Ej: 20123456789"
             class="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-white/70 border border-purple-soft rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ACA0E7]/50 focus:border-primary-container text-[#161B2D] shadow-inner font-mono font-medium transition"
           />
@@ -90,14 +93,15 @@
 
         <!-- Email -->
         <div class="space-y-1.5">
-          <label class="text-[11px] font-bold uppercase tracking-wider text-[#605596] flex items-center justify-between font-mono">
+          <label for="supplier-email-input" class="text-[11px] font-bold uppercase tracking-wider text-[#605596] flex items-center justify-between font-mono">
             <span>Correo Electrónico</span>
             <span class="text-[10px] text-[#4338CA]">Requerido</span>
           </label>
           <input
+            id="supplier-email-input"
             type="email"
             [value]="email()"
-            (input)="email.set($any($event.target).value)"
+            (input)="onInput('email', $event)"
             placeholder="contacto@proveedor.com"
             class="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-white/70 border border-purple-soft rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ACA0E7]/50 focus:border-primary-container text-[#161B2D] shadow-inner font-mono font-medium transition"
           />
@@ -105,14 +109,15 @@
 
         <!-- Teléfono -->
         <div class="space-y-1.5">
-          <label class="text-[11px] font-bold uppercase tracking-wider text-[#605596] flex items-center justify-between font-mono">
+          <label for="supplier-phone-input" class="text-[11px] font-bold uppercase tracking-wider text-[#605596] flex items-center justify-between font-mono">
             <span>Teléfono</span>
             <span class="text-[10px] text-[#4338CA]">Requerido</span>
           </label>
           <input
+            id="supplier-phone-input"
             type="text"
             [value]="phone()"
-            (input)="phone.set($any($event.target).value)"
+            (input)="onInput('phone', $event)"
             placeholder="+51 987 654 321"
             class="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-white/70 border border-purple-soft rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ACA0E7]/50 focus:border-primary-container text-[#161B2D] shadow-inner font-mono font-medium transition"
           />
@@ -120,14 +125,15 @@
 
         <!-- Dirección / Calle -->
         <div class="sm:col-span-2 space-y-1.5">
-          <label class="text-[11px] font-bold uppercase tracking-wider text-[#605596] flex items-center justify-between font-mono">
+          <label for="supplier-street-input" class="text-[11px] font-bold uppercase tracking-wider text-[#605596] flex items-center justify-between font-mono">
             <span>Dirección / Calle</span>
             <span class="text-[10px] text-[#4338CA]">Requerido</span>
           </label>
           <input
+            id="supplier-street-input"
             type="text"
             [value]="street()"
-            (input)="street.set($any($event.target).value)"
+            (input)="onInput('street', $event)"
             placeholder="Av. Principal 123, Of. 402"
             class="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-white/70 border border-purple-soft rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ACA0E7]/50 focus:border-primary-container text-[#161B2D] shadow-inner font-mono font-medium transition"
           />
@@ -135,14 +141,15 @@
 
         <!-- Ciudad -->
         <div class="space-y-1.5">
-          <label class="text-[11px] font-bold uppercase tracking-wider text-[#605596] flex items-center justify-between font-mono">
+          <label for="supplier-city-input" class="text-[11px] font-bold uppercase tracking-wider text-[#605596] flex items-center justify-between font-mono">
             <span>Ciudad</span>
             <span class="text-[10px] text-[#4338CA]">Requerido</span>
           </label>
           <input
+            id="supplier-city-input"
             type="text"
             [value]="city()"
-            (input)="city.set($any($event.target).value)"
+            (input)="onInput('city', $event)"
             placeholder="Lima"
             class="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-white/70 border border-purple-soft rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ACA0E7]/50 focus:border-primary-container text-[#161B2D] shadow-inner font-mono font-medium transition"
           />
@@ -150,14 +157,15 @@
 
         <!-- Código Postal -->
         <div class="space-y-1.5">
-          <label class="text-[11px] font-bold uppercase tracking-wider text-[#605596] flex items-center justify-between font-mono">
+          <label for="supplier-zip-input" class="text-[11px] font-bold uppercase tracking-wider text-[#605596] flex items-center justify-between font-mono">
             <span>Código Postal</span>
             <span class="text-[10px] text-[#4338CA]">Requerido</span>
           </label>
           <input
+            id="supplier-zip-input"
             type="text"
             [value]="zipCode()"
-            (input)="zipCode.set($any($event.target).value)"
+            (input)="onInput('zipCode', $event)"
             placeholder="15001"
             class="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-white/70 border border-purple-soft rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ACA0E7]/50 focus:border-primary-container text-[#161B2D] shadow-inner font-mono font-medium transition"
           />
@@ -165,14 +173,15 @@
 
         <!-- País -->
         <div class="space-y-1.5">
-          <label class="text-[11px] font-bold uppercase tracking-wider text-[#605596] flex items-center justify-between font-mono">
+          <label for="supplier-country-input" class="text-[11px] font-bold uppercase tracking-wider text-[#605596] flex items-center justify-between font-mono">
             <span>País</span>
             <span class="text-[10px] text-[#4338CA]">Requerido</span>
           </label>
           <input
+            id="supplier-country-input"
             type="text"
             [value]="country()"
-            (input)="country.set($any($event.target).value)"
+            (input)="onInput('country', $event)"
             placeholder="Perú"
             class="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-white/70 border border-purple-soft rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ACA0E7]/50 focus:border-primary-container text-[#161B2D] shadow-inner font-mono font-medium transition"
           />
@@ -180,14 +189,15 @@
 
         <!-- Código País Tax -->
         <div class="space-y-1.5">
-          <label class="text-[11px] font-bold uppercase tracking-wider text-[#605596] flex items-center justify-between font-mono">
+          <label for="supplier-taxcountry-input" class="text-[11px] font-bold uppercase tracking-wider text-[#605596] flex items-center justify-between font-mono">
             <span>Código País Tax (ISO)</span>
             <span class="text-[10px] text-[#4338CA]">Requerido</span>
           </label>
           <input
+            id="supplier-taxcountry-input"
             type="text"
             [value]="taxCountryCode()"
-            (input)="taxCountryCode.set($any($event.target).value)"
+            (input)="onInput('taxCountryCode', $event)"
             placeholder="PE"
             class="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-white/70 border border-purple-soft rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ACA0E7]/50 focus:border-primary-container text-[#161B2D] shadow-inner font-mono font-medium transition uppercase"
           />

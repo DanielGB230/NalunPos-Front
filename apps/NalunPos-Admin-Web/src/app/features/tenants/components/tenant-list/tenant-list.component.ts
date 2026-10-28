@@ -1,27 +1,30 @@
 import { DatePipe } from '@angular/common';
+import type {
+  OnInit} from '@angular/core';
 import {
   ChangeDetectionStrategy,
   Component,
-  OnInit,
   computed,
   inject,
   signal,
 } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import type { PageEvent } from '@angular/material/paginator';
+import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
-import { AppError } from '@nalunpos/shared/data-access';
-import {
-  AdvancedFilterDrawerComponent,
+import type { AppError } from '@nalunpos/shared/data-access';
+import type {
   FilterDrawerConfig,
   MetricCardConfig,
+  PageHeroConfig,
+  QuickFilterTab} from '@nalunpos/shared/ui';
+import {
+  AdvancedFilterDrawerComponent,
   MetricsBentoGridComponent,
   PageHeroCardComponent,
-  PageHeroConfig,
-  QuickFilterBarComponent,
-  QuickFilterTab,
+  QuickFilterBarComponent
 } from '@nalunpos/shared/ui';
-import { TenantDto } from '../../models/tenant.model';
+import type { TenantDto } from '../../models/tenant.model';
 import { TenantApiService } from '../../services/tenant-api.service';
 import { TenantCreateFormComponent } from '../tenant-create/tenant-create-form.component';
 

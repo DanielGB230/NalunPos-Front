@@ -59,12 +59,12 @@
         <!-- Sección: Checkboxes -->
         @if (section.type === 'checkboxes') {
           <div class="space-y-2.5">
-            <label class="text-[11px] font-bold uppercase tracking-wider text-[#605596] flex items-center justify-between">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-[#605596] flex items-center justify-between">
               <span>{{ section.label }}</span>
               @if (section.note) {
                 <span class="text-[10px] font-mono text-[#605596]">{{ section.note }}</span>
               }
-            </label>
+            </span>
             <div class="grid grid-cols-2 gap-2">
               @for (opt of section.options; track opt.value) {
                 <label [class]="getOptionContainerClass(opt.colorVariant)">
@@ -83,10 +83,10 @@
         <!-- Sección: Select dropdown -->
         @if (section.type === 'select') {
           <div class="space-y-2">
-            <label class="text-[11px] font-bold uppercase tracking-wider text-[#605596]">
+            <label [for]="'filter-select-' + section.label" class="text-[11px] font-bold uppercase tracking-wider text-[#605596]">
               {{ section.label }}
             </label>
-            <select class="w-full text-xs font-mono py-2 pl-3 pr-8 rounded-xl bg-white/80 border border-[#DEDAF4] focus:outline-none focus:ring-2 focus:ring-[#ACA0E7]/40 text-[#161B2D]">
+            <select [id]="'filter-select-' + section.label" class="w-full text-xs font-mono py-2 pl-3 pr-8 rounded-xl bg-white/80 border border-[#DEDAF4] focus:outline-none focus:ring-2 focus:ring-[#ACA0E7]/40 text-[#161B2D]">
               @for (opt of section.selectOptions; track opt.value) {
                 <option [value]="opt.value" [selected]="opt.selected">{{ opt.label }}</option>
               }
@@ -98,7 +98,7 @@
         @if (section.type === 'range' && section.rangeConfig) {
           <div class="space-y-2">
             <div class="flex items-center justify-between text-xs">
-              <label class="text-[11px] font-bold uppercase tracking-wider text-[#605596]">
+              <label [for]="'filter-range-' + section.label" class="text-[11px] font-bold uppercase tracking-wider text-[#605596]">
                 {{ section.label }}
               </label>
               <span class="font-mono text-[#161B2D] font-bold">
@@ -106,6 +106,7 @@
               </span>
             </div>
             <input
+              [id]="'filter-range-' + section.label"
               type="range"
               [min]="section.rangeConfig.min"
               [max]="section.rangeConfig.max"

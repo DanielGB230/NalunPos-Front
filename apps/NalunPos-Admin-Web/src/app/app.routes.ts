@@ -2,7 +2,7 @@
 // app.routes.ts — NalunPos-Admin-Web (Panel SuperAdmin)
 // =============================================================================
 
-import { Routes } from '@angular/router';
+import type { Routes } from '@angular/router';
 import { authGuard, roleGuard } from '@nalunpos/shared/auth';
 import { AdminLayoutComponent } from './core/layout/components/admin-layout/admin-layout.component';
 

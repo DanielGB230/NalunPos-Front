@@ -1,14 +1,15 @@
+import type {
+  OnInit} from '@angular/core';
 import {
   ChangeDetectionStrategy,
   Component,
-  OnInit,
   inject,
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TenantApiService } from '../../../tenants/services/tenant-api.service';
-import { TenantDto } from '../../../tenants/models/tenant.model';
+import type { TenantDto } from '../../../tenants/models/tenant.model';
 
 interface KpiStat {
   title: string;

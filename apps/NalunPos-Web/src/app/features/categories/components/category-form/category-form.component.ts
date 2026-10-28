@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { NotificationService } from '@nalunpos/shared/ui';
-import { CategoryDto, CreateCategoryRequest, UpdateCategoryRequest } from '../../interfaces/category.interface';
+import type { CategoryDto, CreateCategoryRequest, UpdateCategoryRequest } from '../../interfaces/category.interface';
 import { CategoryApiService } from '../../services/category-api.service';
 
 import { FormsModule } from '@angular/forms';
@@ -30,6 +30,16 @@ export class CategoryFormComponent {
   // ── Signals de Estado Formulario (Zero ReactiveFormsModule) ──
   protected readonly name = signal(this.data?.category?.name ?? '');
   protected readonly description = signal(this.data?.category?.description ?? '');
+
+  protected onNameInput(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.name.set(target.value);
+  }
+
+  protected onDescriptionInput(event: Event): void {
+    const target = event.target as HTMLTextAreaElement;
+    this.description.set(target.value);
+  }
 
   protected onSubmit(): void {
     if (this.isSaving()) return;

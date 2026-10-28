@@ -16,7 +16,7 @@ import {
 } from '@angular/forms/signals';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { NotificationService } from '@nalunpos/shared/ui';
-import { CreateTenantRequest } from '../../models/tenant.model';
+import type { CreateTenantRequest } from '../../models/tenant.model';
 import { TenantApiService } from '../../services/tenant-api.service';
 
 interface TenantFormModel {
@@ -101,13 +101,14 @@ export class TenantCreateFormComponent {
             );
             this.close(true);
           },
-          error: (error: any) => {
+          error: (error: unknown) => {
             console.error('Request failed', error);
             this.isLoading.set(false);
+            const errObj = typeof error === 'object' && error !== null ? (error as Record<string, unknown>) : null;
             const msg =
-              error?.message ||
-              error?.detail ||
-              error?.title ||
+              (typeof errObj?.['message'] === 'string' && errObj['message']) ||
+              (typeof errObj?.['detail'] === 'string' && errObj['detail']) ||
+              (typeof errObj?.['title'] === 'string' && errObj['title']) ||
               'Error al aprovisionar el Tenant. Verifique los datos ingresados.';
             this.notificationService.error(msg, 'Error de Aprovisionamiento');
           },

@@ -3,9 +3,10 @@
 // Configuración idéntica a NalunPos-Web pero para el panel SuperAdmin.
 // =============================================================================
 
+import type {
+  ApplicationConfig} from '@angular/core';
 import {
   APP_INITIALIZER,
-  ApplicationConfig,
   provideBrowserGlobalErrorListeners,
   provideZonelessChangeDetection,
 } from '@angular/core';

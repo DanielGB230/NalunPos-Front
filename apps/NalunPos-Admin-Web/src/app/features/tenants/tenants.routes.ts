@@ -1,4 +1,4 @@
-import { Routes } from '@angular/router';
+import type { Routes } from '@angular/router';
 
 import { TenantListComponent } from './components/tenant-list/tenant-list.component';
 

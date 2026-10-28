@@ -1,21 +1,24 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import type { OnInit} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import type { PageEvent } from '@angular/material/paginator';
+import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
+import type {
+  FilterDrawerConfig,
+  MetricCardConfig,
+  PageHeroConfig,
+  QuickFilterTab} from '@nalunpos/shared/ui';
 import {
   AdvancedFilterDrawerComponent,
   ConfirmationDialogService,
-  FilterDrawerConfig,
-  MetricCardConfig,
   MetricsBentoGridComponent,
   NotificationService,
   PageHeroCardComponent,
-  PageHeroConfig,
-  QuickFilterBarComponent,
-  QuickFilterTab,
+  QuickFilterBarComponent
 } from '@nalunpos/shared/ui';
-import { Supplier } from '../../interfaces/supplier.interface';
+import type { Supplier } from '../../interfaces/supplier.interface';
 import { SupplierApiService } from '../../services/supplier-api.service';
 import { SupplierFormComponent } from '../supplier-form/supplier-form.component';
 

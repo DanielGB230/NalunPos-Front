@@ -4,9 +4,10 @@
 // Registra: Router, HttpClient, Interceptores, Signal Forms, CORS para dev.
 // =============================================================================
 
+import type {
+  ApplicationConfig} from '@angular/core';
 import {
   APP_INITIALIZER,
-  ApplicationConfig,
   provideBrowserGlobalErrorListeners,
   provideZonelessChangeDetection,
 } from '@angular/core';

@@ -52,7 +52,7 @@
       
       <!-- Nombre de Categoría -->
       <div class="space-y-1.5">
-        <label class="text-[11px] font-bold uppercase tracking-wider text-brand-muted flex items-center justify-between">
+        <label for="category-name-input" class="text-[11px] font-bold uppercase tracking-wider text-brand-muted flex items-center justify-between">
           <span>Nombre de Categoría</span>
           <span class="text-[10px] text-[#4338CA] font-mono">Requerido</span>
         </label>
@@ -63,8 +63,9 @@
             </svg>
           </div>
           <input 
+            id="category-name-input"
             [value]="name()"
-            (input)="name.set($any($event.target).value)"
+            (input)="onNameInput($event)"
             class="w-full pl-10 pr-3 py-2.5 text-xs sm:text-sm bg-white/70 border border-purple-soft rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ACA0E7]/50 focus:border-primary-container text-brand-navy shadow-inner font-medium" 
             placeholder="Ej: Electrónica, Bebidas, Accesorios" 
             type="text"
@@ -74,7 +75,7 @@
 
       <!-- Descripción (Opcional) -->
       <div class="space-y-1.5">
-        <label class="text-[11px] font-bold uppercase tracking-wider text-brand-muted flex items-center justify-between">
+        <label for="category-desc-input" class="text-[11px] font-bold uppercase tracking-wider text-brand-muted flex items-center justify-between">
           <span>Descripción (Opcional)</span>
         </label>
         <div class="relative flex items-start">
@@ -84,9 +85,10 @@
             </svg>
           </div>
           <textarea 
+            id="category-desc-input"
             rows="3"
             [value]="description()"
-            (input)="description.set($any($event.target).value)"
+            (input)="onDescriptionInput($event)"
             class="w-full pl-10 pr-3 py-2.5 text-xs sm:text-sm bg-white/70 border border-purple-soft rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ACA0E7]/50 focus:border-primary-container text-brand-navy shadow-inner font-medium resize-none" 
             placeholder="Detalles opcionales sobre esta categoría de productos..."
           ></textarea>
