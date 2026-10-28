@@ -5,14 +5,15 @@
 // =============================================================================
 
 import { inject } from '@angular/core';
-import {
+import type {
   HttpInterceptorFn,
   HttpRequest,
   HttpHandlerFn,
   HttpEvent,
   HttpErrorResponse,
 } from '@angular/common/http';
-import { Observable, catchError, throwError } from 'rxjs';
+import type { Observable} from 'rxjs';
+import { catchError, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import type { ProblemDetails } from '../interfaces/auth.interfaces';

@@ -4,13 +4,13 @@
 // Propósito: Trazabilidad de requests en logs del backend (preparado para Fase 3 ADR-0010).
 // =============================================================================
 
-import {
+import type {
   HttpInterceptorFn,
   HttpRequest,
   HttpHandlerFn,
   HttpEvent,
 } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import type { Observable } from 'rxjs';
 
 /**
  * Genera un UUID v4 simple sin dependencias externas.

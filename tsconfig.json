@@ -1,9 +1,12 @@
 {
   "extends": "./tsconfig.base.json",
   "files": [],
-  "include": ["libs/**/*.ts"],
   "references": [
     { "path": "./apps/NalunPos-Web/tsconfig.app.json" },
-    { "path": "./libs/shared/ui/tsconfig.json" }
+    { "path": "./apps/NalunPos-Admin-Web/tsconfig.app.json" },
+    { "path": "./libs/shared/auth/tsconfig.lib.json" },
+    { "path": "./libs/shared/data-access/tsconfig.lib.json" },
+    { "path": "./libs/shared/ui/tsconfig.lib.json" },
+    { "path": "./libs/shared/design-tokens/tsconfig.lib.json" }
   ]
 }

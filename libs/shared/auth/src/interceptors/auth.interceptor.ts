@@ -4,7 +4,7 @@
 //                  solicitudes HTTP que van hacia la API de NalunPos.
 // =============================================================================
 
-import { HttpInterceptorFn } from '@angular/common/http';
+import type { HttpInterceptorFn } from '@angular/common/http';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const token = sessionStorage.getItem('nalunpos_token');

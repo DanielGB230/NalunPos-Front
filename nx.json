@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
-  "defaultBase": "master",
+  "defaultBase": "main",
   "analytics": false,
   "namedInputs": {
     "default": [
@@ -22,13 +22,34 @@
         "production",
         "^production"
       ]
+    },
+    "@nx/vitest:test": {
+      "cache": true,
+      "options": {
+        "configFile": "vitest.config.ts"
+      },
+      "inputs": [
+        "default",
+        "^production"
+      ]
+    },
+    "@nx/eslint:lint": {
+      "cache": true,
+      "inputs": [
+        "default",
+        "{workspaceRoot}/.eslintignore",
+        "{workspaceRoot}/eslint.config.js"
+      ]
     }
   },
   "generators": {
     "@nx/angular:application": {
-      "e2eTestRunner": "none",
-      "style": "scss",
-      "unitTestRunner": "none"
+      "e2eTestRunner": "playwright",
+      "style": "css",
+      "unitTestRunner": "vitest"
+    },
+    "@nx/angular:library": {
+      "unitTestRunner": "vitest"
     }
   }
 }

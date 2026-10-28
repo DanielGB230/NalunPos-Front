@@ -43,7 +43,7 @@ export class AuthService {
   login(credentials: LoginRequest): Observable<AuthResponse> {
     return this.http
       .post<AuthResponse>(`${this.apiUrl}/api/v1/auth/login`, credentials)
-      .pipe(tap((response) => this.persistSession(response, credentials.email)));
+      .pipe(tap((response) => { this.persistSession(response, credentials.email); }));
   }
 
   // ─── Logout ────────────────────────────────────────────────────────────────

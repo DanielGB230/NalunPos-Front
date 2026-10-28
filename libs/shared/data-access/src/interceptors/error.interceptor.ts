@@ -4,9 +4,9 @@
 // RFC 7807 (ProblemDetails de .NET 9) a objetos AppError fuertemente tipados.
 // =============================================================================
 
-import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
+import type { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { catchError, throwError } from 'rxjs';
-import { AppError, ProblemDetails } from '../models/app-error.model';
+import type { AppError, ProblemDetails } from '../models/app-error.model';
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   return next(req).pipe(

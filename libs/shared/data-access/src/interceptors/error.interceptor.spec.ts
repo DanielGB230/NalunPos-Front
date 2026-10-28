@@ -7,7 +7,7 @@ import { describe, it, expect } from 'vitest';
 import { HttpRequest, HttpErrorResponse } from '@angular/common/http';
 import { errorInterceptor } from './error.interceptor';
 import { throwError } from 'rxjs';
-import { AppError } from '../models/app-error.model';
+import type { AppError } from '../models/app-error.model';
 
 describe('errorInterceptor', () => {
   it('debe capturar un error HTTP 400 ProblemDetails y convertirlo a AppError', () => {

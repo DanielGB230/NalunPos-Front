@@ -4,7 +4,7 @@
 // para trazabilidad de logs distribuida backend/frontend.
 // =============================================================================
 
-import { HttpInterceptorFn } from '@angular/common/http';
+import type { HttpInterceptorFn } from '@angular/common/http';
 
 export const correlationIdInterceptor: HttpInterceptorFn = (req, next) => {
   const correlationId = crypto.randomUUID

@@ -28,7 +28,7 @@ export class UserSession {
   /**
    * Crea una instancia de UserSession mapeando la respuesta del backend Pos.Api.
    */
-  static fromAuthResponse(response: AuthResponse, fallbackEmail: string = ''): UserSession {
+  static fromAuthResponse(response: AuthResponse, fallbackEmail = ''): UserSession {
     const token = response.token;
 
     let expiresAt: Date;
