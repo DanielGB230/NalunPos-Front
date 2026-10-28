@@ -12,7 +12,7 @@ import {
   Input,
   Output,
 } from '@angular/core';
-import { FilterDrawerConfig, FilterOptionVariant } from './advanced-filter-drawer.model';
+import type { FilterDrawerConfig, FilterOptionVariant } from './advanced-filter-drawer.model';
 
 @Component({
   selector: 'lib-advanced-filter-drawer',

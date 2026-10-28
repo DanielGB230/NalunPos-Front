@@ -14,7 +14,7 @@ import {
   Input,
 } from '@angular/core';
 import { NgClass } from '@angular/common';
-import { MetricCardConfig, MetricColorVariant } from './metrics-bento-grid.model';
+import type { MetricCardConfig, MetricColorVariant } from './metrics-bento-grid.model';
 
 /** Mapa de clases Tailwind por variante cromática */
 interface VariantStyle {

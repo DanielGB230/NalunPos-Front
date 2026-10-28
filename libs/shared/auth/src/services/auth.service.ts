@@ -8,7 +8,8 @@
 import { Injectable, computed, inject, signal, type Signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, tap } from 'rxjs';
+import type { Observable} from 'rxjs';
+import { tap } from 'rxjs';
 import type { AuthResponse, LoginRequest, UserRole } from '../interfaces/auth.interfaces';
 import { UserSession } from '../models/user-session.model';
 

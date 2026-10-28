@@ -12,7 +12,7 @@ import {
   Input,
   Output,
 } from '@angular/core';
-import { QuickFilterColorVariant, QuickFilterTab } from './quick-filter-bar.model';
+import type { QuickFilterColorVariant, QuickFilterTab } from './quick-filter-bar.model';
 
 @Component({
   selector: 'lib-quick-filter-bar',

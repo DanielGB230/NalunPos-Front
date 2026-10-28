@@ -1,8 +1,10 @@
 import { inject, Injectable } from '@angular/core';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { firstValueFrom, map, Observable } from 'rxjs';
+import type { MatDialogRef } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
+import type { Observable } from 'rxjs';
+import { firstValueFrom, map } from 'rxjs';
 import { ConfirmationDialogComponent } from './confirmation-dialog.component';
-import { ConfirmationDialogData } from './confirmation-dialog.model';
+import type { ConfirmationDialogData } from './confirmation-dialog.model';
 
 @Injectable({
   providedIn: 'root',

@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { ConfirmationDialogData, ConfirmationVariant } from './confirmation-dialog.model';
+import type { ConfirmationDialogData, ConfirmationVariant } from './confirmation-dialog.model';
 
 @Component({
   selector: 'lib-confirmation-dialog',

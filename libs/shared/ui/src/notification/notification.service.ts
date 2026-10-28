@@ -5,9 +5,10 @@
 // =============================================================================
 
 import { inject, Injectable } from '@angular/core';
-import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
+import type { MatSnackBarConfig } from '@angular/material/snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastNotificationComponent } from './toast-notification.component';
-import { NotificationData } from './notification.model';
+import type { NotificationData } from './notification.model';
 
 export interface NotificationOptions {
   title?: string;

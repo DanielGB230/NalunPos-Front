@@ -12,7 +12,7 @@ import {
   Input,
   Output,
 } from '@angular/core';
-import { PageHeroConfig } from './page-hero-card.model';
+import type { PageHeroConfig } from './page-hero-card.model';
 
 @Component({
   selector: 'lib-page-hero-card',

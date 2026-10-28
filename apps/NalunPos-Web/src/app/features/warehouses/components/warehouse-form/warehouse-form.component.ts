@@ -70,7 +70,9 @@ export class WarehouseFormComponent implements OnInit {
         // Si no hay branchId seleccionado y hay sucursales, autoseleccionar la primera o la principal
         if (!this.branchId() && data.length > 0) {
           const mainBranch = data.find((b) => b.isMain) ?? data[0];
-          this.branchId.set(mainBranch.id);
+          if (mainBranch) {
+            this.branchId.set(mainBranch.id);
+          }
         }
       },
       error: () => {
