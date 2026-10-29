@@ -22,6 +22,7 @@ describe('WarehouseApiService', () => {
 
   const mockWarehouse: Warehouse = {
     id: 'wh-123',
+    tenantId: 'tenant-1',
     name: 'Almacen Central',
     description: 'Sede Principal',
     branchId: 'br-001',
@@ -47,7 +48,7 @@ describe('WarehouseApiService', () => {
     service = TestBed.inject(WarehouseApiService);
   });
 
-  it('debe obtener la lista de almacenes mediante GET /api/warehouses', () => {
+  it('debe obtener la lista de almacenes mediante GET /api/v1/warehouses', () => {
     httpMock.get.mockReturnValue(of([mockWarehouse]));
 
     let result: Warehouse[] | undefined;
@@ -55,11 +56,11 @@ describe('WarehouseApiService', () => {
       result = data;
     });
 
-    expect(httpMock.get).toHaveBeenCalledWith('https://api.nalunpos.com/api/warehouses');
+    expect(httpMock.get).toHaveBeenCalledWith('https://api.nalunpos.com/api/v1/warehouses');
     expect(result).toEqual([mockWarehouse]);
   });
 
-  it('debe registrar un almacen nuevo mediante POST /api/warehouses', () => {
+  it('debe registrar un almacen nuevo mediante POST /api/v1/warehouses', () => {
     const request: CreateWarehouseRequest = {
       name: 'Bodega Norte',
       description: 'Zona Industrial',
@@ -73,13 +74,16 @@ describe('WarehouseApiService', () => {
       created = data;
     });
 
-    expect(httpMock.post).toHaveBeenCalledWith('https://api.nalunpos.com/api/warehouses', request);
+    expect(httpMock.post).toHaveBeenCalledWith(
+      'https://api.nalunpos.com/api/v1/warehouses',
+      request,
+    );
     expect(created).toEqual(mockWarehouse);
   });
 
   it('debe retornar error observable para endpoints aun pendientes en backend', () => {
     let errorMsg = '';
-    service.updateWarehouse('wh-123', { name: 'New Name' }).subscribe({
+    service.updateWarehouse('wh-123', { id: 'wh-123', name: 'New Name' }).subscribe({
       error: (err: Error) => {
         errorMsg = err.message;
       },

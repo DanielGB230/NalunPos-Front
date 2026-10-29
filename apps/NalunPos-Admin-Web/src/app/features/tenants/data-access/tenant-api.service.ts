@@ -1,8 +1,8 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import type { Observable } from 'rxjs';
-import { APP_CONFIG } from '@nalunpos/shared/data-access';
-import type { CreateTenantRequest, PagedResult, TenantDto } from '../models/tenant.model';
+import { APP_CONFIG, type PagedResult } from '@nalunpos/shared/data-access';
+import type { CreateTenantRequest, TenantDto } from '../models/tenant.model';
 
 @Injectable({
   providedIn: 'root',

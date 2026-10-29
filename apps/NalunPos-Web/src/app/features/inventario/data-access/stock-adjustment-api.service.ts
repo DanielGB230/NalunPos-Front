@@ -15,7 +15,7 @@ export class StockAdjustmentApiService {
   private readonly config = inject(APP_CONFIG);
 
   private get endpoint(): string {
-    return `${this.config.apiUrl}/api/stock-adjustments`;
+    return `${this.config.apiUrl}/api/v1/stock-adjustments`;
   }
 
   createAdjustment(request: CreateStockAdjustmentRequest): Observable<StockAdjustment> {

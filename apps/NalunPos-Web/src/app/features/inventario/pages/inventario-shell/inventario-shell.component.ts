@@ -14,8 +14,7 @@ import {
   MetricsBentoGridComponent,
   NotificationService,
 } from '@nalunpos/shared/ui';
-import type { Warehouse } from '../../models/warehouse.interface';
-import { WarehouseApiService } from '../../data-access/warehouse-api.service';
+import { type Warehouse, WarehouseApiService } from '@nalunpos/shared/data-access';
 import { StockListComponent } from '../../components/stock-list/stock-list.component';
 import { KardexComponent } from '../../components/kardex/kardex.component';
 // Modales cargados con MatDialog.open() — NO van en imports[]

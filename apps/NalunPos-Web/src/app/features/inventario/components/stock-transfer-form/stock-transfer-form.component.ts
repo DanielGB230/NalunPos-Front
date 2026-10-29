@@ -9,10 +9,9 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { FormsModule } from '@angular/forms';
 import { FormField, form, required, min } from '@angular/forms/signals';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import type { AppError } from '@nalunpos/shared/data-access';
+import type { AppError, Warehouse } from '@nalunpos/shared/data-access';
 import { NotificationService } from '@nalunpos/shared/ui';
 import type { CreateStockTransferRequest } from '../../models/stock-transfer.interface';
-import type { Warehouse } from '../../models/warehouse.interface';
 import { StockTransferApiService } from '../../data-access/stock-transfer-api.service';
 
 export interface TransferDialogData {

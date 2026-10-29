@@ -22,9 +22,12 @@ describe('BranchApiService', () => {
   const mockBranches: Branch[] = [
     {
       id: 'br-1',
+      tenantId: 'tenant-1',
+      code: 'SUC-01',
       name: 'Sucursal Centro',
       address: 'Av. Principal 123',
       phone: '555-0100',
+      isMain: true,
       isActive: true,
     },
   ];
@@ -54,7 +57,7 @@ describe('BranchApiService', () => {
     });
 
     expect(httpMock.get).toHaveBeenCalledWith(
-      'https://api.nalunpos.com/api/Branches',
+      'https://api.nalunpos.com/api/v1/branches',
       expect.anything(),
     );
     expect(result).toEqual(mockBranches);
@@ -66,7 +69,7 @@ describe('BranchApiService', () => {
     service.getBranches(true).subscribe();
 
     expect(httpMock.get).toHaveBeenCalledWith(
-      'https://api.nalunpos.com/api/Branches',
+      'https://api.nalunpos.com/api/v1/branches',
       expect.objectContaining({
         params: expect.anything(),
       }),

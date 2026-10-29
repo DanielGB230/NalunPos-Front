@@ -17,7 +17,7 @@ export class PurchaseOrderApiService {
   private readonly config = inject(APP_CONFIG);
 
   private get endpoint(): string {
-    return `${this.config.apiUrl}/api/purchase-orders`;
+    return `${this.config.apiUrl}/api/v1/purchase-orders`;
   }
 
   getPurchaseOrders(

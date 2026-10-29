@@ -23,7 +23,7 @@ export class StockLevelApiService {
 
   /**
    * Stock actual de todos los productos en un almacén específico.
-   * Endpoint: GET /api/warehouses/{warehouseId}/stock
+   * Endpoint: GET /api/v1/warehouses/{warehouseId}/stock
    */
   getStockByWarehouse(
     warehouseId: string,
@@ -35,14 +35,14 @@ export class StockLevelApiService {
       .set('pageSize', pageSize.toString());
 
     return this.http.get<PagedResult<StockLevel>>(
-      `${this.baseUrl}/api/warehouses/${warehouseId}/stock`,
+      `${this.baseUrl}/api/v1/warehouses/${warehouseId}/stock`,
       { params },
     );
   }
 
   /**
    * Kardex de movimientos de un almacén (todos los productos).
-   * Endpoint: GET /api/warehouses/{warehouseId}/movements
+   * Endpoint: GET /api/v1/warehouses/{warehouseId}/movements
    */
   getInventoryMovements(
     pageNumber = 1,
@@ -55,23 +55,25 @@ export class StockLevelApiService {
 
     if (warehouseId) {
       return this.http.get<PagedResult<InventoryMovement>>(
-        `${this.baseUrl}/api/warehouses/${warehouseId}/movements`,
+        `${this.baseUrl}/api/v1/warehouses/${warehouseId}/movements`,
         { params },
       );
     }
 
     // Fallback: si no hay warehouseId, retornamos una lista vacía no debería ocurrir
     return this.http.get<PagedResult<InventoryMovement>>(
-      `${this.baseUrl}/api/inventory/movements`,
+      `${this.baseUrl}/api/v1/inventory/movements`,
       { params },
     );
   }
 
   /**
    * Stock de un producto específico.
-   * Endpoint: GET /api/inventory/products/{productId}/stock
+   * Endpoint: GET /api/v1/inventory/products/{productId}/stock
    */
   getProductStock(productId: string): Observable<ProductStock> {
-    return this.http.get<ProductStock>(`${this.baseUrl}/api/inventory/products/${productId}/stock`);
+    return this.http.get<ProductStock>(
+      `${this.baseUrl}/api/v1/inventory/products/${productId}/stock`,
+    );
   }
 }

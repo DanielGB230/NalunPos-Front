@@ -12,7 +12,7 @@ export class StockTransferApiService {
   private readonly config = inject(APP_CONFIG);
 
   private get endpoint(): string {
-    return `${this.config.apiUrl}/api/stock-transfers`;
+    return `${this.config.apiUrl}/api/v1/stock-transfers`;
   }
 
   getStockTransfers(pageNumber = 1, pageSize = 20): Observable<PagedResult<StockTransfer>> {

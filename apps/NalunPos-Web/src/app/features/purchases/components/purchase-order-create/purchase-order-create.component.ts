@@ -3,10 +3,12 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { CommonModule } from '@angular/common';
 import { MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { NotificationService } from '@nalunpos/shared/ui';
-import type { Supplier } from '../../../suppliers/models/supplier.interface';
-import { SupplierApiService } from '../../../suppliers/data-access/supplier-api.service';
-import type { Warehouse } from '../../../warehouses/models/warehouse.interface';
-import { WarehouseApiService } from '../../../warehouses/data-access/warehouse-api.service';
+import {
+  type Supplier,
+  SupplierApiService,
+  type Warehouse,
+  WarehouseApiService,
+} from '@nalunpos/shared/data-access';
 import type { CreatePurchaseOrderRequest } from '../../models/purchase-order.interface';
 import { PurchaseOrderApiService } from '../../data-access/purchase-order-api.service';
 

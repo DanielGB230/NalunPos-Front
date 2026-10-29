@@ -5,9 +5,15 @@ export default defineConfig({
   resolve: {
     alias: {
       '@nalunpos/shared/auth': path.resolve(import.meta.dirname, './libs/shared/auth/src/index.ts'),
-      '@nalunpos/shared/data-access': path.resolve(import.meta.dirname, './libs/shared/data-access/src/index.ts'),
+      '@nalunpos/shared/data-access': path.resolve(
+        import.meta.dirname,
+        './libs/shared/data-access/src/index.ts',
+      ),
       '@nalunpos/shared/ui': path.resolve(import.meta.dirname, './libs/shared/ui/src/index.ts'),
-      '@nalunpos/shared/design-tokens': path.resolve(import.meta.dirname, './libs/shared/design-tokens/src/index.ts'),
+      '@nalunpos/shared/design-tokens': path.resolve(
+        import.meta.dirname,
+        './libs/shared/design-tokens/src/index.ts',
+      ),
     },
   },
   test: {
