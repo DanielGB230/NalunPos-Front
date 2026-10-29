@@ -3,8 +3,8 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { NotificationService } from '@nalunpos/shared/ui';
-import type { PurchaseOrder, ReceivePurchaseOrderLineRequest } from '../../interfaces/purchase-order.interface';
-import { PurchaseOrderApiService } from '../../services/purchase-order-api.service';
+import type { PurchaseOrder, ReceivePurchaseOrderLineRequest } from '../../models/purchase-order.interface';
+import { PurchaseOrderApiService } from '../../data-access/purchase-order-api.service';
 
 export interface ReceiveOrderDialogData {
   order: PurchaseOrder;

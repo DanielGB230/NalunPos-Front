@@ -4,10 +4,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { NotificationService } from '@nalunpos/shared/ui';
-import type { Warehouse, CreateWarehouseRequest } from '../../interfaces/warehouse.interface';
-import type { Branch } from '../../interfaces/branch.interface';
-import { WarehouseApiService } from '../../services/warehouse-api.service';
-import { BranchApiService } from '../../services/branch-api.service';
+import type { Warehouse, CreateWarehouseRequest } from '../../models/warehouse.interface';
+import type { Branch } from '../../models/branch.interface';
+import { WarehouseApiService } from '../../data-access/warehouse-api.service';
+import { BranchApiService } from '../../data-access/branch-api.service';
 
 export interface WarehouseDialogData {
   warehouse?: Warehouse;

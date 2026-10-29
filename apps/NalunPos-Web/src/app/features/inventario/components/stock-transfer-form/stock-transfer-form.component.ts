@@ -21,9 +21,9 @@ import {
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import type { AppError } from '@nalunpos/shared/data-access';
 import { NotificationService } from '@nalunpos/shared/ui';
-import type { CreateStockTransferRequest } from '../../interfaces/stock-transfer.interface';
-import type { Warehouse } from '../../interfaces/warehouse.interface';
-import { StockTransferApiService } from '../../services/stock-transfer-api.service';
+import type { CreateStockTransferRequest } from '../../models/stock-transfer.interface';
+import type { Warehouse } from '../../models/warehouse.interface';
+import { StockTransferApiService } from '../../data-access/stock-transfer-api.service';
 
 export interface TransferDialogData {
   warehouses: Warehouse[];

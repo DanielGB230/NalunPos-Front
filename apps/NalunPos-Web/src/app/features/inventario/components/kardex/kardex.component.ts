@@ -22,8 +22,8 @@ import type { PageEvent } from '@angular/material/paginator';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import type { QuickFilterTab } from '@nalunpos/shared/ui';
 import { QuickFilterBarComponent } from '@nalunpos/shared/ui';
-import type { InventoryMovement } from '../../interfaces/stock-level.interface';
-import { StockLevelApiService } from '../../services/stock-level-api.service';
+import type { InventoryMovement } from '../../models/stock-level.interface';
+import { StockLevelApiService } from '../../data-access/stock-level-api.service';
 
 // Tipos de movimiento que corresponden al Enum del backend (InventoryMovementType)
 // 1=Purchase, 2=Sale, 3=Adjustment, 4=ReturnFromCustomer, 5=ReturnToSupplier, 6=TransferOut, 7=TransferIn

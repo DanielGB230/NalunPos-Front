@@ -4,7 +4,7 @@ export const purchasesRoutes: Routes = [
   {
     path: '',
     loadComponent: () =>
-      import('./components/purchase-order-list/purchase-order-list.component').then(
+      import('./pages/purchase-order-list/purchase-order-list.component').then(
         (m) => m.PurchaseOrderListComponent
       ),
   },

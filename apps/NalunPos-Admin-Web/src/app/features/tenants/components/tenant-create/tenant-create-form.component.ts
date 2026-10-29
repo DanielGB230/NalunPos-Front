@@ -17,7 +17,7 @@ import {
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { NotificationService } from '@nalunpos/shared/ui';
 import type { CreateTenantRequest } from '../../models/tenant.model';
-import { TenantApiService } from '../../services/tenant-api.service';
+import { TenantApiService } from '../../data-access/tenant-api.service';
 
 interface TenantFormModel {
   name: string;

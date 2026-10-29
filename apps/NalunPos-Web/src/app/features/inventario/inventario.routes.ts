@@ -9,7 +9,7 @@ export const inventarioRoutes: Routes = [
   {
     path: '',
     loadComponent: () =>
-      import('./components/inventario-shell/inventario-shell.component').then(
+      import('./pages/inventario-shell/inventario-shell.component').then(
         (m) => m.InventarioShellComponent
       ),
   },

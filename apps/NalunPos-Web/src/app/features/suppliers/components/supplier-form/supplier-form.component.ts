@@ -2,8 +2,8 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { NotificationService } from '@nalunpos/shared/ui';
-import type { Supplier, CreateSupplierRequest, UpdateSupplierRequest } from '../../interfaces/supplier.interface';
-import { SupplierApiService } from '../../services/supplier-api.service';
+import type { Supplier, CreateSupplierRequest, UpdateSupplierRequest } from '../../models/supplier.interface';
+import { SupplierApiService } from '../../data-access/supplier-api.service';
 
 import { FormsModule } from '@angular/forms';
 

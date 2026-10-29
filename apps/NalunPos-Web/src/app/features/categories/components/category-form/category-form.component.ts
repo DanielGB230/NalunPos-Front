@@ -2,8 +2,8 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { NotificationService } from '@nalunpos/shared/ui';
-import type { CategoryDto, CreateCategoryRequest, UpdateCategoryRequest } from '../../interfaces/category.interface';
-import { CategoryApiService } from '../../services/category-api.service';
+import type { CategoryDto, CreateCategoryRequest, UpdateCategoryRequest } from '../../models/category.interface';
+import { CategoryApiService } from '../../data-access/category-api.service';
 
 import { FormsModule } from '@angular/forms';
 

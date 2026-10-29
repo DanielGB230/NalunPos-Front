@@ -23,12 +23,12 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import type { AppError } from '@nalunpos/shared/data-access';
 import { NotificationService } from '@nalunpos/shared/ui';
 import type {
-  CreateStockAdjustmentRequest} from '../../interfaces/stock-adjustment.interface';
+  CreateStockAdjustmentRequest} from '../../models/stock-adjustment.interface';
 import {
   StockAdjustmentReason,
-} from '../../interfaces/stock-adjustment.interface';
-import type { Warehouse } from '../../interfaces/warehouse.interface';
-import { StockAdjustmentApiService } from '../../services/stock-adjustment-api.service';
+} from '../../models/stock-adjustment.interface';
+import type { Warehouse } from '../../models/warehouse.interface';
+import { StockAdjustmentApiService } from '../../data-access/stock-adjustment-api.service';
 
 export interface AdjustmentDialogData {
   warehouseId: string;
