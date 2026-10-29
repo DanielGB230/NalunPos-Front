@@ -9,11 +9,10 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { FormsModule } from '@angular/forms';
 import { FormField, form, required, min, max } from '@angular/forms/signals';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import type { AppError } from '@nalunpos/shared/data-access';
+import type { AppError, Warehouse } from '@nalunpos/shared/data-access';
 import { NotificationService } from '@nalunpos/shared/ui';
 import type { CreateStockAdjustmentRequest } from '../../models/stock-adjustment.interface';
 import { StockAdjustmentReason } from '../../models/stock-adjustment.interface';
-import type { Warehouse } from '../../models/warehouse.interface';
 import { StockAdjustmentApiService } from '../../data-access/stock-adjustment-api.service';
 
 export interface AdjustmentDialogData {

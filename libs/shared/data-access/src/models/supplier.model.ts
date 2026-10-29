@@ -30,15 +30,7 @@ export interface CreateSupplierRequest {
   country: string;
 }
 
-export interface UpdateSupplierRequest {
-  name: string;
-  contactName: string;
-  email: string;
-  phone: string;
-  taxId: string;
-  taxCountryCode: string;
-  street: string;
-  city: string;
-  zipCode: string;
-  country: string;
+export interface UpdateSupplierRequest extends CreateSupplierRequest {
+  id: string;
+  isActive?: boolean;
 }
