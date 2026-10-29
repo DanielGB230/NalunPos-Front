@@ -87,8 +87,7 @@ jobs:
           node-version: 22
 
       - name: Audit NPM Dependencies
-        run: npm audit --audit-level=high || true
-        continue-on-error: true
+        run: npm audit --audit-level=high
 
   e2e:
     name: Playwright E2E Smoke Tests
