@@ -1,64 +1,59 @@
 # NalunPos Ecosistema Frontend (Angular 22 / Nx Monorepo)
 
-Monorepo de arquitectura empresarial desarrollado en **Angular 22** y gestionado con **Nx**. Contiene dos aplicaciones de negocio independientes y una capa de librerías compartidas reusables.
+Monorepo de arquitectura empresarial desarrollado en **Angular 22** Zoneless y gestionado con **Nx**. Diseñado con principios de Clean Architecture, control de flujo nativo (`@if/@for/@defer`), Signals reactivos, tema Material M3 unificado y suites de calidad con Vitest y Playwright.
 
 ---
 
-## 🚀 Comandos Principales (Desarrollo Local)
+## 🚀 Comandos de Desarrollo y Operación
 
-Todos los comandos deben ejecutarse desde la raíz del proyecto frontend (`D:\NalunPosApp\NalunPos-Front`):
+Todos los comandos deben ejecutarse desde la raíz del proyecto frontend (`d:\NalunPosApp\NalunPos-Front`):
 
 ### 1. Servidores de Desarrollo (Local Dev)
 
 | Aplicación               | Descripción                                                     | Comando                           | URL Local               |
 | :----------------------- | :-------------------------------------------------------------- | :-------------------------------- | :---------------------- |
-| **`NalunPos-Web`**       | Panel Operativo de Negocio (Ventas, Inventario, Caja, Clientes) | `npx nx serve NalunPos-Web`       | `http://localhost:4200` |
-| **`NalunPos-Admin-Web`** | Panel de SuperAdmin (Plataforma, Tenants, Planes, Monitoreo)    | `npx nx serve NalunPos-Admin-Web` | `http://localhost:4201` |
-
----
+| **`NalunPos-Web`**       | Panel Operativo de Negocio (POS, Ventas, Inventario, Almacenes) | `npx nx serve NalunPos-Web`       | `http://localhost:4200` |
+| **`NalunPos-Admin-Web`** | Panel de SuperAdmin (Plataforma, Multi-Tenant, Sharding)        | `npx nx serve NalunPos-Admin-Web` | `http://localhost:4201` |
 
 ### 2. Compilación de Producción (Production Builds)
 
-```powershell
-# Compilar únicamente NalunPos-Web
-npx nx build NalunPos-Web
-
-# Compilar únicamente NalunPos-Admin-Web
-npx nx build NalunPos-Admin-Web
-
-# Compilar AMBAS aplicaciones simultáneamente
-npx nx run-many -t build
+```bash
+# Compilar ambas aplicaciones para producción
+npm run build
+# O usando Nx directamente con configuración de producción
+npx nx run-many -t build -c production
 ```
 
----
+### 3. Calidad de Código, Linting y Formateo
 
-### 3. Verificación de Tipos y Pruebas (Quality & Testing)
+```bash
+# Ejecutar ESLint con límites de módulo estrictos en todos los proyectos
+npm run lint
 
-```powershell
-# Verificación estricta de tipos TypeScript (Web)
-npx tsc -p apps/NalunPos-Web/tsconfig.app.json --noEmit
+# Verificar estilo de código con Prettier
+npm run format
 
-# Verificación estricta de tipos TypeScript (Admin Web)
-npx tsc -p apps/NalunPos-Admin-Web/tsconfig.app.json --noEmit
-
-# Ejecutar pruebas unitarias de NalunPos-Web
-npx nx test NalunPos-Web
-
-# Ejecutar pruebas unitarias de NalunPos-Admin-Web
-npx nx test NalunPos-Admin-Web
-
-# Ejecutar todas las pruebas del workspace
-npx nx run-many -t test
+# Corregir formato automáticamente
+npm run format:fix
 ```
 
----
+### 4. Pruebas Unitarias y Cobertura (Vitest)
 
-### 4. Grafo de Dependencias Nx
+```bash
+# Ejecutar suite completa de pruebas unitarias
+npx vitest run
 
-Para explorar la arquitectura y la relación entre aplicaciones y librerías compartidas visualmente:
+# Ejecutar pruebas unitarias con reporte de cobertura de código (>70%)
+npx vitest run --coverage
+```
 
-```powershell
-npx nx graph
+### 5. Pruebas E2E de Humo (Playwright)
+
+```bash
+# Ejecutar pruebas de humo E2E automatizadas con mocks de red
+npm run e2e
+# O mediante Playwright CLI
+npx playwright test
 ```
 
 ---
@@ -66,27 +61,40 @@ npx nx graph
 ## 🏛️ Estructura del Monorepo
 
 ```
-d:\NalunPosApp\NalunPos-Front\
+NalunPos-Front/
+├── .github/
+│   ├── workflows/ci.yml        # Pipeline CI de GitHub Actions (Lint, Test, Build, Audit, E2E)
+│   └── dependabot.yml          # Actualizaciones semanales automatizadas
 ├── apps/
-│   ├── NalunPos-Web/           # Aplicación Standalone Angular 22 (POS Operativo)
-│   └── NalunPos-Admin-Web/     # Aplicación Standalone Angular 22 (SuperAdmin)
-├── libs/
-│   └── shared/
-│       ├── auth/               # AuthService, Signals, Interceptors, Guards, DTOs
-│       ├── ui/                 # Componentes UI reutilizables
-│       └── design-tokens/      # Variables SCSS y paletas de diseño globales
+│   ├── NalunPos-Web/           # Aplicación POS Operativa Standalone (Angular 22)
+│   └── NalunPos-Admin-Web/     # Aplicación Consola SuperAdmin Standalone (Angular 22)
+├── libs/shared/
+│   ├── auth/                   # AuthService, Guards, Interceptors, DTOs de Sesión
+│   ├── data-access/            # Token APP_CONFIG, Correlation-ID, Error Interceptor
+│   ├── ui/                     # Componentes visuales reutilizables, Layouts, Toasts
+│   └── design-tokens/          # Tokens M3 centralizados (theme.css), fuentes auto-alojadas
 ├── docs/
-│   └── architecture/adr/       # Registros de Decisiones de Arquitectura (ADRs)
-├── nx.json                     # Configuración de Nx Monorepo
-└── tsconfig.base.json          # Configuración base TypeScript
+│   ├── architecture/
+│   │   ├── architecture.md     # Documento maestro de arquitectura frontend
+│   │   └── adr/                # Registro de Decisiones de Arquitectura (ADR 0001 - 0012)
+│   └── security/
+│       └── headers-and-csp.md  # Cabeceras de seguridad y Content Security Policy
+├── playwright.config.ts        # Configuración de pruebas E2E multi-proyecto
+├── vitest.config.ts            # Configuración de Vitest con entorno JSDOM y cobertura V8
+├── eslint.config.js            # ESLint Flat Config con @nx/enforce-module-boundaries
+└── package.json
 ```
 
 ---
 
-## 🛠️ Estándares Tecnológicos
+## 🛠️ Estándares Tecnológicos y Arquitectura
 
-- **Framework:** Angular 22 (Standalone Components, OnPush Change Detection).
-- **Gestión de Estado:** Angular Signals nativos (`signal`, `computed`, `resource`).
-- **Formularios:** Angular 22 Signal Forms (`form()`, validadores funcionales y binding `[formField]`).
-- **Estilos:** SCSS Estricto + Tailwind CSS v4.
-- **Backend Conectado:** `.NET 9 Pos.Api` (`https://localhost:7232/api/v1/auth/login`).
+- **Framework**: Angular 22 (Standalone Components, OnPush, Zoneless).
+- **Control de Flujo**: Sintaxis nativa `@if`, `@for`, `@defer (on idle)`.
+- **Estado**: Signals nativos (`signal`, `computed`, `effect`) — Cero NgRx.
+- **Formularios**: Signal Forms (`form()`, binding `[formField]`, validadores funcionales).
+- **Estilos**: Tailwind CSS v4 + Angular Material M3 unificados mediante `libs/shared/design-tokens/src/theme.css` — Cero `!important`.
+- **Tipografías**: 100% auto-alojadas con `@fontsource` (Inter, JetBrains Mono, Syne, Cinzel, Material Symbols) — Cero peticiones externas a CDNs.
+- **Configuración de Runtime**: 12-factor compliant vía `/config.json` e inyección de token `APP_CONFIG`.
+- **Seguridad**: 0 usos de `innerHTML` o `bypassSecurityTrust*`. Registro propuesto de in-memory auth con HttpOnly cookie ([ADR 0012](./docs/architecture/adr/0012-in-memory-token-storage-and-httponly-refresh-cookie.md)).
+- **Documentación de Decisiones**: Ver índice completo en [ADR README](./docs/architecture/adr/README.md).

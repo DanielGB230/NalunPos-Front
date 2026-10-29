@@ -1,18 +1,21 @@
-# ADR 0006 — Signal Forms en lugar de Reactive Forms Clásico
+# ADR 0006 — Signal Forms en lugar de Reactive Forms clásico
 
 **Fecha:** 2026-09-09  
-**Estado:** Aprobado
-
-## Contexto
-
-Angular 22 introduce Signal Forms (`@angular/forms/signals`) como la API moderna y estable para manejo de formularios reactivos simplificados y alineados con Signals.
+**Estado:** Aprobado  
+**Contexto:** Angular 22 introduce Signal Forms como la API moderna y estable para manejo de formularios.
 
 ## Decisión
 
-Adopción prioritaria de **Signal Forms** o formularios reactivos signal-friendly para todos los componentes de formulario en la plataforma.
+Usar **Signal Forms** (`@angular/forms/signals`) para todos los formularios nuevos.
 
 ## Razones
 
-- **Consistencia con Signals**: El estado del formulario se integra nativamente con `computed()` y `OnPush`.
-- **Menos Boilerplate**: Reduce la necesidad de gestionar suscripciones manuales a Observables.
-- **Type Safety**: Inferencia y validación de esquemas tipados.
+- **API estable en Angular 22:** `form()`, `schema()`, `submit()` son la API pública oficial desde Angular 22.
+- **Consistencia con Signals:** El estado del formulario (valores, errores, touched) son signals. Se integran nativamente con `computed()` y el change detection `OnPush`.
+- **Menos boilerplate:** Elimina `FormBuilder`, `FormGroup`, `FormControl` y la necesidad de gestionar suscripciones RxJS para valores de formulario.
+- **Type safety completo:** El schema infiere el tipo TypeScript del formulario automáticamente.
+
+## Consecuencias
+
+- `ReactiveFormsModule` y `FormsModule` clásicos NO se importarán en componentes nuevos.
+- Si se encuentra una limitación técnica que impida usar Signal Forms (ej. integración con librería externa), debe documentarse como excepción en este ADR.

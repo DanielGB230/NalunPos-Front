@@ -1,4 +1,4 @@
-﻿# ADR 0006 — Integración de SCSS y Tailwind CSS v4
+# ADR 0008 — Integración de Estilos Globales y Tailwind CSS v4
 
 **Fecha:** 2026-09-09  
 **Estado:** Aprobado  

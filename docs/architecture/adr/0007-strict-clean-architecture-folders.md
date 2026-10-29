@@ -1,4 +1,4 @@
-﻿# ADR 0004 — Clean Architecture Estricta: Separación components/services/models/interfaces
+# ADR 0007 — Clean Architecture Estricta: Separación components/services/models/interfaces
 
 **Fecha:** 2026-09-09  
 **Estado:** Aprobado  
