@@ -90,11 +90,9 @@
       }
     },
     "test": {
-      "executor": "@nx/vitest:test",
-      "outputs": ["{options.reportsDirectory}"],
+      "executor": "nx:run-commands",
       "options": {
-        "passWithNoTests": true,
-        "reportsDirectory": "coverage/apps/NalunPos-Web"
+        "command": "vitest run apps/NalunPos-Web"
       }
     }
   }

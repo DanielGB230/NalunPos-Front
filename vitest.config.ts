@@ -42,6 +42,7 @@ export default defineConfig({
         'libs/shared/auth/src/interceptors/auth.interceptor.ts',
         'libs/shared/data-access/src/interceptors/**/*.ts',
         'apps/NalunPos-Web/src/app/features/warehouses/data-access/**/*.ts',
+        'apps/NalunPos-Admin-Web/src/app/features/tenants/data-access/**/*.ts',
       ],
       exclude: [
         '**/*.spec.ts',
