@@ -134,4 +134,11 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run E2E Smoke Tests
-        run: npx playwright test
+        run: |
+          npx playwright test 2>&1 | tee e2e-output.txt || {
+            echo "### Playwright E2E Failure" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            cat e2e-output.txt >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            exit 1
+          }
