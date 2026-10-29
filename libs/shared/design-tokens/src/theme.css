@@ -4,10 +4,8 @@
    elevaciones y variables de Angular Material M3.
    ============================================================================= */
 
-/* 1. Fuentes Auto-Alojadas (Offline y cumplimiento RGPD) */
+/* 1. Fuentes Auto-Alojadas (Offline y cumplimiento RGPD — Máximo 3 familias de texto) */
 @import '@fontsource/plus-jakarta-sans/index.css';
-@import '@fontsource/syne/index.css';
-@import '@fontsource/cinzel/index.css';
 @import '@fontsource/inter/index.css';
 @import '@fontsource/jetbrains-mono/index.css';
 @import '@fontsource-variable/material-symbols-outlined/index.css';
@@ -65,12 +63,10 @@
   --color-background: #0b0c10;
   --color-surface: #13141c;
 
-  /* Tipografías Auto-Alojadas */
+  /* Tipografías Auto-Alojadas (3 familias de texto justificadas) */
   --font-sans: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
-  --font-syne: 'Syne', sans-serif;
-  --font-cinzel: 'Cinzel', serif;
   --font-geist: 'Inter', system-ui, sans-serif;
-  --font-display: 'Syne', sans-serif;
+  --font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 }
 
@@ -96,17 +92,11 @@
 }
 
 /* 6. Utilidades Tipográficas */
-.font-syne {
-  font-family: 'Syne', sans-serif;
-}
-.font-cinzel {
-  font-family: 'Cinzel', serif;
+.font-display {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
 }
 .font-geist {
   font-family: 'Inter', system-ui, sans-serif;
-}
-.font-display {
-  font-family: 'Syne', sans-serif;
 }
 .font-mono {
   font-family: 'JetBrains Mono', monospace;

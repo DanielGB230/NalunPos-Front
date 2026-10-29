@@ -45,7 +45,7 @@ Content-Security-Policy:
 1. **`default-src 'self'`**: Restringe por defecto la carga de todos los tipos de recursos al mismo origen.
 2. **`script-src 'self'`**: Únicamente permite scripts locales empaquetados por Vite/Angular. Prohíbe terminantemente `unsafe-inline` y `unsafe-eval` en producción.
 3. **`style-src 'self' 'unsafe-inline'`**: Permite estilos de la aplicación y micro-animaciones inyectadas dinámicamente por Angular y Tailwind v4.
-4. **`font-src 'self' data:`**: Todas las tipografías corporativas (Inter, JetBrains Mono, Syne, Cinzel, Material Symbols) se alojan de manera autónoma (`@fontsource`). No se permiten llamadas a dominios externos como `fonts.googleapis.com`.
+4. **`font-src 'self' data:`**: Todas las tipografías corporativas (Inter, Plus Jakarta Sans, JetBrains Mono, Material Symbols) se alojan de manera autónoma (`@fontsource`). No se permiten llamadas a dominios externos como `fonts.googleapis.com`.
 5. **`img-src 'self' data: https: blob:`**: Permite imágenes locales, avatares y códigos QR generados dinámicamente en formato Data-URI o Blob.
 6. **`connect-src 'self' https://api.nalunpos.com`**: Restringe las llamadas `fetch` y `XMLHttpRequest` exclusivamente al mismo dominio y al dominio del API Backend empresarial.
 7. **`object-src 'none'`**: Deshabilita la ejecución de plugins heredados (Flash, Java, Silverlight).

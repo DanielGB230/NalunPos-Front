@@ -94,7 +94,7 @@ NalunPos-Front/
 - **Estado**: Signals nativos (`signal`, `computed`, `effect`) — Cero NgRx.
 - **Formularios**: Signal Forms (`form()`, binding `[formField]`, validadores funcionales).
 - **Estilos**: Tailwind CSS v4 + Angular Material M3 unificados mediante `libs/shared/design-tokens/src/theme.css` — Cero `!important`.
-- **Tipografías**: 100% auto-alojadas con `@fontsource` (Inter, JetBrains Mono, Syne, Cinzel, Material Symbols) — Cero peticiones externas a CDNs.
+- **Tipografías**: 100% auto-alojadas con `@fontsource` (Plus Jakarta Sans, Inter, JetBrains Mono, Material Symbols) — Cero peticiones externas a CDNs.
 - **Configuración de Runtime**: 12-factor compliant vía `/config.json` e inyección de token `APP_CONFIG`.
 - **Seguridad**: 0 usos de `innerHTML` o `bypassSecurityTrust*`. Registro propuesto de in-memory auth con HttpOnly cookie ([ADR 0012](./docs/architecture/adr/0012-in-memory-token-storage-and-httponly-refresh-cookie.md)).
 - **Documentación de Decisiones**: Ver índice completo en [ADR README](./docs/architecture/adr/README.md).
