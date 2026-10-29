@@ -7,9 +7,7 @@
 import type { HttpInterceptorFn } from '@angular/common/http';
 
 export const correlationIdInterceptor: HttpInterceptorFn = (req, next) => {
-  const correlationId = crypto.randomUUID
-    ? crypto.randomUUID()
-    : 'corr-' + Date.now() + '-' + Math.random().toString(36).substring(2, 9);
+  const correlationId = crypto.randomUUID();
 
   const reqWithCorrelation = req.clone({
     setHeaders: {

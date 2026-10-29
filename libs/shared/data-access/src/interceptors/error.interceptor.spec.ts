@@ -170,4 +170,42 @@ describe('errorInterceptor', () => {
     expect(capturedError?.status).toBe(503);
     expect(capturedError?.message).toContain('error inesperado');
   });
+
+  it('debe usar HTTP_status cuando problem.type no está presente y usar title cuando detail está vacío', () => {
+    const req = new HttpRequest('GET', '/api/v1/no-type');
+    const mockHttpError = new HttpErrorResponse({
+      status: 422,
+      error: {
+        title: 'Unprocessable Entity Title',
+      },
+    });
+
+    let capturedError: AppError | undefined;
+    errorInterceptor(req, () => throwError(() => mockHttpError)).subscribe({
+      error: (err: AppError) => {
+        capturedError = err;
+      },
+    });
+
+    expect(capturedError?.code).toBe('HTTP_422');
+    expect(capturedError?.message).toBe('Unprocessable Entity Title');
+  });
+
+  it('debe recurrir a getFallbackMessage cuando problem no tiene detail ni title', () => {
+    const req = new HttpRequest('GET', '/api/v1/empty-problem');
+    const mockHttpError = new HttpErrorResponse({
+      status: 400,
+      error: {},
+    });
+
+    let capturedError: AppError | undefined;
+    errorInterceptor(req, () => throwError(() => mockHttpError)).subscribe({
+      error: (err: AppError) => {
+        capturedError = err;
+      },
+    });
+
+    expect(capturedError?.code).toBe('HTTP_400');
+    expect(capturedError?.message).toContain('datos inválidos');
+  });
 });

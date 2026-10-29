@@ -146,4 +146,24 @@ describe('authInterceptor', () => {
     expect(routerMock.navigate).not.toHaveBeenCalled();
     expect(receivedError).toBe(httpError);
   });
+
+  it('debe propagar errores no-HttpErrorResponse sin alterar rutas ni sesion', () => {
+    const req = new HttpRequest('GET', '/api/v1/data');
+    const genericError = new Error('Network crash');
+    const nextFn = vi.fn(() => throwError(() => genericError));
+
+    let receivedError: unknown;
+    TestBed.runInInjectionContext(() =>
+      authInterceptor(req, nextFn).subscribe({
+        error: (err) => {
+          receivedError = err;
+        },
+      }),
+    );
+
+    expect(nextFn).toHaveBeenCalledOnce();
+    expect(authServiceMock.logout).not.toHaveBeenCalled();
+    expect(routerMock.navigate).not.toHaveBeenCalled();
+    expect(receivedError).toBe(genericError);
+  });
 });
