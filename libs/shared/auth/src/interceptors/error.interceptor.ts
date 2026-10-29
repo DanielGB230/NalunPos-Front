@@ -12,7 +12,7 @@ import type {
   HttpEvent,
   HttpErrorResponse,
 } from '@angular/common/http';
-import type { Observable} from 'rxjs';
+import type { Observable } from 'rxjs';
 import { catchError, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';

@@ -5,13 +5,7 @@
 // Template: Tailwind CSS únicamente — sin SCSS, sin styleUrls.
 // =============================================================================
 
-import {
-  ChangeDetectionStrategy,
-  Component,
-  EventEmitter,
-  Input,
-  Output,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import type { FilterDrawerConfig, FilterOptionVariant } from './advanced-filter-drawer.model';
 
 @Component({
@@ -53,8 +47,8 @@ export class AdvancedFilterDrawerComponent {
   protected getCheckboxClass(variant: FilterOptionVariant = 'default'): string {
     const map: Record<FilterOptionVariant, string> = {
       default: 'accent-[#605596] border-[#ACA0E7] text-[#605596] focus:ring-[#ACA0E7]',
-      blue:    'accent-[#283FA7] border-[#92AAE7] text-[#283FA7] focus:ring-[#92AAE7]',
-      orchid:  'accent-[#9B2C67] border-[#E8A0BF] text-[#9B2C67] focus:ring-[#E8A0BF]',
+      blue: 'accent-[#283FA7] border-[#92AAE7] text-[#283FA7] focus:ring-[#92AAE7]',
+      orchid: 'accent-[#9B2C67] border-[#E8A0BF] text-[#9B2C67] focus:ring-[#E8A0BF]',
     };
     return `rounded ${map[variant]}`;
   }
@@ -66,8 +60,8 @@ export class AdvancedFilterDrawerComponent {
   protected getOptionContainerClass(variant: FilterOptionVariant = 'default'): string {
     const map: Record<FilterOptionVariant, string> = {
       default: 'bg-white/70 border-[#DEDAF4] hover:bg-white',
-      blue:    'bg-white/70 border-[#DEDAF4] hover:bg-white',
-      orchid:  'bg-[#FDF2F7] border-[#E8A0BF]/50 hover:bg-[#FCE7F0]',
+      blue: 'bg-white/70 border-[#DEDAF4] hover:bg-white',
+      orchid: 'bg-[#FDF2F7] border-[#E8A0BF]/50 hover:bg-[#FCE7F0]',
     };
     return `flex items-center space-x-2 p-2 rounded-xl border cursor-pointer transition ${map[variant]}`;
   }
@@ -78,8 +72,8 @@ export class AdvancedFilterDrawerComponent {
   protected getOptionLabelClass(variant: FilterOptionVariant = 'default'): string {
     const map: Record<FilterOptionVariant, string> = {
       default: 'font-medium text-[#161B2D]',
-      blue:    'font-medium text-[#161B2D]',
-      orchid:  'font-semibold text-[#9B2C67]',
+      blue: 'font-medium text-[#161B2D]',
+      orchid: 'font-semibold text-[#9B2C67]',
     };
     return `text-xs ${map[variant]}`;
   }

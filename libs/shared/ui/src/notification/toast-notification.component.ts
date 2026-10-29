@@ -48,7 +48,9 @@ import type { NotificationData } from './notification.model';
           <div class="text-left leading-tight w-full">
             <div class="flex items-center gap-1.5">
               @if (data.title) {
-                <span class="text-xs font-bold text-[#1E1B2E] tracking-tight font-sans">{{ data.title }}</span>
+                <span class="text-xs font-bold text-[#1E1B2E] tracking-tight font-sans">{{
+                  data.title
+                }}</span>
               }
               @if (badgeLabel) {
                 <span
@@ -59,7 +61,12 @@ import type { NotificationData } from './notification.model';
                 </span>
               }
             </div>
-            <p class="text-[11px] font-medium text-slate-500 mt-0.5 leading-tight font-sans" style="word-break: break-word;">{{ data.message }}</p>
+            <p
+              class="text-[11px] font-medium text-slate-500 mt-0.5 leading-tight font-sans"
+              style="word-break: break-word;"
+            >
+              {{ data.message }}
+            </p>
           </div>
         </div>
 
@@ -81,7 +88,13 @@ import type { NotificationData } from './notification.model';
             class="w-6 h-6 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer"
             title="Cerrar"
           >
-            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+            <svg
+              class="w-3.5 h-3.5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2.2"
+            >
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -89,42 +102,55 @@ import type { NotificationData } from './notification.model';
       </div>
     </div>
   `,
-  styles: [`
-    .glass-pill-snackbar {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      box-shadow: 
-        0 8px 20px -4px rgba(172, 160, 231, 0.18),
-        0 3px 8px -2px rgba(146, 170, 231, 0.1),
-        inset 0 1px 1.5px rgba(255, 255, 255, 1);
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    }
+  styles: [
+    `
+      .glass-pill-snackbar {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        box-shadow:
+          0 8px 20px -4px rgba(172, 160, 231, 0.18),
+          0 3px 8px -2px rgba(146, 170, 231, 0.1),
+          inset 0 1px 1.5px rgba(255, 255, 255, 1);
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      }
 
-    .glass-pill-snackbar:hover {
-      transform: translateY(-1px);
-      box-shadow: 
-        0 12px 24px -4px rgba(172, 160, 231, 0.25),
-        0 4px 12px -2px rgba(146, 170, 231, 0.14),
-        inset 0 1px 2px rgba(255, 255, 255, 1);
-    }
+      .glass-pill-snackbar:hover {
+        transform: translateY(-1px);
+        box-shadow:
+          0 12px 24px -4px rgba(172, 160, 231, 0.25),
+          0 4px 12px -2px rgba(146, 170, 231, 0.14),
+          inset 0 1px 2px rgba(255, 255, 255, 1);
+      }
 
-    @keyframes subtle-pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.65; transform: scale(1.12); }
-    }
-    .pulse-dot {
-      animation: subtle-pulse 2.2s infinite ease-in-out;
-    }
+      @keyframes subtle-pulse {
+        0%,
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 0.65;
+          transform: scale(1.12);
+        }
+      }
+      .pulse-dot {
+        animation: subtle-pulse 2.2s infinite ease-in-out;
+      }
 
-    @keyframes progress-drain {
-      from { width: 100%; }
-      to { width: 0%; }
-    }
-    .progress-bar-anim {
-      animation: progress-drain 4.5s linear forwards;
-    }
-  `],
+      @keyframes progress-drain {
+        from {
+          width: 100%;
+        }
+        to {
+          width: 0%;
+        }
+      }
+      .progress-bar-anim {
+        animation: progress-drain 4.5s linear forwards;
+      }
+    `,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ToastNotificationComponent implements OnInit, OnDestroy {
@@ -166,7 +192,7 @@ export class ToastNotificationComponent implements OnInit, OnDestroy {
   onMouseEnter(): void {
     this.isPaused.set(true);
     this.clearTimer();
-    this.remainingTime -= (Date.now() - this.startTime);
+    this.remainingTime -= Date.now() - this.startTime;
   }
 
   onMouseLeave(): void {

@@ -25,7 +25,7 @@ export class ConfirmationDialogService {
         autoFocus: false,
         width: '390px',
         maxWidth: '90vw',
-      }
+      },
     );
 
     return dialogRef.afterClosed().pipe(map((res: boolean | undefined) => !!res));

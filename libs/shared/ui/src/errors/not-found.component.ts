@@ -11,7 +11,10 @@ import { RouterLink } from '@angular/router';
         <span class="text-6xl font-extrabold text-indigo-600">404</span>
         <h1 class="text-2xl font-bold text-slate-900">Página no encontrada</h1>
         <p class="text-sm text-slate-600">La página que buscas no existe o fue movida.</p>
-        <a routerLink="/dashboard" class="mt-2 inline-flex items-center justify-center px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm rounded-lg transition-colors shadow">
+        <a
+          routerLink="/dashboard"
+          class="mt-2 inline-flex items-center justify-center px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm rounded-lg transition-colors shadow"
+        >
           Volver al Dashboard
         </a>
       </div>

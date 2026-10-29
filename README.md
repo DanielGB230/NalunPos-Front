@@ -10,10 +10,10 @@ Todos los comandos deben ejecutarse desde la raíz del proyecto frontend (`D:\Na
 
 ### 1. Servidores de Desarrollo (Local Dev)
 
-| Aplicación | Descripción | Comando | URL Local |
-| :--- | :--- | :--- | :--- |
-| **`NalunPos-Web`** | Panel Operativo de Negocio (Ventas, Inventario, Caja, Clientes) | `npx nx serve NalunPos-Web` | `http://localhost:4200` |
-| **`NalunPos-Admin-Web`** | Panel de SuperAdmin (Plataforma, Tenants, Planes, Monitoreo) | `npx nx serve NalunPos-Admin-Web` | `http://localhost:4201` |
+| Aplicación               | Descripción                                                     | Comando                           | URL Local               |
+| :----------------------- | :-------------------------------------------------------------- | :-------------------------------- | :---------------------- |
+| **`NalunPos-Web`**       | Panel Operativo de Negocio (Ventas, Inventario, Caja, Clientes) | `npx nx serve NalunPos-Web`       | `http://localhost:4200` |
+| **`NalunPos-Admin-Web`** | Panel de SuperAdmin (Plataforma, Tenants, Planes, Monitoreo)    | `npx nx serve NalunPos-Admin-Web` | `http://localhost:4201` |
 
 ---
 
@@ -56,6 +56,7 @@ npx nx run-many -t test
 ### 4. Grafo de Dependencias Nx
 
 Para explorar la arquitectura y la relación entre aplicaciones y librerías compartidas visualmente:
+
 ```powershell
 npx nx graph
 ```

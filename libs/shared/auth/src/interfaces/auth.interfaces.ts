@@ -26,8 +26,4 @@ export interface AuthUserDto {
   readonly tenantId: string | null;
 }
 
-export type UserRole =
-  | 'SuperAdmin'
-  | 'TenantAdmin'
-  | 'Cashier'
-  | 'Inventory';
+export type UserRole = 'SuperAdmin' | 'TenantAdmin' | 'Cashier' | 'Inventory';

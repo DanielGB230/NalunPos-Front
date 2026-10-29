@@ -39,5 +39,3 @@ export * from './layout/app-shell.component';
 // ── Autenticación Compartida ──
 export * from './auth/login-config.interface';
 export * from './auth/base-login.component';
-
-

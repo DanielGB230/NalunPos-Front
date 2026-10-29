@@ -14,14 +14,7 @@ import nxPlugin from '@nx/eslint-plugin';
 export default tseslint.config(
   // ── Ignores globales ────────────────────────────────────────────────────────
   {
-    ignores: [
-      'dist/**',
-      '.angular/**',
-      '.nx/**',
-      'node_modules/**',
-      'coverage/**',
-      '**/*.js',
-    ],
+    ignores: ['dist/**', '.angular/**', '.nx/**', 'node_modules/**', 'coverage/**', '**/*.js'],
   },
 
   // ── Base recomendada ESLint (solo .ts) ───────────────────────────────────
@@ -64,7 +57,12 @@ export default tseslint.config(
             {
               sourceTag: 'scope:landing',
               onlyDependOnLibsWithTags: ['scope:shared'],
-              notDependOnLibsWithTags: ['scope:web', 'scope:admin', 'type:data-access', 'type:feature'],
+              notDependOnLibsWithTags: [
+                'scope:web',
+                'scope:admin',
+                'type:data-access',
+                'type:feature',
+              ],
             },
             {
               sourceTag: 'scope:shared',
@@ -72,7 +70,12 @@ export default tseslint.config(
             },
             {
               sourceTag: 'type:app',
-              onlyDependOnLibsWithTags: ['type:feature', 'type:ui', 'type:data-access', 'type:util'],
+              onlyDependOnLibsWithTags: [
+                'type:feature',
+                'type:ui',
+                'type:data-access',
+                'type:util',
+              ],
             },
             {
               sourceTag: 'type:feature',
@@ -126,7 +129,8 @@ export default tseslint.config(
         },
         {
           name: 'sessionStorage',
-          message: 'Prohibido usar sessionStorage directamente. Usar AuthService (libs/shared/auth).',
+          message:
+            'Prohibido usar sessionStorage directamente. Usar AuthService (libs/shared/auth).',
         },
       ],
       'no-restricted-properties': [
@@ -134,12 +138,14 @@ export default tseslint.config(
         {
           object: 'window',
           property: 'localStorage',
-          message: 'Prohibido usar window.localStorage directamente. Usar AuthService (libs/shared/auth).',
+          message:
+            'Prohibido usar window.localStorage directamente. Usar AuthService (libs/shared/auth).',
         },
         {
           object: 'window',
           property: 'sessionStorage',
-          message: 'Prohibido usar window.sessionStorage directamente. Usar AuthService (libs/shared/auth).',
+          message:
+            'Prohibido usar window.sessionStorage directamente. Usar AuthService (libs/shared/auth).',
         },
       ],
     },

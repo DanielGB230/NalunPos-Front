@@ -34,9 +34,7 @@ export const appRoutes: Routes = [
       {
         path: 'dashboard',
         loadChildren: () =>
-          import('./features/dashboard/dashboard.routes').then(
-            (m) => m.dashboardRoutes,
-          ),
+          import('./features/dashboard/dashboard.routes').then((m) => m.dashboardRoutes),
         title: 'Dashboard — NalunPos Admin',
       },
       {
@@ -49,17 +47,14 @@ export const appRoutes: Routes = [
       {
         path: 'planes',
         canActivate: [roleGuard(['SuperAdmin'])],
-        loadChildren: () =>
-          import('./features/planes/planes.routes').then((m) => m.planesRoutes),
+        loadChildren: () => import('./features/planes/planes.routes').then((m) => m.planesRoutes),
         title: 'Planes — NalunPos Admin',
       },
       {
         path: 'plataforma',
         canActivate: [roleGuard(['SuperAdmin'])],
         loadChildren: () =>
-          import('./features/plataforma/plataforma.routes').then(
-            (m) => m.plataformaRoutes,
-          ),
+          import('./features/plataforma/plataforma.routes').then((m) => m.plataformaRoutes),
         title: 'Plataforma — NalunPos Admin',
       },
       {

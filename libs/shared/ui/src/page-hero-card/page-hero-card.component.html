@@ -1,9 +1,10 @@
 <!-- PageHeroCardComponent — @nalunpos/shared/ui -->
 <!-- Template: 100% Tailwind CSS — sin SCSS, sin styleUrls -->
 <section class="relative rounded-3xl p-7 lg:p-8 glass-card border border-white overflow-hidden shadow-glass-lg">
-
   <!-- Imagen decorativa derecha (decorativa, pointer-events desactivado) -->
-  <div class="absolute right-0 top-0 w-1/3 h-full opacity-40 lg:opacity-55 pointer-events-none mix-blend-multiply flex items-center justify-end">
+  <div
+    class="absolute right-0 top-0 w-1/3 h-full opacity-40 lg:opacity-55 pointer-events-none mix-blend-multiply flex items-center justify-end"
+  >
     <img
       [src]="config.imageUrl"
       [alt]="config.imageAlt ?? config.titleHighlight"
@@ -16,11 +17,12 @@
 
   <!-- Contenido principal -->
   <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-
     <!-- Bloque de texto -->
     <div class="max-w-2xl space-y-2.5">
       <!-- Badge de contexto -->
-      <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[#DBE6FB]/80 border border-[#92AAE7]/40 backdrop-blur-md">
+      <div
+        class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[#DBE6FB]/80 border border-[#92AAE7]/40 backdrop-blur-md"
+      >
         <span class="w-1.5 h-1.5 rounded-full bg-[#605596]"></span>
         <span class="text-[10px] font-bold uppercase tracking-widest text-[#605596] font-mono">{{ config.badge }}</span>
       </div>
@@ -39,7 +41,6 @@
 
     <!-- Acciones -->
     <div class="flex flex-wrap items-center gap-3 shrink-0">
-
       <!-- Botón secundario (glass surface) -->
       @if (config.secondaryAction) {
         <button
@@ -49,7 +50,12 @@
         >
           <!-- Ícono de descarga/exportar -->
           <svg class="w-4 h-4 mr-2 text-[#ACA0E7]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+            />
           </svg>
           {{ config.secondaryAction.label }}
         </button>
@@ -69,7 +75,6 @@
           {{ config.primaryAction.label }}
         </button>
       }
-
     </div>
   </div>
 </section>

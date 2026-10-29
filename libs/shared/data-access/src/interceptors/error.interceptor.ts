@@ -13,7 +13,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
     catchError((error: HttpErrorResponse) => {
       const appError: AppError = parseHttpError(error);
       return throwError(() => appError);
-    })
+    }),
   );
 };
 

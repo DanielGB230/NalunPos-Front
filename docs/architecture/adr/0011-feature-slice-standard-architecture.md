@@ -6,6 +6,7 @@
 Con el crecimiento de `NalunPos-Front`, las features mostraban variabilidad en su estructura interna (mezcla de `components/`, `services/`, `interfaces/` y `models/`), así como componentes que actuaban como páginas completas ubicados dentro de `components/` sin una distinción explícita entre componentes inteligentes (Smart/Container) y componentes de presentación puros (Dumb/Presentation).
 
 ## Decisión
+
 Se establece una estructura canónica obligatoria para cada feature slice en `apps/*/src/app/features/<feature-name>/`:
 
 ```text
@@ -28,6 +29,7 @@ features/<feature-name>/
 ```
 
 ### Reglas de Responsabilidad Única
+
 1. **`pages/` (Smart / Container Components)**:
    - Son el destino de las rutas en `<feature>.routes.ts`.
    - Inyectan servicios de `data-access/` y servicios globales (Notificaciones, Diálogos, Router).
@@ -48,5 +50,6 @@ features/<feature-name>/
    - Permanecen limpias con su `<feature>.routes.ts` sin crear carpetas vacías innecesarias.
 
 ## Consecuencias
+
 - **Positivas:** Predictibilidad absoluta del código, alta reutilización de componentes visuales, desacoplamiento de capas para pruebas unitarias sin mocks de infraestructura complejos.
 - **Negativas:** Requiere mover archivos en refactors cuando un componente escala de presentacional a página o viceversa.

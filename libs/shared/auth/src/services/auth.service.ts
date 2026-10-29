@@ -8,7 +8,7 @@
 import { Injectable, computed, inject, signal, type Signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import type { Observable} from 'rxjs';
+import type { Observable } from 'rxjs';
 import { tap } from 'rxjs';
 import type { AuthResponse, LoginRequest, UserRole } from '../interfaces/auth.interfaces';
 import { UserSession } from '../models/user-session.model';
@@ -22,9 +22,7 @@ export class AuthService {
   private readonly router = inject(Router);
 
   // ─── Estado de la sesión (Signal-First) ────────────────────────────────────
-  private readonly _currentUser = signal<UserSession | null>(
-    this.restoreSessionFromStorage(),
-  );
+  private readonly _currentUser = signal<UserSession | null>(this.restoreSessionFromStorage());
 
   readonly currentUser: Signal<UserSession | null> = this._currentUser.asReadonly();
   readonly isAuthenticated: Signal<boolean> = computed(() => {
@@ -42,9 +40,11 @@ export class AuthService {
 
   // ─── Login ─────────────────────────────────────────────────────────────────
   login(credentials: LoginRequest): Observable<AuthResponse> {
-    return this.http
-      .post<AuthResponse>(`${this.apiUrl}/api/v1/auth/login`, credentials)
-      .pipe(tap((response) => { this.persistSession(response, credentials.email); }));
+    return this.http.post<AuthResponse>(`${this.apiUrl}/api/v1/auth/login`, credentials).pipe(
+      tap((response) => {
+        this.persistSession(response, credentials.email);
+      }),
+    );
   }
 
   // ─── Logout ────────────────────────────────────────────────────────────────

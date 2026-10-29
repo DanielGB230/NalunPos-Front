@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -30,9 +24,7 @@ export class SidebarComponent {
   protected readonly isMasterCollapsed = signal(false);
 
   // El sidebar sólo está visualmente contraído si está colapsado Y el ratón NO está encima (hover)
-  protected readonly isCollapsed = computed(
-    () => this.isSidebarCollapsed() && !this.isHovered()
-  );
+  protected readonly isCollapsed = computed(() => this.isSidebarCollapsed() && !this.isHovered());
 
   protected onMouseEnter(): void {
     if (this.isSidebarCollapsed()) {
@@ -58,7 +50,7 @@ export class SidebarComponent {
       acc[group.key] = index > 0;
       return acc;
     },
-    {} as Record<string, boolean>
+    {} as Record<string, boolean>,
   );
 
   protected readonly groupCollapsedState = signal<Record<string, boolean>>(this.initialGroupState);

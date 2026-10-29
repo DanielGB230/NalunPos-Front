@@ -8,11 +8,7 @@
 //      de producción las incluya en el bundle final.
 // =============================================================================
 
-import {
-  ChangeDetectionStrategy,
-  Component,
-  Input,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { NgClass } from '@angular/common';
 import type { MetricCardConfig, MetricColorVariant } from './metrics-bento-grid.model';
 

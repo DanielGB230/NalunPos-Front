@@ -54,9 +54,7 @@ export const WEB_NAV_CONFIG: AppNavConfig = {
       colorDot: 'bg-[#92AAE7] ring-2 ring-[#DBE6FB]',
       groupIcon: 'admin',
       groupIconColor: 'text-[#92AAE7]',
-      items: [
-        { label: 'Usuarios & Roles', route: '/usuarios', icon: 'usuarios' },
-      ],
+      items: [{ label: 'Usuarios & Roles', route: '/usuarios', icon: 'usuarios' }],
     },
   ],
 };

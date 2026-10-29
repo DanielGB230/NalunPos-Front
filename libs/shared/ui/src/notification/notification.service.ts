@@ -29,14 +29,17 @@ export class NotificationService {
    */
   success(message: string, options?: string | NotificationOptions): void {
     const opts = typeof options === 'string' ? { title: options } : options;
-    this.show({
-      message,
-      title: opts?.title ?? 'Cambios Guardados',
-      badgeText: opts?.badgeText,
-      actionText: opts?.actionText,
-      onAction: opts?.onAction,
-      type: 'success',
-    }, opts?.config);
+    this.show(
+      {
+        message,
+        title: opts?.title ?? 'Cambios Guardados',
+        badgeText: opts?.badgeText,
+        actionText: opts?.actionText,
+        onAction: opts?.onAction,
+        type: 'success',
+      },
+      opts?.config,
+    );
   }
 
   /**
@@ -44,14 +47,17 @@ export class NotificationService {
    */
   error(message: string, options?: string | NotificationOptions): void {
     const opts = typeof options === 'string' ? { title: options } : options;
-    this.show({
-      message,
-      title: opts?.title ?? 'Error del Servidor',
-      badgeText: opts?.badgeText,
-      actionText: opts?.actionText,
-      onAction: opts?.onAction,
-      type: 'error',
-    }, opts?.config);
+    this.show(
+      {
+        message,
+        title: opts?.title ?? 'Error del Servidor',
+        badgeText: opts?.badgeText,
+        actionText: opts?.actionText,
+        onAction: opts?.onAction,
+        type: 'error',
+      },
+      opts?.config,
+    );
   }
 
   /**
@@ -59,14 +65,17 @@ export class NotificationService {
    */
   warning(message: string, options?: string | NotificationOptions): void {
     const opts = typeof options === 'string' ? { title: options } : options;
-    this.show({
-      message,
-      title: opts?.title ?? 'Advertencia',
-      badgeText: opts?.badgeText,
-      actionText: opts?.actionText,
-      onAction: opts?.onAction,
-      type: 'warning',
-    }, opts?.config);
+    this.show(
+      {
+        message,
+        title: opts?.title ?? 'Advertencia',
+        badgeText: opts?.badgeText,
+        actionText: opts?.actionText,
+        onAction: opts?.onAction,
+        type: 'warning',
+      },
+      opts?.config,
+    );
   }
 
   /**
@@ -74,14 +83,17 @@ export class NotificationService {
    */
   info(message: string, options?: string | NotificationOptions): void {
     const opts = typeof options === 'string' ? { title: options } : options;
-    this.show({
-      message,
-      title: opts?.title ?? 'Notificación',
-      badgeText: opts?.badgeText,
-      actionText: opts?.actionText,
-      onAction: opts?.onAction,
-      type: 'info',
-    }, opts?.config);
+    this.show(
+      {
+        message,
+        title: opts?.title ?? 'Notificación',
+        badgeText: opts?.badgeText,
+        actionText: opts?.actionText,
+        onAction: opts?.onAction,
+        type: 'info',
+      },
+      opts?.config,
+    );
   }
 
   /**

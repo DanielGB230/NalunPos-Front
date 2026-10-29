@@ -5,13 +5,7 @@
 // Template: Tailwind CSS únicamente — sin SCSS, sin styleUrls.
 // =============================================================================
 
-import {
-  ChangeDetectionStrategy,
-  Component,
-  EventEmitter,
-  Input,
-  Output,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import type { PageHeroConfig } from './page-hero-card.model';
 
 @Component({

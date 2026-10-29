@@ -5,13 +5,7 @@
 // Template: Tailwind CSS únicamente — sin SCSS, sin styleUrls.
 // =============================================================================
 
-import {
-  ChangeDetectionStrategy,
-  Component,
-  EventEmitter,
-  Input,
-  Output,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import type { QuickFilterColorVariant, QuickFilterTab } from './quick-filter-bar.model';
 
 @Component({
@@ -60,22 +54,25 @@ export class QuickFilterBarComponent {
    * de producción por el scanner de Tailwind.
    */
   protected getTabClass(tab: QuickFilterTab, isActive: boolean): string {
-    const base = 'px-4 py-1.5 rounded-xl text-xs whitespace-nowrap cursor-pointer flex items-center transition';
+    const base =
+      'px-4 py-1.5 rounded-xl text-xs whitespace-nowrap cursor-pointer flex items-center transition';
     const variant: QuickFilterColorVariant = tab.colorVariant ?? 'default';
 
     if (isActive) {
       const activeMap: Record<QuickFilterColorVariant, string> = {
         default: 'bg-[#161B2D] text-white font-bold shadow-xs',
-        blue:    'bg-[#283FA7] text-white font-bold shadow-xs',
-        orchid:  'bg-[#9B2C67] text-white font-bold shadow-xs',
+        blue: 'bg-[#283FA7] text-white font-bold shadow-xs',
+        orchid: 'bg-[#9B2C67] text-white font-bold shadow-xs',
       };
       return `${base} ${activeMap[variant]}`;
     }
 
     const inactiveMap: Record<QuickFilterColorVariant, string> = {
-      default: 'bg-white/70 hover:bg-white text-[#605596] hover:text-[#161B2D] font-semibold border border-[#DEDAF4]',
-      blue:    'bg-white/70 hover:bg-white text-[#283FA7] hover:text-[#161B2D] font-semibold border border-[#92AAE7]/40',
-      orchid:  'bg-[#FDF2F7] hover:bg-[#FCE7F0] text-[#9B2C67] font-semibold border border-[#E8A0BF]/60 shadow-xs',
+      default:
+        'bg-white/70 hover:bg-white text-[#605596] hover:text-[#161B2D] font-semibold border border-[#DEDAF4]',
+      blue: 'bg-white/70 hover:bg-white text-[#283FA7] hover:text-[#161B2D] font-semibold border border-[#92AAE7]/40',
+      orchid:
+        'bg-[#FDF2F7] hover:bg-[#FCE7F0] text-[#9B2C67] font-semibold border border-[#E8A0BF]/60 shadow-xs',
     };
     return `${base} ${inactiveMap[variant]}`;
   }

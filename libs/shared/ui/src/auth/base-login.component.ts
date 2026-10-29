@@ -1,20 +1,8 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import {
-  form,
-  submit,
-  required,
-  pattern,
-  minLength,
-  FormField,
-} from '@angular/forms/signals';
+import { form, submit, required, pattern, minLength, FormField } from '@angular/forms/signals';
 import { AUTH_GATEWAY } from '../layout/nav-config.interface';
 import { LOGIN_CONFIG } from './login-config.interface';
 
@@ -37,7 +25,7 @@ export class BaseLoginComponent {
   protected readonly config = inject(LOGIN_CONFIG);
 
   protected readonly tenantIdentifier = signal(
-    this.config.defaultTenantIdentifier ?? 'central-cafe'
+    this.config.defaultTenantIdentifier ?? 'central-cafe',
   );
 
   private readonly formModel = signal<LoginFormModel>({ email: '', password: '' });
@@ -81,7 +69,7 @@ export class BaseLoginComponent {
           this.isLoading.set(false);
           const err = error as { message?: string };
           this.errorMessage.set(
-            err?.message || 'Credenciales incorrectas. Por favor, intenta de nuevo.'
+            err?.message || 'Credenciales incorrectas. Por favor, intenta de nuevo.',
           );
         },
       });
