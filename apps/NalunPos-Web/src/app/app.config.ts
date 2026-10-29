@@ -1,50 +1,32 @@
 // =============================================================================
 // app.config.ts — NalunPos-Web
 // Configuración central de la aplicación (bootstrap).
-// Registra: Router, HttpClient, Interceptores, Signal Forms, CORS para dev.
+// Registra: Router, HttpClient, Interceptores, Signal Forms, Runtime AppConfig.
 // =============================================================================
 
-import type {
-  ApplicationConfig} from '@angular/core';
+import type { ApplicationConfig } from '@angular/core';
 import {
-  APP_INITIALIZER,
+  inject,
+  provideAppInitializer,
   provideBrowserGlobalErrorListeners,
   provideZonelessChangeDetection,
 } from '@angular/core';
-import {
-  provideRouter,
-  withComponentInputBinding,
-  withViewTransitions,
-} from '@angular/router';
-import {
-  provideHttpClient,
-  withInterceptors,
-  withFetch,
-} from '@angular/common/http';
+import { provideRouter, withComponentInputBinding, withViewTransitions } from '@angular/router';
+import { provideHttpClient, withInterceptors, withFetch } from '@angular/common/http';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideSignalFormsConfig } from '@angular/forms/signals';
 import { appRoutes } from './app.routes';
 import { environment } from '../environments/environment';
+import { authInterceptor, AuthService } from '@nalunpos/shared/auth';
 import {
-  authInterceptor,
-  AuthService,
-} from '@nalunpos/shared/auth';
-import {
+  APP_CONFIG,
   correlationIdInterceptor,
   errorInterceptor,
+  provideRuntimeConfig,
 } from '@nalunpos/shared/data-access';
 import { APP_NAV_CONFIG, AUTH_GATEWAY, LOGIN_CONFIG } from '@nalunpos/shared/ui';
 import { WEB_NAV_CONFIG } from './core/config/nav.config';
 import { WEB_LOGIN_CONFIG } from './core/config/login.config';
-
-/**
- * Inicializa el AuthService con la URL del backend desde el environment.
- * Garantiza que la URL esté disponible antes del primer request HTTP.
- */
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-
-function initializeAuth(authService: AuthService): () => void {
-  return () => authService.configureApiUrl(environment.apiUrl);
-}
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -53,33 +35,31 @@ export const appConfig: ApplicationConfig = {
     // Error handling global
     provideBrowserGlobalErrorListeners(),
 
-    // Router con View Transitions API y binding de inputs en rutas
-    provideRouter(
-      appRoutes,
-      withViewTransitions(),
-      withComponentInputBinding(),
-    ),
+    // Carga de configuración validada en runtime (/config.json con fallback a environment)
+    provideRuntimeConfig(environment),
 
-    // HTTP Client con Fetch API + interceptores funcionales (orden importa)
+    // Sincronización de AuthService con la URL en runtime
+    provideAppInitializer(() => {
+      const authService = inject(AuthService);
+      const config = inject(APP_CONFIG);
+      authService.configureApiUrl(config.apiUrl);
+    }),
+
+    // Router con View Transitions API y binding de inputs en rutas
+    provideRouter(appRoutes, withViewTransitions(), withComponentInputBinding()),
+
+    // HTTP Client con Fetch API + interceptores funcionales (orden estricto)
     provideHttpClient(
       withFetch(),
       withInterceptors([
         correlationIdInterceptor, // 1° — agrega X-Correlation-Id
-        authInterceptor,          // 2° — agrega Authorization: Bearer
-        errorInterceptor,         // 3° — traduce errores HTTP → AppError
+        authInterceptor, // 2° — agrega Authorization: Bearer
+        errorInterceptor, // 3° — traduce errores HTTP → AppError
       ]),
     ),
 
     // Signal Forms
     provideSignalFormsConfig({}),
-
-    // Inicialización del AuthService con la URL del backend
-    {
-      provide: APP_INITIALIZER,
-      useFactory: initializeAuth,
-      deps: [AuthService],
-      multi: true,
-    },
 
     // Configuración compartida de Layout, Navegación y Autenticación
     { provide: APP_NAV_CONFIG, useValue: WEB_NAV_CONFIG },

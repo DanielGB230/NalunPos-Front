@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import type { OnInit} from '@angular/core';
+import type { OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import type { PageEvent } from '@angular/material/paginator';
@@ -9,14 +9,15 @@ import type {
   FilterDrawerConfig,
   MetricCardConfig,
   PageHeroConfig,
-  QuickFilterTab} from '@nalunpos/shared/ui';
+  QuickFilterTab,
+} from '@nalunpos/shared/ui';
 import {
   AdvancedFilterDrawerComponent,
   ConfirmationDialogService,
   MetricsBentoGridComponent,
   NotificationService,
   PageHeroCardComponent,
-  QuickFilterBarComponent
+  QuickFilterBarComponent,
 } from '@nalunpos/shared/ui';
 import type { Supplier } from '../../models/supplier.interface';
 import { SupplierApiService } from '../../data-access/supplier-api.service';
@@ -69,10 +70,10 @@ export class SupplierListComponent implements OnInit {
 
   // ── Métricas derivadas de proveedores cargados ──
   protected readonly activeSuppliersCount = computed(
-    () => this.suppliers().filter((s) => s.isActive).length
+    () => this.suppliers().filter((s) => s.isActive).length,
   );
   protected readonly inactiveSuppliersCount = computed(
-    () => this.suppliers().filter((s) => !s.isActive).length
+    () => this.suppliers().filter((s) => !s.isActive).length,
   );
 
   // ── Configuración del Hero (estática) ──
@@ -138,7 +139,11 @@ export class SupplierListComponent implements OnInit {
   protected readonly filterTabs = computed<QuickFilterTab[]>(() => [
     { key: 'all', label: `Todos (${this.totalCount()})`, colorVariant: 'default' },
     { key: 'active', label: `Activos (${this.activeSuppliersCount()})`, colorVariant: 'blue' },
-    { key: 'inactive', label: `Inactivos (${this.inactiveSuppliersCount()})`, colorVariant: 'orchid' },
+    {
+      key: 'inactive',
+      label: `Inactivos (${this.inactiveSuppliersCount()})`,
+      colorVariant: 'orchid',
+    },
   ]);
 
   // ── Configuración del Drawer de filtros avanzados ──
@@ -176,20 +181,10 @@ export class SupplierListComponent implements OnInit {
     this.errorMessage.set(null);
 
     const filterVal = this.selectedStatusFilter();
-    const isActive =
-      filterVal === 'active'
-        ? true
-        : filterVal === 'inactive'
-          ? false
-          : undefined;
+    const isActive = filterVal === 'active' ? true : filterVal === 'inactive' ? false : undefined;
 
     this.supplierApi
-      .getSuppliers(
-        this.pageIndex() + 1,
-        this.pageSize(),
-        this.searchTerm(),
-        isActive
-      )
+      .getSuppliers(this.pageIndex() + 1, this.pageSize(), this.searchTerm(), isActive)
       .subscribe({
         next: (result) => {
           this.suppliers.set(result.items);
@@ -256,7 +251,10 @@ export class SupplierListComponent implements OnInit {
         if (confirmed) {
           this.supplierApi.changeSupplierStatus(supplier.id, newStatus).subscribe({
             next: () => {
-              this.notification.success(`Proveedor ${newStatus ? 'activado' : 'desactivado'} correctamente.`, 'Éxito');
+              this.notification.success(
+                `Proveedor ${newStatus ? 'activado' : 'desactivado'} correctamente.`,
+                'Éxito',
+              );
               this.loadSuppliers();
             },
             error: () => {
@@ -267,4 +265,3 @@ export class SupplierListComponent implements OnInit {
       });
   }
 }
-

@@ -5,17 +5,8 @@
 // Angular 22 — Zoneless — Standalone — Tailwind v4 only
 // =============================================================================
 
-import type {
-  OnChanges,
-  SimpleChanges} from '@angular/core';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  Input,
-  computed,
-  inject,
-  signal,
-} from '@angular/core';
+import type { OnChanges, SimpleChanges } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, computed, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import type { PageEvent } from '@angular/material/paginator';
@@ -27,25 +18,53 @@ import { StockLevelApiService } from '../../data-access/stock-level-api.service'
 
 // Tipos de movimiento que corresponden al Enum del backend (InventoryMovementType)
 // 1=Purchase, 2=Sale, 3=Adjustment, 4=ReturnFromCustomer, 5=ReturnToSupplier, 6=TransferOut, 7=TransferIn
-const MOVEMENT_TYPE_LABELS: Record<number, { label: string; color: string; bg: string; border: string }> = {
-  1: { label: 'Compra / Entrada', color: 'text-[#1A7948]', bg: 'bg-[#EDFAF3]', border: 'border-[#86EFAC]' },
-  2: { label: 'Venta / Salida', color: 'text-[#9B2C67]', bg: 'bg-[#FDF2F7]', border: 'border-[#E8A0BF]' },
+const MOVEMENT_TYPE_LABELS: Record<
+  number,
+  { label: string; color: string; bg: string; border: string }
+> = {
+  1: {
+    label: 'Compra / Entrada',
+    color: 'text-[#1A7948]',
+    bg: 'bg-[#EDFAF3]',
+    border: 'border-[#86EFAC]',
+  },
+  2: {
+    label: 'Venta / Salida',
+    color: 'text-[#9B2C67]',
+    bg: 'bg-[#FDF2F7]',
+    border: 'border-[#E8A0BF]',
+  },
   3: { label: 'Ajuste', color: 'text-[#C05621]', bg: 'bg-[#FEF3EE]', border: 'border-[#FDBA74]' },
-  4: { label: 'Dev. Cliente', color: 'text-[#2A5BC7]', bg: 'bg-[#EEF5FE]', border: 'border-[#92AAE7]' },
-  5: { label: 'Dev. Proveedor', color: 'text-[#1E3A5F]', bg: 'bg-[#EFF6FF]', border: 'border-[#93C5FD]' },
-  6: { label: 'Traspaso Salida', color: 'text-[#5B21B6]', bg: 'bg-[#F5F3FF]', border: 'border-[#C4B5FD]' },
-  7: { label: 'Traspaso Entrada', color: 'text-[#0D7377]', bg: 'bg-[#ECFDF9]', border: 'border-[#6EE7D8]' },
+  4: {
+    label: 'Dev. Cliente',
+    color: 'text-[#2A5BC7]',
+    bg: 'bg-[#EEF5FE]',
+    border: 'border-[#92AAE7]',
+  },
+  5: {
+    label: 'Dev. Proveedor',
+    color: 'text-[#1E3A5F]',
+    bg: 'bg-[#EFF6FF]',
+    border: 'border-[#93C5FD]',
+  },
+  6: {
+    label: 'Traspaso Salida',
+    color: 'text-[#5B21B6]',
+    bg: 'bg-[#F5F3FF]',
+    border: 'border-[#C4B5FD]',
+  },
+  7: {
+    label: 'Traspaso Entrada',
+    color: 'text-[#0D7377]',
+    bg: 'bg-[#ECFDF9]',
+    border: 'border-[#6EE7D8]',
+  },
 };
 
 @Component({
   selector: 'app-kardex',
   standalone: true,
-  imports: [
-    DatePipe,
-    MatTableModule,
-    MatPaginatorModule,
-    QuickFilterBarComponent,
-  ],
+  imports: [DatePipe, MatTableModule, MatPaginatorModule, QuickFilterBarComponent],
   templateUrl: './kardex.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -131,7 +150,13 @@ export class KardexComponent implements OnChanges {
   }
 
   protected getMovementStyle(typeNum: number): { color: string; bg: string; border: string } {
-    return MOVEMENT_TYPE_LABELS[typeNum] ?? { color: 'text-[#605596]', bg: 'bg-white', border: 'border-[#DEDAF4]' };
+    return (
+      MOVEMENT_TYPE_LABELS[typeNum] ?? {
+        color: 'text-[#605596]',
+        bg: 'bg-white',
+        border: 'border-[#DEDAF4]',
+      }
+    );
   }
 
   protected getQuantitySign(typeNum: number): string {

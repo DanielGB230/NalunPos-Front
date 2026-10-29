@@ -2,7 +2,11 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { NotificationService } from '@nalunpos/shared/ui';
-import type { Supplier, CreateSupplierRequest, UpdateSupplierRequest } from '../../models/supplier.interface';
+import type {
+  Supplier,
+  CreateSupplierRequest,
+  UpdateSupplierRequest,
+} from '../../models/supplier.interface';
 import { SupplierApiService } from '../../data-access/supplier-api.service';
 
 import { FormsModule } from '@angular/forms';
@@ -40,8 +44,18 @@ export class SupplierFormComponent {
   protected readonly country = signal(this.data?.supplier?.country ?? 'Perú');
 
   protected onInput(
-    field: 'name' | 'contactName' | 'email' | 'phone' | 'taxId' | 'taxCountryCode' | 'street' | 'city' | 'zipCode' | 'country',
-    event: Event
+    field:
+      | 'name'
+      | 'contactName'
+      | 'email'
+      | 'phone'
+      | 'taxId'
+      | 'taxCountryCode'
+      | 'street'
+      | 'city'
+      | 'zipCode'
+      | 'country',
+    event: Event,
   ): void {
     const target = event.target as HTMLInputElement;
     this[field].set(target.value);
@@ -59,7 +73,10 @@ export class SupplierFormComponent {
       !this.zipCode().trim() ||
       !this.country().trim()
     ) {
-      this.notification.warning('Por favor complete todos los campos obligatorios.', 'Formulario Incompleto');
+      this.notification.warning(
+        'Por favor complete todos los campos obligatorios.',
+        'Formulario Incompleto',
+      );
       return;
     }
 
@@ -92,7 +109,10 @@ export class SupplierFormComponent {
         },
         error: (err) => {
           this.isSaving.set(false);
-          this.notification.error(err?.error?.detail || 'No se pudo actualizar el proveedor.', 'Error');
+          this.notification.error(
+            err?.error?.detail || 'No se pudo actualizar el proveedor.',
+            'Error',
+          );
         },
       });
     } else {
@@ -105,7 +125,10 @@ export class SupplierFormComponent {
         },
         error: (err) => {
           this.isSaving.set(false);
-          this.notification.error(err?.error?.detail || 'No se pudo registrar el proveedor.', 'Error');
+          this.notification.error(
+            err?.error?.detail || 'No se pudo registrar el proveedor.',
+            'Error',
+          );
         },
       });
     }

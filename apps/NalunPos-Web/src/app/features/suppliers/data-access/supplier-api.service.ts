@@ -1,29 +1,29 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import type { Observable } from 'rxjs';
-import { environment } from '../../../../environments/environment';
 import type {
   CreateSupplierRequest,
   Supplier,
   UpdateSupplierRequest,
 } from '../models/supplier.interface';
-import type { PagedResult } from '@nalunpos/shared/data-access';
+import { type PagedResult, APP_CONFIG } from '@nalunpos/shared/data-access';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SupplierApiService {
   private readonly http = inject(HttpClient);
+  private readonly config = inject(APP_CONFIG);
 
   private get endpoint(): string {
-    return `${environment.apiUrl}/api/suppliers`;
+    return `${this.config.apiUrl}/api/suppliers`;
   }
 
   getSuppliers(
     pageNumber = 1,
     pageSize = 10,
     searchTerm?: string,
-    isActive?: boolean
+    isActive?: boolean,
   ): Observable<PagedResult<Supplier>> {
     let params = new HttpParams()
       .set('pageNumber', pageNumber.toString())

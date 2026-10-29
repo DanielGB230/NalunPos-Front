@@ -7,22 +7,18 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import type { Observable } from 'rxjs';
-import { environment } from '../../../../environments/environment';
-import type { PagedResult } from '@nalunpos/shared/data-access';
-import type {
-  InventoryMovement,
-  ProductStock,
-  StockLevel,
-} from '../models/stock-level.interface';
+import { type PagedResult, APP_CONFIG } from '@nalunpos/shared/data-access';
+import type { InventoryMovement, ProductStock, StockLevel } from '../models/stock-level.interface';
 
 @Injectable({
   providedIn: 'root',
 })
 export class StockLevelApiService {
   private readonly http = inject(HttpClient);
+  private readonly config = inject(APP_CONFIG);
 
   private get baseUrl(): string {
-    return environment.apiUrl;
+    return this.config.apiUrl;
   }
 
   /**
@@ -32,7 +28,7 @@ export class StockLevelApiService {
   getStockByWarehouse(
     warehouseId: string,
     pageNumber = 1,
-    pageSize = 10
+    pageSize = 10,
   ): Observable<PagedResult<StockLevel>> {
     const params = new HttpParams()
       .set('pageNumber', pageNumber.toString())
@@ -40,7 +36,7 @@ export class StockLevelApiService {
 
     return this.http.get<PagedResult<StockLevel>>(
       `${this.baseUrl}/api/warehouses/${warehouseId}/stock`,
-      { params }
+      { params },
     );
   }
 
@@ -51,7 +47,7 @@ export class StockLevelApiService {
   getInventoryMovements(
     pageNumber = 1,
     pageSize = 20,
-    warehouseId?: string
+    warehouseId?: string,
   ): Observable<PagedResult<InventoryMovement>> {
     const params = new HttpParams()
       .set('pageNumber', pageNumber.toString())
@@ -60,14 +56,14 @@ export class StockLevelApiService {
     if (warehouseId) {
       return this.http.get<PagedResult<InventoryMovement>>(
         `${this.baseUrl}/api/warehouses/${warehouseId}/movements`,
-        { params }
+        { params },
       );
     }
 
     // Fallback: si no hay warehouseId, retornamos una lista vacía no debería ocurrir
     return this.http.get<PagedResult<InventoryMovement>>(
       `${this.baseUrl}/api/inventory/movements`,
-      { params }
+      { params },
     );
   }
 
@@ -76,8 +72,6 @@ export class StockLevelApiService {
    * Endpoint: GET /api/inventory/products/{productId}/stock
    */
   getProductStock(productId: string): Observable<ProductStock> {
-    return this.http.get<ProductStock>(
-      `${this.baseUrl}/api/inventory/products/${productId}/stock`
-    );
+    return this.http.get<ProductStock>(`${this.baseUrl}/api/inventory/products/${productId}/stock`);
   }
 }

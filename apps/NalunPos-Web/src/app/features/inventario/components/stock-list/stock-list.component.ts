@@ -5,17 +5,8 @@
 // Angular 22 — Zoneless — Standalone — Tailwind v4 only
 // =============================================================================
 
-import type {
-  OnChanges,
-  SimpleChanges} from '@angular/core';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  Input,
-  computed,
-  inject,
-  signal,
-} from '@angular/core';
+import type { OnChanges, SimpleChanges } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, computed, inject, signal } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import type { PageEvent } from '@angular/material/paginator';
 import { MatPaginatorModule } from '@angular/material/paginator';
@@ -27,11 +18,7 @@ import { StockLevelApiService } from '../../data-access/stock-level-api.service'
 @Component({
   selector: 'app-stock-list',
   standalone: true,
-  imports: [
-    MatTableModule,
-    MatPaginatorModule,
-    QuickFilterBarComponent,
-  ],
+  imports: [MatTableModule, MatPaginatorModule, QuickFilterBarComponent],
   templateUrl: './stock-list.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -66,8 +53,17 @@ export class StockListComponent implements OnChanges {
     const lowCount = items.filter((s) => s.isBelowMinThreshold).length;
     return [
       { key: 'all', label: `Todos (${this.totalCount()})`, colorVariant: 'default' },
-      { key: 'ok', label: `OK (${items.filter((s) => !s.isBelowMinThreshold).length})`, colorVariant: 'blue' },
-      { key: 'low', label: `Stock Bajo (${lowCount})`, colorVariant: 'orchid', hasPing: lowCount > 0 },
+      {
+        key: 'ok',
+        label: `OK (${items.filter((s) => !s.isBelowMinThreshold).length})`,
+        colorVariant: 'blue',
+      },
+      {
+        key: 'low',
+        label: `Stock Bajo (${lowCount})`,
+        colorVariant: 'orchid',
+        hasPing: lowCount > 0,
+      },
     ];
   });
 

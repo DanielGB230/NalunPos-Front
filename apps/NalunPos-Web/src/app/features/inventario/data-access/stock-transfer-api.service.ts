@@ -1,21 +1,18 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import type { Observable } from 'rxjs';
-import { environment } from '../../../../environments/environment';
-import type {
-  CreateStockTransferRequest,
-  StockTransfer,
-} from '../models/stock-transfer.interface';
-import type { PagedResult } from '@nalunpos/shared/data-access';
+import type { CreateStockTransferRequest, StockTransfer } from '../models/stock-transfer.interface';
+import { type PagedResult, APP_CONFIG } from '@nalunpos/shared/data-access';
 
 @Injectable({
   providedIn: 'root',
 })
 export class StockTransferApiService {
   private readonly http = inject(HttpClient);
+  private readonly config = inject(APP_CONFIG);
 
   private get endpoint(): string {
-    return `${environment.apiUrl}/api/stock-transfers`;
+    return `${this.config.apiUrl}/api/stock-transfers`;
   }
 
   getStockTransfers(pageNumber = 1, pageSize = 20): Observable<PagedResult<StockTransfer>> {

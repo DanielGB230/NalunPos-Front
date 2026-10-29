@@ -2,7 +2,11 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { NotificationService } from '@nalunpos/shared/ui';
-import type { CategoryDto, CreateCategoryRequest, UpdateCategoryRequest } from '../../models/category.interface';
+import type {
+  CategoryDto,
+  CreateCategoryRequest,
+  UpdateCategoryRequest,
+} from '../../models/category.interface';
 import { CategoryApiService } from '../../data-access/category-api.service';
 
 import { FormsModule } from '@angular/forms';
@@ -45,12 +49,18 @@ export class CategoryFormComponent {
     if (this.isSaving()) return;
 
     if (!this.name().trim()) {
-      this.notification.warning('Por favor ingrese un nombre de categoría válido.', 'Formulario Incompleto');
+      this.notification.warning(
+        'Por favor ingrese un nombre de categoría válido.',
+        'Formulario Incompleto',
+      );
       return;
     }
 
     if (this.name().trim().length < 2) {
-      this.notification.warning('El nombre de la categoría debe tener al menos 2 caracteres.', 'Nombre Inválido');
+      this.notification.warning(
+        'El nombre de la categoría debe tener al menos 2 caracteres.',
+        'Nombre Inválido',
+      );
       return;
     }
 
@@ -70,12 +80,16 @@ export class CategoryFormComponent {
       this.categoryApi.updateCategory(this.data.category.id, updateReq).subscribe({
         next: () => {
           this.isSaving.set(false);
-          this.notification.success(`La categoría "${formValue.name}" se actualizó correctamente.`, 'Éxito');
+          this.notification.success(
+            `La categoría "${formValue.name}" se actualizó correctamente.`,
+            'Éxito',
+          );
           this.dialogRef.close(true);
         },
         error: (err) => {
           this.isSaving.set(false);
-          const detail = err?.error?.detail || err?.error?.message || 'Error al conectar con el servidor.';
+          const detail =
+            err?.error?.detail || err?.error?.message || 'Error al conectar con el servidor.';
           this.notification.error(detail, 'Error');
         },
       });
@@ -84,12 +98,16 @@ export class CategoryFormComponent {
       this.categoryApi.createCategory(createReq).subscribe({
         next: () => {
           this.isSaving.set(false);
-          this.notification.success(`La categoría "${formValue.name}" fue creada exitosamente.`, 'Éxito');
+          this.notification.success(
+            `La categoría "${formValue.name}" fue creada exitosamente.`,
+            'Éxito',
+          );
           this.dialogRef.close(true);
         },
         error: (err) => {
           this.isSaving.set(false);
-          const detail = err?.error?.detail || err?.error?.message || 'Error al conectar con el servidor.';
+          const detail =
+            err?.error?.detail || err?.error?.message || 'Error al conectar con el servidor.';
           this.notification.error(detail, 'Error');
         },
       });

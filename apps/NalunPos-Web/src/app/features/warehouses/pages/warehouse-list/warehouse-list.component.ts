@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import type { OnInit} from '@angular/core';
+import type { OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import type { PageEvent } from '@angular/material/paginator';
@@ -10,13 +10,14 @@ import type {
   FilterDrawerConfig,
   MetricCardConfig,
   PageHeroConfig,
-  QuickFilterTab} from '@nalunpos/shared/ui';
+  QuickFilterTab,
+} from '@nalunpos/shared/ui';
 import {
   AdvancedFilterDrawerComponent,
   MetricsBentoGridComponent,
   NotificationService,
   PageHeroCardComponent,
-  QuickFilterBarComponent
+  QuickFilterBarComponent,
 } from '@nalunpos/shared/ui';
 import type { Warehouse } from '../../models/warehouse.interface';
 import { WarehouseApiService } from '../../data-access/warehouse-api.service';
@@ -70,14 +71,12 @@ export class WarehouseListComponent implements OnInit {
   // ── Métricas derivadas ──
   protected readonly totalCount = computed(() => this.filteredWarehouses().length);
   protected readonly activeCount = computed(
-    () => this.warehouses().filter((w) => w.isActive).length
+    () => this.warehouses().filter((w) => w.isActive).length,
   );
   protected readonly inactiveCount = computed(
-    () => this.warehouses().filter((w) => !w.isActive).length
+    () => this.warehouses().filter((w) => !w.isActive).length,
   );
-  protected readonly defaultWarehouse = computed(
-    () => this.warehouses().find((w) => w.isDefault)
-  );
+  protected readonly defaultWarehouse = computed(() => this.warehouses().find((w) => w.isDefault));
 
   // ── Filtrado local en cliente ──
   protected readonly filteredWarehouses = computed(() => {
@@ -97,7 +96,7 @@ export class WarehouseListComponent implements OnInit {
       list = list.filter(
         (w) =>
           w.name.toLowerCase().includes(term) ||
-          (w.description && w.description.toLowerCase().includes(term))
+          (w.description && w.description.toLowerCase().includes(term)),
       );
     }
 

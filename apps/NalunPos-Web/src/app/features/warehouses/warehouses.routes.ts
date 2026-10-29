@@ -5,7 +5,7 @@ export const warehousesRoutes: Routes = [
     path: '',
     loadComponent: () =>
       import('./pages/warehouse-list/warehouse-list.component').then(
-        (m) => m.WarehouseListComponent
+        (m) => m.WarehouseListComponent,
       ),
     title: 'Gestión de Almacenes — NalunPos',
   },

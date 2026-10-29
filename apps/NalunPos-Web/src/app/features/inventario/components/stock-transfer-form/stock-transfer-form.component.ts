@@ -5,19 +5,9 @@
 // Angular 22 — Zoneless — Standalone — Tailwind v4 only
 // =============================================================================
 
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import {
-  FormField,
-  form,
-  required,
-  min,
-} from '@angular/forms/signals';
+import { FormField, form, required, min } from '@angular/forms/signals';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import type { AppError } from '@nalunpos/shared/data-access';
 import { NotificationService } from '@nalunpos/shared/ui';
@@ -84,10 +74,15 @@ export class StockTransferFormComponent {
   protected async onSubmit(): Promise<void> {
     const model = this.formModel();
 
-    if (!model.sourceWarehouseId || !model.destinationWarehouseId || !model.productId || model.quantity < 1) {
+    if (
+      !model.sourceWarehouseId ||
+      !model.destinationWarehouseId ||
+      !model.productId ||
+      model.quantity < 1
+    ) {
       this.notification.warning(
         'Complete todos los campos. La cantidad debe ser mayor a 0.',
-        'Datos incompletos'
+        'Datos incompletos',
       );
       return;
     }
@@ -95,7 +90,7 @@ export class StockTransferFormComponent {
     if (model.sourceWarehouseId === model.destinationWarehouseId) {
       this.notification.warning(
         'El almacén de origen y destino no pueden ser el mismo.',
-        'Selección inválida'
+        'Selección inválida',
       );
       return;
     }
@@ -115,7 +110,7 @@ export class StockTransferFormComponent {
         this.isLoading.set(false);
         this.notification.success(
           `Traspaso de ${model.quantity} unidades registrado correctamente.`,
-          'Traspaso Exitoso'
+          'Traspaso Exitoso',
         );
         this.close(true);
       },

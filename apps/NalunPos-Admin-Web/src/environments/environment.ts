@@ -1,9 +1,11 @@
 // =============================================================================
 // Environment: Desarrollo — NalunPos-Admin-Web
-// API Backend: https://localhost:7232 (NalunPos-Api, perfil HTTPS)
+// Fallback local seguro cuando /config.json no se encuentra en desarrollo.
 // =============================================================================
 
-export const environment = {
+import type { AppConfig } from '@nalunpos/shared/data-access';
+
+export const environment: AppConfig = {
   production: false,
   apiUrl: 'https://localhost:7232',
   appName: 'NalunPos — Panel SuperAdmin',

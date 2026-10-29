@@ -1,9 +1,13 @@
 // =============================================================================
 // Environment: Producción — NalunPos-Admin-Web
+// Cero URLs o puertos hardcodeados en bundle compilado (ADR-0008 / F0-7).
+// La URL del backend es provista en runtime mediante /config.json.
 // =============================================================================
 
-export const environment = {
+import type { AppConfig } from '@nalunpos/shared/data-access';
+
+export const environment: AppConfig = {
   production: true,
-  apiUrl: 'https://api.nalunpos.com',
+  apiUrl: '', // Provista en runtime vía /config.json
   appName: 'NalunPos — Panel SuperAdmin',
 };

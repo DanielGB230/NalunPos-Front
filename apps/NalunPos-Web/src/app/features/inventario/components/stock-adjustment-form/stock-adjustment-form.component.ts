@@ -5,28 +5,14 @@
 // Angular 22 — Zoneless — Standalone — Tailwind v4 only
 // =============================================================================
 
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import {
-  FormField,
-  form,
-  required,
-  min,
-  max,
-} from '@angular/forms/signals';
+import { FormField, form, required, min, max } from '@angular/forms/signals';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import type { AppError } from '@nalunpos/shared/data-access';
 import { NotificationService } from '@nalunpos/shared/ui';
-import type {
-  CreateStockAdjustmentRequest} from '../../models/stock-adjustment.interface';
-import {
-  StockAdjustmentReason,
-} from '../../models/stock-adjustment.interface';
+import type { CreateStockAdjustmentRequest } from '../../models/stock-adjustment.interface';
+import { StockAdjustmentReason } from '../../models/stock-adjustment.interface';
 import type { Warehouse } from '../../models/warehouse.interface';
 import { StockAdjustmentApiService } from '../../data-access/stock-adjustment-api.service';
 
@@ -109,7 +95,7 @@ export class StockAdjustmentFormComponent {
     if (!model.warehouseId || !model.productId || model.quantity === 0) {
       this.notification.warning(
         'Complete todos los campos obligatorios. La cantidad no puede ser cero.',
-        'Datos incompletos'
+        'Datos incompletos',
       );
       return;
     }
@@ -129,7 +115,7 @@ export class StockAdjustmentFormComponent {
         this.isLoading.set(false);
         this.notification.success(
           `Ajuste de inventario registrado correctamente (${model.quantity > 0 ? '+' : ''}${model.quantity} unidades).`,
-          'Ajuste Exitoso'
+          'Ajuste Exitoso',
         );
         this.close(true);
       },

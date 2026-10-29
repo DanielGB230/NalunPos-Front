@@ -1,4 +1,4 @@
-import type { OnInit} from '@angular/core';
+import type { OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialogRef, MatDialogModule } from '@angular/material/dialog';
@@ -43,7 +43,10 @@ export class PurchaseOrderCreateComponent implements OnInit {
 
   // ── Total Computado ──
   protected readonly totalAmount = computed(() =>
-    this.lines().reduce((acc, l) => acc + (Number(l.quantityOrdered) || 0) * (Number(l.unitCostAmount) || 0), 0)
+    this.lines().reduce(
+      (acc, l) => acc + (Number(l.quantityOrdered) || 0) * (Number(l.unitCostAmount) || 0),
+      0,
+    ),
   );
 
   ngOnInit(): void {
@@ -86,10 +89,10 @@ export class PurchaseOrderCreateComponent implements OnInit {
   protected updateLineField<K extends keyof PurchaseOrderLineModel>(
     index: number,
     field: K,
-    value: PurchaseOrderLineModel[K]
+    value: PurchaseOrderLineModel[K],
   ): void {
     this.lines.update((items) =>
-      items.map((item, i) => (i === index ? { ...item, [field]: value } : item))
+      items.map((item, i) => (i === index ? { ...item, [field]: value } : item)),
     );
   }
 
@@ -130,13 +133,19 @@ export class PurchaseOrderCreateComponent implements OnInit {
 
   protected onSubmit(): void {
     if (!this.supplierId() || !this.warehouseId() || this.lines().length === 0) {
-      this.notification.warning('Por favor seleccione proveedor y almacén destino.', 'Formulario Incompleto');
+      this.notification.warning(
+        'Por favor seleccione proveedor y almacén destino.',
+        'Formulario Incompleto',
+      );
       return;
     }
 
     for (const l of this.lines()) {
       if (!l.productId.trim() || l.quantityOrdered <= 0 || l.unitCostAmount < 0) {
-        this.notification.warning('Verifique las líneas: se requiere producto, cantidad > 0 y costo válido.', 'Líneas Inválidas');
+        this.notification.warning(
+          'Verifique las líneas: se requiere producto, cantidad > 0 y costo válido.',
+          'Líneas Inválidas',
+        );
         return;
       }
     }
@@ -163,7 +172,10 @@ export class PurchaseOrderCreateComponent implements OnInit {
       },
       error: (err) => {
         this.isSaving.set(false);
-        this.notification.error(err?.error?.detail || 'No se pudo crear la orden de compra.', 'Error');
+        this.notification.error(
+          err?.error?.detail || 'No se pudo crear la orden de compra.',
+          'Error',
+        );
       },
     });
   }

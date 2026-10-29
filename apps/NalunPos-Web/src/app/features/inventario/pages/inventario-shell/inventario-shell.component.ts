@@ -5,19 +5,10 @@
 // Angular 22 — Zoneless — Standalone — Tailwind v4 only
 // =============================================================================
 
-import type {
-  OnInit} from '@angular/core';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  signal,
-} from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import type {
-  PageHeroConfig,
-  MetricCardConfig} from '@nalunpos/shared/ui';
+import type { PageHeroConfig, MetricCardConfig } from '@nalunpos/shared/ui';
 import {
   PageHeroCardComponent,
   MetricsBentoGridComponent,
@@ -64,7 +55,7 @@ export class InventarioShellComponent implements OnInit {
   // ── Métricas derivadas ──
   protected readonly totalWarehouses = computed(() => this.warehouses().length);
   protected readonly activeWarehouses = computed(
-    () => this.warehouses().filter((w) => w.isActive).length
+    () => this.warehouses().filter((w) => w.isActive).length,
   );
 
   // ── Hero Config ──
@@ -89,9 +80,10 @@ export class InventarioShellComponent implements OnInit {
       badge: 'Operativos',
       badgeHasArrow: true,
       topIndicator: this.totalWarehouses(),
-      progressPercent: this.totalWarehouses() > 0
-        ? Math.round((this.activeWarehouses() / this.totalWarehouses()) * 100)
-        : 0,
+      progressPercent:
+        this.totalWarehouses() > 0
+          ? Math.round((this.activeWarehouses() / this.totalWarehouses()) * 100)
+          : 0,
       colorVariant: 'purple',
     },
     {
@@ -173,7 +165,7 @@ export class InventarioShellComponent implements OnInit {
     if (!this.canTransfer()) {
       this.notification.warning(
         'Se necesitan al menos 2 almacenes para realizar un traspaso.',
-        'Traspaso no disponible'
+        'Traspaso no disponible',
       );
       return;
     }

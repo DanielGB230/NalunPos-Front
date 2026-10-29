@@ -1,13 +1,6 @@
 import { DatePipe } from '@angular/common';
-import type {
-  OnInit} from '@angular/core';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  signal,
-} from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import type { PageEvent } from '@angular/material/paginator';
 import { MatPaginatorModule } from '@angular/material/paginator';
@@ -17,12 +10,13 @@ import type {
   FilterDrawerConfig,
   MetricCardConfig,
   PageHeroConfig,
-  QuickFilterTab} from '@nalunpos/shared/ui';
+  QuickFilterTab,
+} from '@nalunpos/shared/ui';
 import {
   AdvancedFilterDrawerComponent,
   MetricsBentoGridComponent,
   PageHeroCardComponent,
-  QuickFilterBarComponent
+  QuickFilterBarComponent,
 } from '@nalunpos/shared/ui';
 import type { TenantDto } from '../../models/tenant.model';
 import { TenantApiService } from '../../data-access/tenant-api.service';
@@ -200,7 +194,7 @@ export class TenantListComponent implements OnInit {
         error: (error: AppError) => {
           this.isLoading.set(false);
           this.errorMessage.set(
-            error.message || 'No se pudieron cargar los Tenants de la plataforma.'
+            error.message || 'No se pudieron cargar los Tenants de la plataforma.',
           );
         },
       });

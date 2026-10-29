@@ -1,13 +1,6 @@
 import { DatePipe } from '@angular/common';
-import type {
-  OnInit} from '@angular/core';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  signal,
-} from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import type { PageEvent } from '@angular/material/paginator';
 import { MatPaginatorModule } from '@angular/material/paginator';
@@ -17,14 +10,15 @@ import type {
   FilterDrawerConfig,
   MetricCardConfig,
   PageHeroConfig,
-  QuickFilterTab} from '@nalunpos/shared/ui';
+  QuickFilterTab,
+} from '@nalunpos/shared/ui';
 import {
   AdvancedFilterDrawerComponent,
   ConfirmationDialogService,
   MetricsBentoGridComponent,
   NotificationService,
   PageHeroCardComponent,
-  QuickFilterBarComponent
+  QuickFilterBarComponent,
 } from '@nalunpos/shared/ui';
 import type { CategoryDto } from '../../models/category.interface';
 import { CategoryApiService } from '../../data-access/category-api.service';
@@ -75,8 +69,12 @@ export class CategoryListComponent implements OnInit {
   protected readonly showAdvancedFilters = signal(false);
 
   // ── Métricas derivadas de categorías cargadas ──
-  protected readonly activeCount = computed(() => this.categories().filter((c) => c.isActive).length);
-  protected readonly inactiveCount = computed(() => this.categories().filter((c) => !c.isActive).length);
+  protected readonly activeCount = computed(
+    () => this.categories().filter((c) => c.isActive).length,
+  );
+  protected readonly inactiveCount = computed(
+    () => this.categories().filter((c) => !c.isActive).length,
+  );
 
   // ── Configuración del Hero (estática) ──
   protected readonly heroConfig: PageHeroConfig = {
@@ -109,7 +107,8 @@ export class CategoryListComponent implements OnInit {
       badge: 'En POS',
       topIndicator: '✓',
       topIndicatorIsCheck: true,
-      progressPercent: this.totalCount() > 0 ? Math.round((this.activeCount() / this.totalCount()) * 100) : 0,
+      progressPercent:
+        this.totalCount() > 0 ? Math.round((this.activeCount() / this.totalCount()) * 100) : 0,
       colorVariant: 'blue',
     },
     {
@@ -118,7 +117,8 @@ export class CategoryListComponent implements OnInit {
       badge: 'Sin publicar',
       badgeHasPing: true,
       topIndicator: this.inactiveCount(),
-      progressPercent: this.totalCount() > 0 ? Math.round((this.inactiveCount() / this.totalCount()) * 100) : 0,
+      progressPercent:
+        this.totalCount() > 0 ? Math.round((this.inactiveCount() / this.totalCount()) * 100) : 0,
       colorVariant: 'orchid',
     },
     {
@@ -173,12 +173,7 @@ export class CategoryListComponent implements OnInit {
     this.errorMessage.set(null);
 
     const filterVal = this.selectedStatusFilter();
-    const isActive =
-      filterVal === 'Active'
-        ? true
-        : filterVal === 'Inactive'
-          ? false
-          : undefined;
+    const isActive = filterVal === 'Active' ? true : filterVal === 'Inactive' ? false : undefined;
 
     this.categoryApiService
       .getCategories(this.pageIndex() + 1, this.pageSize(), this.searchTerm(), isActive)
@@ -191,7 +186,7 @@ export class CategoryListComponent implements OnInit {
         error: (error: AppError) => {
           this.isLoading.set(false);
           this.errorMessage.set(
-            error.message || 'No se pudieron cargar las categorías del tenant activo.'
+            error.message || 'No se pudieron cargar las categorías del tenant activo.',
           );
           this.notification.error('Error al conectar con el servidor.', 'Error de carga');
         },
@@ -250,11 +245,15 @@ export class CategoryListComponent implements OnInit {
         if (confirmed) {
           this.categoryApiService.changeCategoryStatus(category.id, newStatus).subscribe({
             next: () => {
-              this.notification.success(`La categoría "${category.name}" fue ${newStatus ? 'activada' : 'desactivada'} correctamente.`, 'Éxito');
+              this.notification.success(
+                `La categoría "${category.name}" fue ${newStatus ? 'activada' : 'desactivada'} correctamente.`,
+                'Éxito',
+              );
               this.loadCategories();
             },
             error: (err) => {
-              const detail = err?.error?.detail || err?.error?.message || 'Error al conectar con el servidor.';
+              const detail =
+                err?.error?.detail || err?.error?.message || 'Error al conectar con el servidor.';
               this.notification.error(detail, 'Error');
             },
           });

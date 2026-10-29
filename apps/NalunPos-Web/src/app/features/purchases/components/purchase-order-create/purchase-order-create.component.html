@@ -3,7 +3,9 @@
   <!-- Encabezado -->
   <div class="flex items-center justify-between pb-4 border-b border-[#DEDAF4] mb-6">
     <div class="flex items-center space-x-3">
-      <div class="w-10 h-10 rounded-2xl bg-linear-to-tr from-[#283FA7] to-[#687FE5] text-white flex items-center justify-center font-bold text-lg shadow-sm">
+      <div
+        class="w-10 h-10 rounded-2xl bg-linear-to-tr from-[#283FA7] to-[#687FE5] text-white flex items-center justify-center font-bold text-lg shadow-sm"
+      >
         🛒
       </div>
       <div>
@@ -17,14 +19,13 @@
       class="text-[#605596] hover:text-[#161B2D] p-1.5 rounded-xl hover:bg-[#F0EDFB] transition cursor-pointer"
     >
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
       </svg>
     </button>
   </div>
 
   <form (submit)="onSubmit(); $event.preventDefault()" class="space-y-5">
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
       <!-- Proveedor -->
       <div>
         <label for="po-supplier-select" class="block text-xs font-semibold text-[#161B2D] mb-1 font-mono">
@@ -63,7 +64,9 @@
 
       <!-- Notas -->
       <div class="sm:col-span-2">
-        <label for="po-notes-input" class="block text-xs font-semibold text-[#161B2D] mb-1 font-mono">Observaciones / Notas</label>
+        <label for="po-notes-input" class="block text-xs font-semibold text-[#161B2D] mb-1 font-mono"
+          >Observaciones / Notas</label
+        >
         <input
           id="po-notes-input"
           type="text"
@@ -73,7 +76,6 @@
           class="w-full px-3.5 py-2.5 rounded-xl border border-[#DEDAF4] bg-white/70 text-xs text-[#161B2D] focus:outline-none focus:border-[#687FE5] font-mono transition"
         />
       </div>
-
     </div>
 
     <!-- Líneas de Producto -->
@@ -91,11 +93,14 @@
 
       <div class="space-y-2.5 max-h-[260px] overflow-y-auto custom-scrollbar pr-1">
         @for (line of lines(); track $index) {
-          <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 bg-white/80 p-3 rounded-2xl border border-[#DEDAF4]">
-
+          <div
+            class="flex flex-wrap sm:flex-nowrap items-center gap-2 bg-white/80 p-3 rounded-2xl border border-[#DEDAF4]"
+          >
             <!-- Product ID / SKU -->
             <div class="flex-1 min-w-[180px]">
-              <label [for]="'po-prod-' + $index" class="block text-[10px] text-[#605596] font-mono mb-0.5">ID / SKU Producto</label>
+              <label [for]="'po-prod-' + $index" class="block text-[10px] text-[#605596] font-mono mb-0.5"
+                >ID / SKU Producto</label
+              >
               <input
                 [id]="'po-prod-' + $index"
                 type="text"
@@ -108,7 +113,9 @@
 
             <!-- Cantidad Solicitada -->
             <div class="w-24">
-              <label [for]="'po-qty-' + $index" class="block text-[10px] text-[#605596] font-mono mb-0.5">Cantidad</label>
+              <label [for]="'po-qty-' + $index" class="block text-[10px] text-[#605596] font-mono mb-0.5"
+                >Cantidad</label
+              >
               <input
                 [id]="'po-qty-' + $index"
                 type="number"
@@ -121,7 +128,9 @@
 
             <!-- Costo Unitario -->
             <div class="w-28">
-              <label [for]="'po-cost-' + $index" class="block text-[10px] text-[#605596] font-mono mb-0.5">Costo Unit.</label>
+              <label [for]="'po-cost-' + $index" class="block text-[10px] text-[#605596] font-mono mb-0.5"
+                >Costo Unit.</label
+              >
               <input
                 [id]="'po-cost-' + $index"
                 type="number"
@@ -135,7 +144,9 @@
 
             <!-- Moneda -->
             <div class="w-20">
-              <label [for]="'po-curr-' + $index" class="block text-[10px] text-[#605596] font-mono mb-0.5">Moneda</label>
+              <label [for]="'po-curr-' + $index" class="block text-[10px] text-[#605596] font-mono mb-0.5"
+                >Moneda</label
+              >
               <select
                 [id]="'po-curr-' + $index"
                 [value]="line.currency"
@@ -158,7 +169,6 @@
                 🗑️
               </button>
             </div>
-
           </div>
         }
       </div>
@@ -166,7 +176,7 @@
       <!-- Resumen Total Computado de Signals -->
       <div class="flex items-center justify-between p-3.5 rounded-2xl bg-[#EEF5FE] border border-[#92AAE7]">
         <span class="text-xs font-bold text-[#161B2D] font-mono">Total Calculado Estimado:</span>
-        <span class="text-base font-bold text-[#2A5BC7] font-mono">${{ totalAmount() | number:'1.2-2' }}</span>
+        <span class="text-base font-bold text-[#2A5BC7] font-mono">${{ totalAmount() | number: '1.2-2' }}</span>
       </div>
     </div>
 

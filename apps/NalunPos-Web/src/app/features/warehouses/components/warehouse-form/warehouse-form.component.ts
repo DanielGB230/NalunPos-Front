@@ -1,4 +1,4 @@
-import type { OnInit} from '@angular/core';
+import type { OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -86,17 +86,26 @@ export class WarehouseFormComponent implements OnInit {
     if (this.isSaving()) return;
 
     if (!this.name().trim()) {
-      this.notification.warning('Por favor ingrese un nombre de almacén válido.', 'Formulario Incompleto');
+      this.notification.warning(
+        'Por favor ingrese un nombre de almacén válido.',
+        'Formulario Incompleto',
+      );
       return;
     }
 
     if (this.name().trim().length < 2) {
-      this.notification.warning('El nombre del almacén debe tener al menos 2 caracteres.', 'Nombre Inválido');
+      this.notification.warning(
+        'El nombre del almacén debe tener al menos 2 caracteres.',
+        'Nombre Inválido',
+      );
       return;
     }
 
     if (!this.branchId()) {
-      this.notification.warning('Por favor seleccione una sucursal para el almacén.', 'Formulario Incompleto');
+      this.notification.warning(
+        'Por favor seleccione una sucursal para el almacén.',
+        'Formulario Incompleto',
+      );
       return;
     }
 
@@ -112,12 +121,16 @@ export class WarehouseFormComponent implements OnInit {
     this.warehouseApi.createWarehouse(createReq).subscribe({
       next: () => {
         this.isSaving.set(false);
-        this.notification.success(`El almacén "${createReq.name}" fue creado exitosamente.`, 'Éxito');
+        this.notification.success(
+          `El almacén "${createReq.name}" fue creado exitosamente.`,
+          'Éxito',
+        );
         this.dialogRef.close(true);
       },
       error: (err) => {
         this.isSaving.set(false);
-        const detail = err?.error?.detail || err?.error?.message || 'Error al conectar con el servidor.';
+        const detail =
+          err?.error?.detail || err?.error?.message || 'Error al conectar con el servidor.';
         this.notification.error(detail, 'Error de creación');
       },
     });

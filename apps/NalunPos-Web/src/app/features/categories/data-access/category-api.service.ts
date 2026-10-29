@@ -1,25 +1,29 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import type { Observable } from 'rxjs';
-import { environment } from '../../../../environments/environment';
-import type { PagedResult } from '@nalunpos/shared/data-access';
-import type { CategoryDto, CreateCategoryRequest, UpdateCategoryRequest } from '../models/category.interface';
+import { type PagedResult, APP_CONFIG } from '@nalunpos/shared/data-access';
+import type {
+  CategoryDto,
+  CreateCategoryRequest,
+  UpdateCategoryRequest,
+} from '../models/category.interface';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CategoryApiService {
   private readonly http = inject(HttpClient);
+  private readonly config = inject(APP_CONFIG);
 
   private get endpoint(): string {
-    return `${environment.apiUrl}/api/v1/categories`;
+    return `${this.config.apiUrl}/api/v1/categories`;
   }
 
   getCategories(
     pageNumber = 1,
     pageSize = 10,
     searchTerm?: string,
-    isActive?: boolean
+    isActive?: boolean,
   ): Observable<PagedResult<CategoryDto>> {
     let params = new HttpParams()
       .set('pageNumber', pageNumber.toString())

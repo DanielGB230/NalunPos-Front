@@ -1,14 +1,11 @@
-import type { OnInit} from '@angular/core';
+import type { OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import type { PageEvent } from '@angular/material/paginator';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
-import type {
-  PageHeroConfig,
-  MetricCardConfig,
-  QuickFilterTab} from '@nalunpos/shared/ui';
+import type { PageHeroConfig, MetricCardConfig, QuickFilterTab } from '@nalunpos/shared/ui';
 import {
   PageHeroCardComponent,
   MetricsBentoGridComponent,
@@ -83,13 +80,13 @@ export class PurchaseOrderListComponent implements OnInit {
 
   // ── Métricas ──
   protected readonly draftCount = computed(
-    () => this.orders().filter((o) => o.status === PurchaseOrderStatus.Draft).length
+    () => this.orders().filter((o) => o.status === PurchaseOrderStatus.Draft).length,
   );
   protected readonly sentCount = computed(
-    () => this.orders().filter((o) => o.status === PurchaseOrderStatus.Sent).length
+    () => this.orders().filter((o) => o.status === PurchaseOrderStatus.Sent).length,
   );
   protected readonly receivedCount = computed(
-    () => this.orders().filter((o) => o.status === PurchaseOrderStatus.FullyReceived).length
+    () => this.orders().filter((o) => o.status === PurchaseOrderStatus.FullyReceived).length,
   );
 
   protected readonly metricsCards = computed<MetricCardConfig[]>(() => [
@@ -107,9 +104,7 @@ export class PurchaseOrderListComponent implements OnInit {
       badge: 'Pendientes envío',
       topIndicator: '📝',
       progressPercent:
-        this.orders().length > 0
-          ? Math.round((this.draftCount() / this.orders().length) * 100)
-          : 0,
+        this.orders().length > 0 ? Math.round((this.draftCount() / this.orders().length) * 100) : 0,
       colorVariant: 'purple',
     },
     {
@@ -119,9 +114,7 @@ export class PurchaseOrderListComponent implements OnInit {
       badgeHasArrow: true,
       topIndicator: '🚚',
       progressPercent:
-        this.orders().length > 0
-          ? Math.round((this.sentCount() / this.orders().length) * 100)
-          : 0,
+        this.orders().length > 0 ? Math.round((this.sentCount() / this.orders().length) * 100) : 0,
       colorVariant: 'orchid',
     },
     {

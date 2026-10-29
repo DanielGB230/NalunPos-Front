@@ -1,9 +1,12 @@
-import type { OnInit} from '@angular/core';
+import type { OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { NotificationService } from '@nalunpos/shared/ui';
-import type { PurchaseOrder, ReceivePurchaseOrderLineRequest } from '../../models/purchase-order.interface';
+import type {
+  PurchaseOrder,
+  ReceivePurchaseOrderLineRequest,
+} from '../../models/purchase-order.interface';
 import { PurchaseOrderApiService } from '../../data-access/purchase-order-api.service';
 
 export interface ReceiveOrderDialogData {
@@ -65,10 +68,10 @@ export class PurchaseOrderReceiveComponent implements OnInit {
   protected updateLineField<K extends keyof ReceiveLineModel>(
     index: number,
     field: K,
-    value: ReceiveLineModel[K]
+    value: ReceiveLineModel[K],
   ): void {
     this.lines.update((items) =>
-      items.map((item, i) => (i === index ? { ...item, [field]: value } : item))
+      items.map((item, i) => (i === index ? { ...item, [field]: value } : item)),
     );
   }
 
@@ -94,7 +97,7 @@ export class PurchaseOrderReceiveComponent implements OnInit {
       if (line.receivedQuantity <= 0 || line.receivedQuantity > line.quantityPending) {
         this.notification.warning(
           `La cantidad a recibir para el producto ${line.productId} debe ser mayor a 0 y no exceder los ${line.quantityPending} pendientes.`,
-          'Cantidad Inválida'
+          'Cantidad Inválida',
         );
         return;
       }
@@ -112,12 +115,18 @@ export class PurchaseOrderReceiveComponent implements OnInit {
     this.purchaseOrderApi.receivePurchaseOrder(this.data.order.id, receiveLines).subscribe({
       next: () => {
         this.isSaving.set(false);
-        this.notification.success('Recepción de productos registrada con éxito.', 'Recepción Exitosa');
+        this.notification.success(
+          'Recepción de productos registrada con éxito.',
+          'Recepción Exitosa',
+        );
         this.dialogRef.close(true);
       },
       error: (err) => {
         this.isSaving.set(false);
-        this.notification.error(err?.error?.detail || 'No se pudo registrar la recepción.', 'Error');
+        this.notification.error(
+          err?.error?.detail || 'No se pudo registrar la recepción.',
+          'Error',
+        );
       },
     });
   }

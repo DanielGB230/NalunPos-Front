@@ -4,7 +4,7 @@ export enum StockAdjustmentReason {
   Expiration = 2,
   Theft = 3,
   InitialLoad = 4,
-  Other = 5
+  Other = 5,
 }
 
 export interface StockAdjustmentLine {

@@ -1,19 +1,7 @@
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import {
-  FormField,
-  form,
-  minLength,
-  pattern,
-  required,
-  submit,
-} from '@angular/forms/signals';
+import { FormField, form, minLength, pattern, required, submit } from '@angular/forms/signals';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { NotificationService } from '@nalunpos/shared/ui';
 import type { CreateTenantRequest } from '../../models/tenant.model';
@@ -97,14 +85,17 @@ export class TenantCreateFormComponent {
             this.isLoading.set(false);
             this.notificationService.success(
               `El tenant ${request.name} fue aprovisionado exitosamente.`,
-              'Tenant Aprovisionado'
+              'Tenant Aprovisionado',
             );
             this.close(true);
           },
           error: (error: unknown) => {
             console.error('Request failed', error);
             this.isLoading.set(false);
-            const errObj = typeof error === 'object' && error !== null ? (error as Record<string, unknown>) : null;
+            const errObj =
+              typeof error === 'object' && error !== null
+                ? (error as Record<string, unknown>)
+                : null;
             const msg =
               (typeof errObj?.['message'] === 'string' && errObj['message']) ||
               (typeof errObj?.['detail'] === 'string' && errObj['detail']) ||
@@ -116,7 +107,8 @@ export class TenantCreateFormComponent {
       },
       onInvalid: () => {
         console.warn('Formulario inválido:', this.formModel());
-        const msg = 'Por favor, complete todos los campos obligatorios respetando el formato requerido.';
+        const msg =
+          'Por favor, complete todos los campos obligatorios respetando el formato requerido.';
         this.notificationService.warning(msg, 'Datos Incompletos');
       },
     });

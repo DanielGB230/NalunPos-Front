@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import type { Observable } from 'rxjs';
-import { environment } from '../../../../environments/environment';
+import { APP_CONFIG } from '@nalunpos/shared/data-access';
 import type {
   CreateStockAdjustmentRequest,
   StockAdjustment,
@@ -12,9 +12,10 @@ import type {
 })
 export class StockAdjustmentApiService {
   private readonly http = inject(HttpClient);
+  private readonly config = inject(APP_CONFIG);
 
   private get endpoint(): string {
-    return `${environment.apiUrl}/api/stock-adjustments`;
+    return `${this.config.apiUrl}/api/stock-adjustments`;
   }
 
   createAdjustment(request: CreateStockAdjustmentRequest): Observable<StockAdjustment> {

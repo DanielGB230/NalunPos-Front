@@ -1,14 +1,12 @@
 <!-- TenantListComponent — NalunPos-Admin-Web -->
 <!-- Smart Component: orquesta datos y pasa config a Dumb Components de @nalunpos/shared/ui -->
 <div class="relative flex-1 flex overflow-hidden h-full w-full">
-
   <main class="flex-1 overflow-y-auto overscroll-contain px-5 lg:px-7 py-6 space-y-6 custom-scrollbar">
-
     <!-- Hero: lib-page-hero-card (@nalunpos/shared/ui) -->
     <lib-page-hero-card
       [config]="heroConfig"
       (primaryActionClick)="openCreateModal()"
-      (secondaryActionClick)="$event"
+      (secondaryActionClick)="($event)"
     />
 
     <!-- Métricas: lib-metrics-bento-grid (@nalunpos/shared/ui) -->
@@ -29,9 +27,21 @@
 
     <!-- Alerta de Error -->
     @if (errorMessage()) {
-      <div class="flex items-center space-x-3 rounded-2xl border border-rose-300 bg-rose-50/90 p-4 text-rose-800 text-xs font-semibold shadow-xs">
-        <svg class="h-5 w-5 text-rose-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+      <div
+        class="flex items-center space-x-3 rounded-2xl border border-rose-300 bg-rose-50/90 p-4 text-rose-800 text-xs font-semibold shadow-xs"
+      >
+        <svg
+          class="h-5 w-5 text-rose-600 shrink-0"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+          />
         </svg>
         <span>{{ errorMessage() }}</span>
       </div>
@@ -47,24 +57,31 @@
       <div class="rounded-3xl glass-card border border-white overflow-hidden shadow-glass">
         <div class="overflow-x-auto custom-scrollbar">
           <table mat-table [dataSource]="tenants()" class="w-full min-w-[800px] text-left border-collapse">
-
             <!-- Nombre Column -->
             <ng-container matColumnDef="name">
-              <th mat-header-cell *matHeaderCellDef class="border-b border-[#DEDAF4] bg-white/50 py-4 px-6 text-[11px] font-semibold uppercase tracking-wider text-[#605596] font-mono">
+              <th
+                mat-header-cell
+                *matHeaderCellDef
+                class="border-b border-[#DEDAF4] bg-white/50 py-4 px-6 text-[11px] font-semibold uppercase tracking-wider text-[#605596] font-mono"
+              >
                 Empresa / Tenant
               </th>
               <td mat-cell *matCellDef="let tenant" class="py-4 px-6 border-b border-[#DEDAF4]/60">
                 <div class="flex items-center space-x-3.5">
                   <div
-                    [class]="(tenant.status === 'Active' || tenant.status === '1')
-                      ? 'w-9 h-9 rounded-2xl bg-linear-to-tr from-[#687FE5] to-[#C5D2F8] text-white font-mono font-bold flex items-center justify-center shadow-xs text-xs border border-white shrink-0'
-                      : 'w-9 h-9 rounded-2xl bg-linear-to-tr from-[#E8A0BF] to-[#FCE7F0] text-[#9B2C67] font-mono font-bold flex items-center justify-center shadow-xs text-xs border border-white/80 shrink-0'"
+                    [class]="
+                      tenant.status === 'Active' || tenant.status === '1'
+                        ? 'w-9 h-9 rounded-2xl bg-linear-to-tr from-[#687FE5] to-[#C5D2F8] text-white font-mono font-bold flex items-center justify-center shadow-xs text-xs border border-white shrink-0'
+                        : 'w-9 h-9 rounded-2xl bg-linear-to-tr from-[#E8A0BF] to-[#FCE7F0] text-[#9B2C67] font-mono font-bold flex items-center justify-center shadow-xs text-xs border border-white/80 shrink-0'
+                    "
                   >
                     {{ tenant.name.substring(0, 2).toUpperCase() }}
                   </div>
                   <div>
                     <div class="font-bold text-[#161B2D] font-mono text-xs">{{ tenant.name }}</div>
-                    <div class="font-mono text-xs text-[#605596]/70 font-normal">ID: <span class="text-[#161B2D] font-normal">{{ tenant.id.substring(0, 8) }}...</span></div>
+                    <div class="font-mono text-xs text-[#605596]/70 font-normal">
+                      ID: <span class="text-[#161B2D] font-normal">{{ tenant.id.substring(0, 8) }}...</span>
+                    </div>
                   </div>
                 </div>
               </td>
@@ -72,43 +89,77 @@
 
             <!-- DocumentNumber Column -->
             <ng-container matColumnDef="documentNumber">
-              <th mat-header-cell *matHeaderCellDef class="border-b border-[#DEDAF4] bg-white/50 py-4 px-6 text-[11px] font-semibold uppercase tracking-wider text-[#605596] font-mono">
+              <th
+                mat-header-cell
+                *matHeaderCellDef
+                class="border-b border-[#DEDAF4] bg-white/50 py-4 px-6 text-[11px] font-semibold uppercase tracking-wider text-[#605596] font-mono"
+              >
                 Identificación Fiscal
               </th>
-              <td mat-cell *matCellDef="let tenant" class="py-4 px-6 border-b border-[#DEDAF4]/60 font-mono font-normal text-[#161B2D]">
+              <td
+                mat-cell
+                *matCellDef="let tenant"
+                class="py-4 px-6 border-b border-[#DEDAF4]/60 font-mono font-normal text-[#161B2D]"
+              >
                 {{ tenant.documentNumber }}
               </td>
             </ng-container>
 
             <!-- Subdomain Column -->
             <ng-container matColumnDef="subdomain">
-              <th mat-header-cell *matHeaderCellDef class="border-b border-[#DEDAF4] bg-white/50 py-4 px-6 text-[11px] font-semibold uppercase tracking-wider text-[#605596] font-mono">
+              <th
+                mat-header-cell
+                *matHeaderCellDef
+                class="border-b border-[#DEDAF4] bg-white/50 py-4 px-6 text-[11px] font-semibold uppercase tracking-wider text-[#605596] font-mono"
+              >
                 Subdominio & Shard
               </th>
               <td mat-cell *matCellDef="let tenant" class="py-4 px-6 border-b border-[#DEDAF4]/60">
-                <div class="font-mono text-xs font-normal text-[#161B2D]">{{ tenant.name.toLowerCase().replace(' ', '') }}.nalunpos.com</div>
-                <span [class]="(tenant.status === 'Active' || tenant.status === '1') ? 'text-[10px] text-[#283FA7] font-mono font-normal' : 'text-[10px] text-[#9B2C67] font-mono font-normal'">
-                  {{ (tenant.status === 'Active' || tenant.status === '1') ? 'Cluster-BR-South-1' : 'Cluster-US-East-1' }}
+                <div class="font-mono text-xs font-normal text-[#161B2D]">
+                  {{ tenant.name.toLowerCase().replace(' ', '') }}.nalunpos.com
+                </div>
+                <span
+                  [class]="
+                    tenant.status === 'Active' || tenant.status === '1'
+                      ? 'text-[10px] text-[#283FA7] font-mono font-normal'
+                      : 'text-[10px] text-[#9B2C67] font-mono font-normal'
+                  "
+                >
+                  {{ tenant.status === 'Active' || tenant.status === '1' ? 'Cluster-BR-South-1' : 'Cluster-US-East-1' }}
                 </span>
               </td>
             </ng-container>
 
             <!-- Status Column -->
             <ng-container matColumnDef="status">
-              <th mat-header-cell *matHeaderCellDef class="border-b border-[#DEDAF4] bg-white/50 py-4 px-6 text-[11px] font-semibold uppercase tracking-wider text-[#605596] text-center font-sans whitespace-nowrap">
+              <th
+                mat-header-cell
+                *matHeaderCellDef
+                class="border-b border-[#DEDAF4] bg-white/50 py-4 px-6 text-[11px] font-semibold uppercase tracking-wider text-[#605596] text-center font-sans whitespace-nowrap"
+              >
                 Estado de Provisión
               </th>
-              <td mat-cell *matCellDef="let tenant" class="py-4 px-6 border-b border-[#DEDAF4]/60 text-center whitespace-nowrap">
+              <td
+                mat-cell
+                *matCellDef="let tenant"
+                class="py-4 px-6 border-b border-[#DEDAF4]/60 text-center whitespace-nowrap"
+              >
                 @if (tenant.status === 'Active' || tenant.status === '1') {
-                  <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-[#EEF5FE] text-[#2A5BC7] border border-[#92AAE7] shadow-xs whitespace-nowrap">
+                  <span
+                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-[#EEF5FE] text-[#2A5BC7] border border-[#92AAE7] shadow-xs whitespace-nowrap"
+                  >
                     <span class="relative flex h-2 w-2 mr-2 shrink-0">
-                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#92AAE7] opacity-75"></span>
+                      <span
+                        class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#92AAE7] opacity-75"
+                      ></span>
                       <span class="relative inline-flex rounded-full h-2 w-2 bg-[#2A5BC7]"></span>
                     </span>
                     Activo / En Línea
                   </span>
                 } @else {
-                  <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-[#FDF2F7] text-[#9B2C67] border border-[#E8A0BF] shadow-xs whitespace-nowrap">
+                  <span
+                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-[#FDF2F7] text-[#9B2C67] border border-[#E8A0BF] shadow-xs whitespace-nowrap"
+                  >
                     <span class="w-2 h-2 rounded-full bg-[#E8A0BF] mr-2 shrink-0 animate-ping"></span>
                     {{ tenant.status === 'Pending' ? 'PendingProvisioning' : tenant.status }}
                   </span>
@@ -118,38 +169,82 @@
 
             <!-- CreatedAtUtc Column -->
             <ng-container matColumnDef="createdAtUtc">
-              <th mat-header-cell *matHeaderCellDef class="border-b border-[#DEDAF4] bg-white/50 py-4 px-6 text-[11px] font-semibold uppercase tracking-wider text-[#605596] font-mono">
+              <th
+                mat-header-cell
+                *matHeaderCellDef
+                class="border-b border-[#DEDAF4] bg-white/50 py-4 px-6 text-[11px] font-semibold uppercase tracking-wider text-[#605596] font-mono"
+              >
                 Fecha Registro
               </th>
-              <td mat-cell *matCellDef="let tenant" class="py-4 px-6 border-b border-[#DEDAF4]/60 text-xs text-[#605596] font-mono font-normal">
-                {{ tenant.createdAtUtc | date:'dd/MM/yyyy HH:mm' }}
+              <td
+                mat-cell
+                *matCellDef="let tenant"
+                class="py-4 px-6 border-b border-[#DEDAF4]/60 text-xs text-[#605596] font-mono font-normal"
+              >
+                {{ tenant.createdAtUtc | date: 'dd/MM/yyyy HH:mm' }}
               </td>
             </ng-container>
 
             <!-- Actions Column -->
             <ng-container matColumnDef="actions">
-              <th mat-header-cell *matHeaderCellDef class="border-b border-[#DEDAF4] bg-white/50 py-4 px-6 text-[11px] font-bold uppercase tracking-wider text-[#605596] text-right font-sans">
+              <th
+                mat-header-cell
+                *matHeaderCellDef
+                class="border-b border-[#DEDAF4] bg-white/50 py-4 px-6 text-[11px] font-bold uppercase tracking-wider text-[#605596] text-right font-sans"
+              >
                 Acciones
               </th>
               <td mat-cell *matCellDef="let tenant" class="py-4 px-6 border-b border-[#DEDAF4]/60 text-right">
                 <div class="inline-flex items-center space-x-1">
                   @if (tenant.status === 'Active' || tenant.status === '1') {
-                    <button type="button" class="p-2 rounded-xl text-[#283FA7] hover:text-[#161B2D] hover:bg-[#EEF3FE] transition cursor-pointer" title="Impersonar Tenant">
+                    <button
+                      type="button"
+                      class="p-2 rounded-xl text-[#283FA7] hover:text-[#161B2D] hover:bg-[#EEF3FE] transition cursor-pointer"
+                      title="Impersonar Tenant"
+                    >
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                        />
                       </svg>
                     </button>
                   } @else {
-                    <button type="button" class="p-2 rounded-xl text-[#9B2C67] hover:text-[#161B2D] hover:bg-[#FCE7F0] transition cursor-pointer" title="Aprobar Provisión">
+                    <button
+                      type="button"
+                      class="p-2 rounded-xl text-[#9B2C67] hover:text-[#161B2D] hover:bg-[#FCE7F0] transition cursor-pointer"
+                      title="Aprobar Provisión"
+                    >
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M13 10V3L4 14h7v7l9-11h-7z"
+                        />
                       </svg>
                     </button>
                   }
-                  <button type="button" class="p-2 rounded-xl text-[#605596] hover:text-[#161B2D] hover:bg-[#DEDAF4]/50 transition cursor-pointer" title="Ver Detalles">
+                  <button
+                    type="button"
+                    class="p-2 rounded-xl text-[#605596] hover:text-[#161B2D] hover:bg-[#DEDAF4]/50 transition cursor-pointer"
+                    title="Ver Detalles"
+                  >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                      />
                     </svg>
                   </button>
                 </div>
@@ -157,27 +252,50 @@
             </ng-container>
 
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="glass-row group"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns" class="glass-row group"></tr>
           </table>
         </div>
 
         <!-- Empty state -->
         @if (tenants().length === 0) {
           <div class="py-12 text-center text-[#605596]">
-            <svg class="mx-auto h-12 w-12 text-[#ACA0E7] mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0h5m-5 0V12m0 0h-2m2 0h2" />
+            <svg
+              class="mx-auto h-12 w-12 text-[#ACA0E7] mb-3"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="1.5"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0h5m-5 0V12m0 0h-2m2 0h2"
+              />
             </svg>
             <p class="text-sm font-bold text-[#161B2D]">No se encontraron empresas registradas</p>
-            <p class="text-xs text-[#605596] mt-1 font-medium">Intenta con otro término de búsqueda o aprovisiona una nueva empresa.</p>
+            <p class="text-xs text-[#605596] mt-1 font-medium">
+              Intenta con otro término de búsqueda o aprovisiona una nueva empresa.
+            </p>
           </div>
         }
 
         <!-- Paginador -->
-        <div class="px-6 py-4 border-t border-[#DEDAF4] bg-white/40 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#605596] font-medium">
+        <div
+          class="px-6 py-4 border-t border-[#DEDAF4] bg-white/40 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#605596] font-medium"
+        >
           <div class="flex items-center space-x-2">
-            <span>Mostrando <b class="text-[#161B2D] font-mono">{{ tenants().length }}</b> de <b class="text-[#161B2D] font-mono">{{ totalCount() }}</b> organizaciones</span>
+            <span
+              >Mostrando <b class="text-[#161B2D] font-mono">{{ tenants().length }}</b> de
+              <b class="text-[#161B2D] font-mono">{{ totalCount() }}</b> organizaciones</span
+            >
             <span class="text-[#DEDAF4]">|</span>
-            <button (click)="loadTenants()" type="button" class="text-[#605596] hover:text-[#161B2D] font-semibold cursor-pointer hover:underline font-mono">Sincronizar (Shards OK)</button>
+            <button
+              (click)="loadTenants()"
+              type="button"
+              class="text-[#605596] hover:text-[#161B2D] font-semibold cursor-pointer hover:underline font-mono"
+            >
+              Sincronizar (Shards OK)
+            </button>
           </div>
           <mat-paginator
             [length]="totalCount()"
@@ -190,18 +308,18 @@
         </div>
       </div>
     }
-
   </main>
 
   <!-- Drawer de filtros: lib-advanced-filter-drawer (@nalunpos/shared/ui) -->
-  <lib-advanced-filter-drawer
-    [isOpen]="showAdvancedFilters()"
-    [config]="drawerConfig"
-    [resultCount]="totalCount()"
-    resultLabel="Tenants"
-    (close)="toggleAdvancedFilters()"
-    (apply)="loadTenants()"
-    (clear)="searchTerm.set('')"
-  />
-
+  @defer (on idle) {
+    <lib-advanced-filter-drawer
+      [isOpen]="showAdvancedFilters()"
+      [config]="drawerConfig"
+      [resultCount]="totalCount()"
+      resultLabel="Tenants"
+      (close)="toggleAdvancedFilters()"
+      (apply)="loadTenants()"
+      (clear)="searchTerm.set('')"
+    />
+  }
 </div>
