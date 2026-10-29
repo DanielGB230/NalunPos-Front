@@ -32,6 +32,9 @@ import {
   correlationIdInterceptor,
   errorInterceptor,
 } from '@nalunpos/shared/data-access';
+import { APP_NAV_CONFIG, AUTH_GATEWAY, LOGIN_CONFIG } from '@nalunpos/shared/ui';
+import { WEB_NAV_CONFIG } from './core/config/nav.config';
+import { WEB_LOGIN_CONFIG } from './core/config/login.config';
 
 /**
  * Inicializa el AuthService con la URL del backend desde el environment.
@@ -77,5 +80,10 @@ export const appConfig: ApplicationConfig = {
       deps: [AuthService],
       multi: true,
     },
+
+    // Configuración compartida de Layout, Navegación y Autenticación
+    { provide: APP_NAV_CONFIG, useValue: WEB_NAV_CONFIG },
+    { provide: LOGIN_CONFIG, useValue: WEB_LOGIN_CONFIG },
+    { provide: AUTH_GATEWAY, useExisting: AuthService },
   ],
 };

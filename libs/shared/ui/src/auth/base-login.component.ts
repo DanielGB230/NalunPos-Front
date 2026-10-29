@@ -4,6 +4,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {
@@ -14,9 +15,8 @@ import {
   minLength,
   FormField,
 } from '@angular/forms/signals';
-import { AuthService } from '@nalunpos/shared/auth';
-import type { LoginRequest } from '@nalunpos/shared/auth';
-import type { AppError } from '@nalunpos/shared/data-access';
+import { AUTH_GATEWAY } from '../layout/nav-config.interface';
+import { LOGIN_CONFIG } from './login-config.interface';
 
 interface LoginFormModel {
   email: string;
@@ -24,22 +24,22 @@ interface LoginFormModel {
 }
 
 @Component({
-  selector: 'app-login',
+  selector: 'ui-base-login',
   standalone: true,
-  imports: [FormsModule, FormField],
-  templateUrl: './login.component.html',
+  imports: [CommonModule, FormsModule, FormField],
+  templateUrl: './base-login.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LoginComponent {
+export class BaseLoginComponent {
   protected readonly formFieldDirective = FormField;
-  private readonly authService = inject(AuthService);
+  private readonly authGateway = inject(AUTH_GATEWAY);
   private readonly router = inject(Router);
+  protected readonly config = inject(LOGIN_CONFIG);
 
-  // Modo de Autenticación (Portal Empresas vs Ingreso SuperAdmin)
-  protected readonly authMode = signal<'tenant' | 'admin'>('tenant');
-  protected readonly tenantIdentifier = signal('central-cafe');
+  protected readonly tenantIdentifier = signal(
+    this.config.defaultTenantIdentifier ?? 'central-cafe'
+  );
 
-  // Signal Form - Angular 22
   private readonly formModel = signal<LoginFormModel>({ email: '', password: '' });
 
   protected readonly loginForm = form(this.formModel, (fields) => {
@@ -52,15 +52,9 @@ export class LoginComponent {
   protected readonly emailField = this.loginForm.email;
   protected readonly passwordField = this.loginForm.password;
 
-  // Estado del componente con Signals
   protected readonly isLoading = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly showPassword = signal(false);
-
-  protected switchMode(mode: 'tenant' | 'admin'): void {
-    this.authMode.set(mode);
-    this.errorMessage.set(null);
-  }
 
   protected togglePasswordVisibility(): void {
     this.showPassword.update((v) => !v);
@@ -69,23 +63,25 @@ export class LoginComponent {
   protected async onSubmit(): Promise<void> {
     await submit(this.loginForm, async () => {
       const currentModel = this.formModel();
-      const credentials: LoginRequest = {
+      const credentials = {
         email: currentModel.email,
         password: currentModel.password,
+        tenantId: this.config.showTenantField ? this.tenantIdentifier() : undefined,
       };
 
       this.isLoading.set(true);
       this.errorMessage.set(null);
 
-      this.authService.login(credentials).subscribe({
+      this.authGateway.login(credentials).subscribe({
         next: () => {
           this.isLoading.set(false);
-          this.router.navigate(['/dashboard']);
+          this.router.navigate([this.config.redirectRoute]);
         },
-        error: (error: AppError) => {
+        error: (error: unknown) => {
           this.isLoading.set(false);
+          const err = error as { message?: string };
           this.errorMessage.set(
-            error.message || 'Credenciales incorrectas. Por favor, intenta de nuevo.',
+            err?.message || 'Credenciales incorrectas. Por favor, intenta de nuevo.'
           );
         },
       });

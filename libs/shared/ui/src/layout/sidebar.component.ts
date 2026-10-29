@@ -8,36 +8,21 @@ import {
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { AuthService } from '@nalunpos/shared/auth';
-import { LayoutService } from '../../services/layout.service';
-
-export interface NavItem {
-  label: string;
-  route: string;
-  icon: string;
-  badge?: string;
-}
-
-export interface NavGroup {
-  key: string;
-  title: string;
-  colorDot: string;
-  groupIcon: string;
-  groupIconColor: string;
-  items: NavItem[];
-}
+import { APP_NAV_CONFIG, AUTH_GATEWAY } from './nav-config.interface';
+import { LayoutService } from './layout.service';
 
 @Component({
-  selector: 'app-sidebar',
+  selector: 'ui-sidebar',
   standalone: true,
   imports: [CommonModule, RouterLink, RouterLinkActive, MatTooltipModule],
   templateUrl: './sidebar.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SidebarComponent {
-  private readonly authService = inject(AuthService);
+  private readonly authGateway = inject(AUTH_GATEWAY);
   private readonly router = inject(Router);
   private readonly layoutService = inject(LayoutService);
+  protected readonly config = inject(APP_NAV_CONFIG);
 
   protected readonly isHovered = signal(false);
   protected readonly isSidebarCollapsed = this.layoutService.isSidebarCollapsed;
@@ -60,7 +45,6 @@ export class SidebarComponent {
       const rect = event.currentTarget.getBoundingClientRect();
       const x = event.clientX;
       const y = event.clientY;
-      // Si las coordenadas del cursor están dentro del rectángulo del sidebar, ignorar la contracción por eventos sintéticos
       if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
         return;
       }
@@ -68,37 +52,16 @@ export class SidebarComponent {
     this.isHovered.set(false);
   }
 
-  // Estado de grupos colapsados
-  protected readonly groupCollapsedState = signal<Record<string, boolean>>({
-    tenants: false,
-    sistemica: true,
-  });
+  // Estado inicial de grupos: primer grupo expandido (false), siguientes colapsados (true)
+  private readonly initialGroupState: Record<string, boolean> = this.config.navGroups.reduce(
+    (acc, group, index) => {
+      acc[group.key] = index > 0;
+      return acc;
+    },
+    {} as Record<string, boolean>
+  );
 
-  protected readonly navGroups: NavGroup[] = [
-    {
-      key: 'tenants',
-      title: 'TENANTS & NEGOCIOS',
-      colorDot: 'bg-[#92AAE7] ring-2 ring-[#DBE6FB]',
-      groupIcon: 'tenants',
-      groupIconColor: 'text-[#92AAE7]',
-      items: [
-        { label: 'Dashboard', route: '/dashboard', icon: 'dashboard' },
-        { label: 'Tenants & Empresas', route: '/tenants', icon: 'tenants', badge: 'LIVE' },
-        { label: 'Planes & Suscripciones', route: '/planes', icon: 'planes' },
-      ],
-    },
-    {
-      key: 'sistemica',
-      title: 'SISTÉMICA & SHARDS',
-      colorDot: 'bg-[#92AAE7] ring-2 ring-[#DBE6FB]',
-      groupIcon: 'sistemica',
-      groupIconColor: 'text-[#92AAE7]',
-      items: [
-        { label: 'Config. Plataforma', route: '/plataforma', icon: 'plataforma' },
-        { label: 'Usuarios Admin', route: '/usuarios-admin', icon: 'usuarios' },
-      ],
-    },
-  ];
+  protected readonly groupCollapsedState = signal<Record<string, boolean>>(this.initialGroupState);
 
   protected toggleCollapse(): void {
     this.layoutService.toggleSidebar();
@@ -114,10 +77,11 @@ export class SidebarComponent {
   protected toggleMasterCollapse(): void {
     const nextState = !this.isMasterCollapsed();
     this.isMasterCollapsed.set(nextState);
-    this.groupCollapsedState.set({
-      tenants: nextState,
-      sistemica: nextState,
-    });
+    const updated: Record<string, boolean> = {};
+    for (const group of this.config.navGroups) {
+      updated[group.key] = nextState;
+    }
+    this.groupCollapsedState.set(updated);
   }
 
   protected closeMobileMenu(): void {
@@ -126,7 +90,7 @@ export class SidebarComponent {
 
   protected logout(): void {
     this.closeMobileMenu();
-    this.authService.logout();
+    this.authGateway.logout();
     this.router.navigate(['/login']);
   }
 }

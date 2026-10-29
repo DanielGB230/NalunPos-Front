@@ -9,23 +9,24 @@ import { CommonModule } from '@angular/common';
 import { NavigationEnd, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map, startWith } from 'rxjs';
-import { AuthService } from '@nalunpos/shared/auth';
-import { LayoutService } from '../../services/layout.service';
+import { APP_NAV_CONFIG, AUTH_GATEWAY } from './nav-config.interface';
+import { LayoutService } from './layout.service';
 
 @Component({
-  selector: 'app-header',
+  selector: 'ui-header',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './header.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HeaderComponent {
-  private readonly authService = inject(AuthService);
+  private readonly authGateway = inject(AUTH_GATEWAY);
+  private readonly navConfig = inject(APP_NAV_CONFIG);
   private readonly router = inject(Router);
   private readonly layoutService = inject(LayoutService);
 
-  protected readonly currentUser = this.authService.currentUser;
-  protected readonly tenantId = this.authService.tenantId;
+  protected readonly currentUser = this.authGateway.currentUser;
+  protected readonly config = this.navConfig;
   protected readonly showUserMenu = signal(false);
 
   // URL de la ruta activa convertida a Signal
@@ -38,17 +39,16 @@ export class HeaderComponent {
     { initialValue: this.router.url }
   );
 
-  // Nombre reactivo del módulo activo
+  // Nombre reactivo del módulo activo según la configuración inyectada
   protected readonly activeModuleName = computed(() => {
     const url = this.currentUrl() ?? '';
-    if (url.includes('/categorias')) return 'Categorías';
-    if (url.includes('/productos')) return 'Productos';
-    if (url.includes('/ventas')) return 'Ventas & POS';
-    if (url.includes('/inventario')) return 'Inventario';
-    if (url.includes('/clientes')) return 'Clientes';
-    if (url.includes('/usuarios')) return 'Usuarios';
-    if (url.includes('/dashboard')) return 'Dashboard';
-    return 'POS Operations';
+    const mapEntries = Object.entries(this.navConfig.moduleMap);
+    for (const [routePrefix, name] of mapEntries) {
+      if (url.includes(routePrefix)) {
+        return name;
+      }
+    }
+    return this.navConfig.defaultModuleName;
   });
 
   protected readonly isSidebarCollapsed = this.layoutService.isSidebarCollapsed;
@@ -66,7 +66,7 @@ export class HeaderComponent {
   }
 
   protected logout(): void {
-    this.authService.logout();
+    this.authGateway.logout();
     this.router.navigate(['/login']);
   }
 }

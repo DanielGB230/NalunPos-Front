@@ -25,3 +25,19 @@ export * from './confirmation-dialog/confirmation-dialog.model';
 export * from './confirmation-dialog/confirmation-dialog.component';
 export * from './confirmation-dialog/confirmation-dialog.service';
 
+// ── Errores Compartidos (403, 404) ──
+export * from './errors/forbidden.component';
+export * from './errors/not-found.component';
+
+// ── Layout Compartido y Navegación (App Shell, Header, Sidebar) ──
+export * from './layout/nav-config.interface';
+export * from './layout/layout.service';
+export * from './layout/header.component';
+export * from './layout/sidebar.component';
+export * from './layout/app-shell.component';
+
+// ── Autenticación Compartida ──
+export * from './auth/login-config.interface';
+export * from './auth/base-login.component';
+
+
