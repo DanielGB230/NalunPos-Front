@@ -4,18 +4,18 @@
 
 import '@angular/compiler';
 import { describe, it, expect, vi } from 'vitest';
-import { HttpRequest } from '@angular/common/http';
+import { HttpRequest, HttpResponse } from '@angular/common/http';
 import { correlationIdInterceptor } from './correlation-id.interceptor';
 import { of } from 'rxjs';
 
 describe('correlationIdInterceptor', () => {
   it('debe inyectar un encabezado X-Correlation-Id no vacío en cada petición HTTP saliente', () => {
     const req = new HttpRequest('GET', '/api/v1/ping');
-    let capturedReq: HttpRequest<any> | undefined;
+    let capturedReq: HttpRequest<unknown> | undefined;
 
     const nextFn = vi.fn((clonedReq) => {
       capturedReq = clonedReq;
-      return of({} as any);
+      return of(new HttpResponse());
     });
 
     correlationIdInterceptor(req, nextFn);

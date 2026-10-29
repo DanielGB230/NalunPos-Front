@@ -4,7 +4,7 @@
 
 import '@angular/compiler';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { HttpRequest } from '@angular/common/http';
+import { HttpRequest, HttpResponse } from '@angular/common/http';
 import { authInterceptor } from './auth.interceptor';
 import { of } from 'rxjs';
 
@@ -47,7 +47,7 @@ describe('authInterceptor', () => {
 
     const nextFn = vi.fn((clonedReq: HttpRequest<unknown>) => {
       capturedReq = clonedReq;
-      return of(null as any);
+      return of(new HttpResponse());
     });
 
     authInterceptor(req, nextFn);
@@ -63,7 +63,7 @@ describe('authInterceptor', () => {
 
     const nextFn = vi.fn((clonedReq: HttpRequest<unknown>) => {
       capturedReq = clonedReq;
-      return of(null as any);
+      return of(new HttpResponse());
     });
 
     authInterceptor(req, nextFn);
