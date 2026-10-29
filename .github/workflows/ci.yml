@@ -120,11 +120,18 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
+      - name: Build Production Apps for E2E
+        run: |
+          npx nx run-many -t build -c production 2>&1 | tee e2e-build-output.txt || {
+            echo "### E2E Build Failure" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            cat e2e-build-output.txt >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            exit 1
+          }
+
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps chromium
-
-      - name: Build Production Apps for E2E
-        run: npx nx run-many -t build -c production
 
       - name: Run E2E Smoke Tests
         run: npx playwright test
