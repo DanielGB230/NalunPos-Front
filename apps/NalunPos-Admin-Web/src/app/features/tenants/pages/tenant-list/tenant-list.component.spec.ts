@@ -105,6 +105,14 @@ describe('TenantListComponent', () => {
     expect(component['errorMessage']()).toBe('Fallo al conectar con el servidor');
   });
 
+  it('debe usar mensaje fallback si el error no tiene mensaje definido', () => {
+    apiMock.getTenants.mockReturnValue(throwError(() => ({})));
+
+    component.ngOnInit();
+
+    expect(component['errorMessage']()).toBe('No se pudieron cargar los Tenants de la plataforma.');
+  });
+
   it('debe actualizar busqueda reactiva y reiniciar a pagina 0', () => {
     component.ngOnInit();
     expect(apiMock.getTenants).toHaveBeenCalledTimes(1);
@@ -158,5 +166,17 @@ describe('TenantListComponent', () => {
 
     expect(dialogMock.open).toHaveBeenCalledOnce();
     expect(apiMock.getTenants).toHaveBeenCalled();
+  });
+
+  it('debe abrir modal de creacion de tenant y no recargar si se cancela', () => {
+    dialogMock.open.mockReturnValue({
+      afterClosed: vi.fn().mockReturnValue(of(false)),
+    });
+    apiMock.getTenants.mockClear();
+
+    component['openCreateModal']();
+
+    expect(dialogMock.open).toHaveBeenCalledOnce();
+    expect(apiMock.getTenants).not.toHaveBeenCalled();
   });
 });

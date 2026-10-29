@@ -1,17 +1,15 @@
 import '@angular/compiler';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { TestBed } from '@angular/core/testing';
-import { HttpClient } from '@angular/common/http';
-import { of } from 'rxjs';
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { BranchApiService } from './branch-api.service';
 import { APP_CONFIG, type AppConfig } from '@nalunpos/shared/data-access';
 import type { Branch } from '../models/branch.interface';
 
 describe('BranchApiService', () => {
   let service: BranchApiService;
-  let httpMock: {
-    get: ReturnType<typeof vi.fn>;
-  };
+  let httpTesting: HttpTestingController;
 
   const mockConfig: AppConfig = {
     apiUrl: 'https://api.nalunpos.com',
@@ -33,46 +31,48 @@ describe('BranchApiService', () => {
   ];
 
   beforeEach(() => {
-    httpMock = {
-      get: vi.fn(),
-    };
-
     TestBed.configureTestingModule({
       providers: [
         BranchApiService,
-        { provide: HttpClient, useValue: httpMock },
+        provideHttpClient(),
+        provideHttpClientTesting(),
         { provide: APP_CONFIG, useValue: mockConfig },
       ],
     });
 
     service = TestBed.inject(BranchApiService);
+    httpTesting = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => {
+    httpTesting.verify();
   });
 
   it('debe solicitar sucursales sin parametros si no se especifica isActive', () => {
-    httpMock.get.mockReturnValue(of(mockBranches));
-
     let result: Branch[] | undefined;
     service.getBranches().subscribe((data) => {
       result = data;
     });
 
-    expect(httpMock.get).toHaveBeenCalledWith(
-      'https://api.nalunpos.com/api/v1/branches',
-      expect.anything(),
-    );
+    const req = httpTesting.expectOne('https://api.nalunpos.com/api/v1/branches');
+    expect(req.request.method).toBe('GET');
+    expect(req.request.params.has('isActive')).toBe(false);
+    req.flush(mockBranches);
+
     expect(result).toEqual(mockBranches);
   });
 
   it('debe incluir parametro isActive si se especifica', () => {
-    httpMock.get.mockReturnValue(of(mockBranches));
+    let result: Branch[] | undefined;
+    service.getBranches(true).subscribe((data) => {
+      result = data;
+    });
 
-    service.getBranches(true).subscribe();
+    const req = httpTesting.expectOne('https://api.nalunpos.com/api/v1/branches?isActive=true');
+    expect(req.request.method).toBe('GET');
+    expect(req.request.params.get('isActive')).toBe('true');
+    req.flush(mockBranches);
 
-    expect(httpMock.get).toHaveBeenCalledWith(
-      'https://api.nalunpos.com/api/v1/branches',
-      expect.objectContaining({
-        params: expect.anything(),
-      }),
-    );
+    expect(result).toEqual(mockBranches);
   });
 });

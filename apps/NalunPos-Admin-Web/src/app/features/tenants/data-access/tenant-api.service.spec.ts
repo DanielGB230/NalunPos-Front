@@ -1,17 +1,15 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import '@angular/compiler';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { TestBed } from '@angular/core/testing';
-import { HttpClient } from '@angular/common/http';
-import { of } from 'rxjs';
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { APP_CONFIG, type AppConfig, type PagedResult } from '@nalunpos/shared/data-access';
 import { TenantApiService } from './tenant-api.service';
 import type { CreateTenantRequest, TenantDto } from '../models/tenant.model';
 
 describe('TenantApiService', () => {
   let service: TenantApiService;
-  let httpMock: {
-    get: ReturnType<typeof vi.fn>;
-    post: ReturnType<typeof vi.fn>;
-  };
+  let httpTesting: HttpTestingController;
 
   const mockConfig: AppConfig = {
     production: false,
@@ -47,20 +45,21 @@ describe('TenantApiService', () => {
   };
 
   beforeEach(() => {
-    httpMock = {
-      get: vi.fn(),
-      post: vi.fn(),
-    };
-
     TestBed.configureTestingModule({
       providers: [
         TenantApiService,
-        { provide: HttpClient, useValue: httpMock },
+        provideHttpClient(),
+        provideHttpClientTesting(),
         { provide: APP_CONFIG, useValue: mockConfig },
       ],
     });
 
     service = TestBed.inject(TenantApiService);
+    httpTesting = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => {
+    httpTesting.verify();
   });
 
   it('debe crearse correctamente', () => {
@@ -68,34 +67,32 @@ describe('TenantApiService', () => {
   });
 
   it('debe obtener tenants paginados mediante GET /api/v1/platform/tenants', () => {
-    httpMock.get.mockReturnValue(of(mockPagedResult));
-
     let result: PagedResult<TenantDto> | undefined;
     service.getTenants(1, 10).subscribe((data) => {
       result = data;
     });
 
-    expect(httpMock.get).toHaveBeenCalledWith(
-      'https://api.nalunpos.com/api/v1/platform/tenants',
-      expect.objectContaining({
-        params: expect.anything(),
-      }),
+    const req = httpTesting.expectOne((r) =>
+      r.url.startsWith('https://api.nalunpos.com/api/v1/platform/tenants'),
     );
+    expect(req.request.method).toBe('GET');
+    expect(req.request.params.get('pageNumber')).toBe('1');
+    expect(req.request.params.get('pageSize')).toBe('10');
+    req.flush(mockPagedResult);
+
     expect(result).toEqual(mockPagedResult);
     expect(result?.items.length).toBe(2);
   });
 
   it('debe incluir searchTerm en los parametros HTTP si se especifica', () => {
-    httpMock.get.mockReturnValue(of(mockPagedResult));
-
     service.getTenants(1, 10, 'Alfa').subscribe();
 
-    expect(httpMock.get).toHaveBeenCalledWith(
-      'https://api.nalunpos.com/api/v1/platform/tenants',
-      expect.objectContaining({
-        params: expect.anything(),
-      }),
+    const req = httpTesting.expectOne((r) =>
+      r.url.startsWith('https://api.nalunpos.com/api/v1/platform/tenants'),
     );
+    expect(req.request.method).toBe('GET');
+    expect(req.request.params.get('searchTerm')).toBe('Alfa');
+    req.flush(mockPagedResult);
   });
 
   it('debe crear un nuevo tenant mediante POST /api/v1/platform/tenants', () => {
@@ -106,18 +103,17 @@ describe('TenantApiService', () => {
       adminPassword: 'Password123!',
     };
 
-    httpMock.post.mockReturnValue(of('tenant-3'));
-
     let createdId: string | undefined;
     service.createTenant(request).subscribe((id) => {
       createdId = id;
     });
 
-    expect(httpMock.post).toHaveBeenCalledWith(
-      'https://api.nalunpos.com/api/v1/platform/tenants',
-      request,
-      { responseType: 'text' },
-    );
+    const req = httpTesting.expectOne('https://api.nalunpos.com/api/v1/platform/tenants');
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual(request);
+    expect(req.request.responseType).toBe('text');
+    req.flush('tenant-3');
+
     expect(createdId).toBe('tenant-3');
   });
 });

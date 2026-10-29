@@ -1,18 +1,15 @@
 import '@angular/compiler';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { TestBed } from '@angular/core/testing';
-import { HttpClient } from '@angular/common/http';
-import { of } from 'rxjs';
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { WarehouseApiService } from './warehouse-api.service';
 import { APP_CONFIG, type AppConfig } from '@nalunpos/shared/data-access';
 import type { Warehouse, CreateWarehouseRequest } from '../models/warehouse.interface';
 
 describe('WarehouseApiService', () => {
   let service: WarehouseApiService;
-  let httpMock: {
-    get: ReturnType<typeof vi.fn>;
-    post: ReturnType<typeof vi.fn>;
-  };
+  let httpTesting: HttpTestingController;
 
   const mockConfig: AppConfig = {
     apiUrl: 'https://api.nalunpos.com',
@@ -32,31 +29,33 @@ describe('WarehouseApiService', () => {
   };
 
   beforeEach(() => {
-    httpMock = {
-      get: vi.fn(),
-      post: vi.fn(),
-    };
-
     TestBed.configureTestingModule({
       providers: [
         WarehouseApiService,
-        { provide: HttpClient, useValue: httpMock },
+        provideHttpClient(),
+        provideHttpClientTesting(),
         { provide: APP_CONFIG, useValue: mockConfig },
       ],
     });
 
     service = TestBed.inject(WarehouseApiService);
+    httpTesting = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => {
+    httpTesting.verify();
   });
 
   it('debe obtener la lista de almacenes mediante GET /api/v1/warehouses', () => {
-    httpMock.get.mockReturnValue(of([mockWarehouse]));
-
     let result: Warehouse[] | undefined;
     service.getWarehouses().subscribe((data) => {
       result = data;
     });
 
-    expect(httpMock.get).toHaveBeenCalledWith('https://api.nalunpos.com/api/v1/warehouses');
+    const req = httpTesting.expectOne('https://api.nalunpos.com/api/v1/warehouses');
+    expect(req.request.method).toBe('GET');
+    req.flush([mockWarehouse]);
+
     expect(result).toEqual([mockWarehouse]);
   });
 
@@ -67,17 +66,16 @@ describe('WarehouseApiService', () => {
       branchId: 'br-002',
     };
 
-    httpMock.post.mockReturnValue(of(mockWarehouse));
-
     let created: Warehouse | undefined;
     service.createWarehouse(request).subscribe((data) => {
       created = data;
     });
 
-    expect(httpMock.post).toHaveBeenCalledWith(
-      'https://api.nalunpos.com/api/v1/warehouses',
-      request,
-    );
+    const req = httpTesting.expectOne('https://api.nalunpos.com/api/v1/warehouses');
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual(request);
+    req.flush(mockWarehouse);
+
     expect(created).toEqual(mockWarehouse);
   });
 
@@ -88,7 +86,22 @@ describe('WarehouseApiService', () => {
         errorMsg = err.message;
       },
     });
-
     expect(errorMsg).toContain('disponible en el backend');
+
+    let statusError = '';
+    service.changeWarehouseStatus('wh-123', false).subscribe({
+      error: (err: Error) => {
+        statusError = err.message;
+      },
+    });
+    expect(statusError).toContain('disponible en el backend');
+
+    let defaultError = '';
+    service.setDefaultWarehouse('wh-123').subscribe({
+      error: (err: Error) => {
+        defaultError = err.message;
+      },
+    });
+    expect(defaultError).toContain('disponible en el backend');
   });
 });
