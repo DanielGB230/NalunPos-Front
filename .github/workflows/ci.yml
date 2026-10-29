@@ -53,7 +53,14 @@ jobs:
         run: npm ci
 
       - name: Run Vitest with Coverage
-        run: npx vitest run --coverage
+        run: |
+          npx vitest run --coverage 2>&1 | tee vitest-output.txt || {
+            echo "### Vitest Failure" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            cat vitest-output.txt >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            exit 1
+          }
 
   build:
     name: Production Build
@@ -72,7 +79,14 @@ jobs:
         run: npm ci
 
       - name: Build Production Applications
-        run: npx nx run-many -t build -c production
+        run: |
+          npx nx run-many -t build -c production 2>&1 | tee build-output.txt || {
+            echo "### Build Failure" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            cat build-output.txt >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            exit 1
+          }
 
   security-audit:
     name: Security Vulnerability Audit
