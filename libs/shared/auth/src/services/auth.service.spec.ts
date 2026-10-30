@@ -12,6 +12,8 @@ describe('AuthService', () => {
   let httpMock: { post: ReturnType<typeof vi.fn> };
   let routerMock: { navigate: ReturnType<typeof vi.fn> };
 
+  const STORAGE_KEY = 'nalunpos_auth_session';
+
   const mockAuthResponse: AuthResponse = {
     token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.test-jwt-token',
     refreshToken: 'refresh-token-uuid-1234',
@@ -59,9 +61,11 @@ describe('AuthService', () => {
     expect(service.currentUser()).toBeNull();
     expect(service.userRole()).toBeNull();
     expect(service.tenantId()).toBeNull();
+    expect(service.getToken()).toBeNull();
+    expect(sessionStorage.length).toBe(0);
   });
 
-  it('debe autenticar al usuario y actualizar signals en login exitoso', () => {
+  it('debe autenticar al usuario, actualizar signals y persistir exactamente 1 clave unificada en sessionStorage', () => {
     httpMock.post.mockReturnValue(of(mockAuthResponse));
 
     const credentials: LoginRequest = {
@@ -82,11 +86,21 @@ describe('AuthService', () => {
     expect(service.getToken()).toBe(mockAuthResponse.token);
     expect(service.token()).toBe(mockAuthResponse.token);
 
-    expect(sessionStorage.getItem('nalunpos_token')).toBe(mockAuthResponse.token);
-    expect(sessionStorage.getItem('nalunpos_session')).toContain('admin@nalunpos.com');
+    // Verificación estricta: exactamente 1 clave en sessionStorage
+    expect(sessionStorage.length).toBe(1);
+    expect(sessionStorage.getItem('nalunpos_token')).toBeNull();
+    expect(sessionStorage.getItem('nalunpos_session')).toBeNull();
+
+    const raw = sessionStorage.getItem(STORAGE_KEY);
+    expect(raw).not.toBeNull();
+    const stored = JSON.parse(raw!);
+    expect(stored.token).toBe(mockAuthResponse.token);
+    expect(stored.email).toBe('admin@nalunpos.com');
+    expect(stored.role).toBe('SuperAdmin');
+    expect(stored.id).toBe('usr-001');
   });
 
-  it('no debe actualizar estado si el login falla con error HTTP', () => {
+  it('no debe actualizar estado ni persistir en storage si el login falla con error HTTP', () => {
     httpMock.post.mockReturnValue(throwError(() => new Error('Credenciales invalidas')));
 
     const credentials: LoginRequest = {
@@ -105,25 +119,28 @@ describe('AuthService', () => {
     expect(errorCaught).toBe(true);
     expect(service.isAuthenticated()).toBe(false);
     expect(service.currentUser()).toBeNull();
-    expect(sessionStorage.getItem('nalunpos_token')).toBeNull();
+    expect(service.getToken()).toBeNull();
+    expect(sessionStorage.length).toBe(0);
   });
 
-  it('debe limpiar la sesion, tokens y navegar a /login al ejecutar logout', () => {
+  it('debe limpiar la sesion, dejar sessionStorage.length en 0 y navegar a /login al ejecutar logout', () => {
     httpMock.post.mockReturnValue(of(mockAuthResponse));
     service.login({ email: 'admin@nalunpos.com', password: 'pwd' }).subscribe();
     expect(service.isAuthenticated()).toBe(true);
+    expect(sessionStorage.length).toBe(1);
 
     service.logout();
 
     expect(service.isAuthenticated()).toBe(false);
     expect(service.currentUser()).toBeNull();
     expect(service.userRole()).toBeNull();
-    expect(sessionStorage.getItem('nalunpos_token')).toBeNull();
-    expect(sessionStorage.getItem('nalunpos_session')).toBeNull();
+    expect(service.getToken()).toBeNull();
+    expect(sessionStorage.length).toBe(0);
+    expect(sessionStorage.getItem(STORAGE_KEY)).toBeNull();
     expect(routerMock.navigate).toHaveBeenCalledWith(['/login']);
   });
 
-  it('debe restaurar una sesion activa valida desde sessionStorage al inicializarse', () => {
+  it('debe restaurar una sesion activa valida desde la clave unificada de sessionStorage al inicializarse', () => {
     const futureDate = new Date(Date.now() + 3600000).toISOString();
     const storedSession = {
       id: 'usr-restore',
@@ -131,13 +148,12 @@ describe('AuthService', () => {
       email: 'restore@nalunpos.com',
       role: 'SuperAdmin',
       tenantId: 'tenant-1',
-      token: 'valid-token',
+      token: 'valid-restored-jwt',
       expiresAt: futureDate,
     };
-    sessionStorage.setItem('nalunpos_session', JSON.stringify(storedSession));
-    sessionStorage.setItem('nalunpos_token', 'valid-token');
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(storedSession));
+    expect(sessionStorage.length).toBe(1);
 
-    // Reinicializar TestBed
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
@@ -150,9 +166,12 @@ describe('AuthService', () => {
 
     expect(restoredService.isAuthenticated()).toBe(true);
     expect(restoredService.currentUser()?.email).toBe('restore@nalunpos.com');
+    expect(restoredService.getToken()).toBe('valid-restored-jwt');
+    expect(restoredService.userRole()).toBe('SuperAdmin');
+    expect(sessionStorage.length).toBe(1);
   });
 
-  it('debe limpiar sessionStorage si la sesion almacenada esta expirada', () => {
+  it('debe limpiar sessionStorage y dejar length en 0 si la sesion almacenada esta expirada', () => {
     const pastDate = new Date(Date.now() - 3600000).toISOString();
     const expiredSession = {
       id: 'usr-expired',
@@ -163,8 +182,7 @@ describe('AuthService', () => {
       token: 'expired-token',
       expiresAt: pastDate,
     };
-    sessionStorage.setItem('nalunpos_session', JSON.stringify(expiredSession));
-    sessionStorage.setItem('nalunpos_token', 'expired-token');
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(expiredSession));
 
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
@@ -177,12 +195,13 @@ describe('AuthService', () => {
     const restoredService = TestBed.inject(AuthService);
 
     expect(restoredService.isAuthenticated()).toBe(false);
-    expect(sessionStorage.getItem('nalunpos_session')).toBeNull();
-    expect(sessionStorage.getItem('nalunpos_token')).toBeNull();
+    expect(restoredService.getToken()).toBeNull();
+    expect(sessionStorage.length).toBe(0);
+    expect(sessionStorage.getItem(STORAGE_KEY)).toBeNull();
   });
 
-  it('debe limpiar sessionStorage si el JSON en storage es invalido', () => {
-    sessionStorage.setItem('nalunpos_session', '{invalid-json');
+  it('debe limpiar sessionStorage si el JSON en storage es invalido o corrupto', () => {
+    sessionStorage.setItem(STORAGE_KEY, '{invalid-json');
 
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
@@ -195,6 +214,33 @@ describe('AuthService', () => {
     const restoredService = TestBed.inject(AuthService);
 
     expect(restoredService.isAuthenticated()).toBe(false);
-    expect(sessionStorage.getItem('nalunpos_session')).toBeNull();
+    expect(restoredService.getToken()).toBeNull();
+    expect(sessionStorage.length).toBe(0);
+    expect(sessionStorage.getItem(STORAGE_KEY)).toBeNull();
+  });
+
+  it('debe limpiar sessionStorage si el objeto almacenado esta incompleto o tiene token vacio', () => {
+    const incompleteSession = {
+      id: 'usr-bad',
+      email: 'bad@nalunpos.com',
+      role: 'SuperAdmin',
+      token: '   ',
+      expiresAt: new Date(Date.now() + 3600000).toISOString(),
+    };
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(incompleteSession));
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        AuthService,
+        { provide: HttpClient, useValue: httpMock },
+        { provide: Router, useValue: routerMock },
+      ],
+    });
+    const restoredService = TestBed.inject(AuthService);
+
+    expect(restoredService.isAuthenticated()).toBe(false);
+    expect(restoredService.getToken()).toBeNull();
+    expect(sessionStorage.length).toBe(0);
   });
 });

@@ -1,30 +1,36 @@
 # ADR 0012: In-Memory Access Token Storage with HttpOnly SameSite=Strict Refresh Cookie
 
-- **Estado**: Propuesto
-- **Fecha**: 2026-10-28
-- **Contexto**: Frontend Security & Multi-Tenant Authentication Strategy
+- **Estado**: Propuesto (Dependiente de Fase F1 Backend)
+- **Fecha**: 2026-10-28 (Reconciliado 2026-10-30)
+- **Contexto**: Frontend Security & Multi-Tenant Authentication Strategy (Evolución hacia Fase F1)
 
 ---
 
-## 1. Contexto del Problema
+## 1. Contexto del Problema y Dependencia
 
-En aplicaciones Single Page Application (SPA), el almacenamiento de tokens JWT de acceso en `localStorage` o `sessionStorage` presenta un vector de ataque crítico:
+Esta decisión arquitectónica define la meta final de seguridad para el manejo de credenciales en `NalunPos-Front`.
 
-1. **Exfiltración por XSS**: Cualquier script inyectado mediante una vulnerabilidad XSS o una dependencia de terceros comprometida tiene acceso de lectura directo a `window.localStorage` y `window.sessionStorage`.
-2. **Persistencia Indeseada**: Los tokens en `localStorage` persisten indefinidamente hasta ser limpiados manualmente, aumentando la ventana de exposición en equipos compartidos.
-3. **Aislamiento Multi-Tenant**: En NalunPos Enterprise, cada tenant requiere un aislamiento criptográfico y de sesión riguroso que no dependa de llaves globales en el navegador.
+> [!IMPORTANT]
+> **Estado Actual: Propuesto (Dependiente de Fase F1 Backend)**  
+> Esta arquitectura requiere que la API Backend (`NalunPos-Api`) exponga y soporte:
+>
+> 1. `POST /api/v1/auth/refresh` con emisión de cookie `HttpOnly; Secure; SameSite=Strict; Path=/api/v1/auth`.
+> 2. `POST /api/v1/auth/logout` con revocación en servidor y limpieza de la cookie de refresh.
+> 3. `GET /api/v1/auth/me` para la hidratación inicial de la sesión del usuario.
+>
+> Durante la **Fase 0**, el frontend opera bajo el [ADR 0003](./0003-token-storage-strategy.md) (`Aceptado — Vigente en Fase 0`), utilizando una única clave estructurada en `sessionStorage` gestionada exclusivamente por `AuthService`. Esta decisión (ADR 0012) se activará formalmente en la **Fase F1** una vez que el backend libere los contratos requeridos.
 
 ---
 
-## 2. Decisión Arquitectónica
+## 2. Decisión Arquitectónica Propuesta
 
-Se propone adoptar una arquitectura de autenticación **Zero-Trust Token Management** estructurada en dos capas:
+Se propone adoptar una arquitectura de autenticación **Zero-Trust Token Management** estructurada en dos capas independientes:
 
 ### 2.1 Access Token en Memoria (In-Memory Only)
 
-- El token JWT de acceso (`accessToken`) de corta duración (5 a 15 minutos) residirá **exclusivamente en la memoria volátil** de Angular, encapsulado en un closure privado dentro de `AuthService`.
+- El token JWT de acceso (`accessToken`) de corta duración (5 a 15 minutos) residirá **exclusivamente en la memoria volátil** de Angular, encapsulado en un closure/Signal privado dentro de `AuthService`.
 - No se escribirá en `localStorage`, `sessionStorage`, `IndexedDB` ni `document.cookie`.
-- Si el usuario refresca la página (F5) o abre una nueva pestaña, el token en memoria se destruye de forma segura y se recupera instantáneamente mediante silent refresh.
+- Si el usuario refresca la página (`F5`) o abre una nueva pestaña, el token en memoria se destruye de forma segura y se recupera instantáneamente mediante silent refresh contra `/api/v1/auth/refresh`.
 
 ### 2.2 Refresh Token en Cookie HttpOnly + SameSite=Strict
 
@@ -45,16 +51,15 @@ Se propone adoptar una arquitectura de autenticación **Zero-Trust Token Managem
 
 1. Al iniciar la aplicación, `AuthService.initializeSession()` invoca `POST /api/v1/auth/refresh` con `withCredentials: true`.
 2. El backend valida la cookie HttpOnly, rota el refresh token en una nueva cookie y retorna un nuevo `accessToken` en el payload JSON.
-3. Si el access token expira durante una llamada API, el `auth.interceptor` captura el error 401, pausa las peticiones en cola, ejecuta la renovación silenciosa y reintenta la petición original con el nuevo token sin interrumpir al usuario.
+3. Si el access token expira durante una llamada API, el interceptor captura el error 401, pausa las peticiones en cola, ejecuta la renovación silenciosa y reintenta la petición original con el nuevo token sin interrumpir al usuario.
 
 ---
 
-## 3. Estado de Transición en Fase 0
+## 3. Plan de Activación e Implementación
 
-Dado que el Backend actual (`NalunPos-Api`) aún no expone la cabecera `Set-Cookie` con HttpOnly en `/api/v1/auth/refresh`:
-
-- En **Fase 0**, el frontend utiliza temporalmente `sessionStorage` (aislado por pestaña y con auto-limpieza al cerrar la sesión o vencer el tiempo de expiración) a través de `AuthService`.
-- Tan pronto el backend coordine la emisión de la cookie segura, el frontend activará el modo in-memory mediante un cambio de flag en `AppConfig` sin alterar los componentes de UI.
+1. **Fase 0 (Actual)**: Operación bajo [ADR 0003](./0003-token-storage-strategy.md) con clave única `nalunpos_auth_session` en `sessionStorage` y lectura mediante Signals.
+2. **Fase F1 Backend**: Implementación en `NalunPos-Api` de rotación de refresh token y cookie HttpOnly.
+3. **Fase F1 Frontend**: Transición transparente en `AuthService` para desactivar el respaldo de `sessionStorage` y activar el silent refresh en runtime.
 
 ---
 
@@ -62,10 +67,10 @@ Dado que el Backend actual (`NalunPos-Api`) aún no expone la cabecera `Set-Cook
 
 ### Positivas
 
-- **Inmunidad contra robo de credenciales vía XSS**: Incluso ante una inyección de script, el atacante no puede extraer el refresh token ni persistir acceso.
-- **Cumplimiento de estándares bancarios y Enterprise**: Alineación con OWASP Top 10 y directrices NIST SP 800-63B.
-- **Experiencia de usuario transparente**: Las sesiones se renuevan en segundo plano sin forzar re-logins intempestivos.
+- **Inmunidad contra robo de credenciales persistentes vía XSS**: Incluso ante una inyección de script, el atacante no puede extraer el refresh token.
+- **Cumplimiento de estándares Enterprise**: Alineación estricta con OWASP Top 10 y directrices NIST SP 800-63B.
+- **Experiencia de usuario transparente**: Renovación fluida en segundo plano sin interrupciones.
 
-### Mitigaciones Técnicas
+### Requisitos Técnicos
 
-- Requiere configuración de CORS estricta en el Backend (`Access-Control-Allow-Credentials: true` con origen explícito `https://*.nalunpos.com`, nunca `*`).
+- Requiere CORS estricto en el Backend (`Access-Control-Allow-Credentials: true` con origen explícito `https://*.nalunpos.com`, nunca `*`).
