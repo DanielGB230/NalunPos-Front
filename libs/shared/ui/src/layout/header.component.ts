@@ -3,8 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { NavigationEnd, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map, startWith } from 'rxjs';
-import type { AuthUserGateway } from '@nalunpos/shared/util';
-import { APP_NAV_CONFIG, AUTH_GATEWAY } from './nav-config.interface';
+import { APP_NAV_CONFIG, AUTH_GATEWAY, type AuthUserGateway } from '@nalunpos/shared/util';
 import { LayoutService } from './layout.service';
 
 @Component({

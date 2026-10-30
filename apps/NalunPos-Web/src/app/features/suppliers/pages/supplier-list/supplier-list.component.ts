@@ -18,8 +18,7 @@ import {
   PageHeroCardComponent,
   QuickFilterBarComponent,
 } from '@nalunpos/shared/ui';
-import type { Supplier } from '../../models/supplier.interface';
-import { SupplierApiService } from '../../data-access/supplier-api.service';
+import { SupplierApiService, type Supplier } from '@nalunpos/shared/data-access';
 import { SupplierFormComponent } from '../../components/supplier-form/supplier-form.component';
 
 @Component({

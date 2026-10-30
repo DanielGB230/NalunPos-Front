@@ -4,8 +4,9 @@ import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { BranchApiService } from './branch-api.service';
-import { APP_CONFIG, type AppConfig } from '@nalunpos/shared/data-access';
-import type { Branch } from '../models/branch.interface';
+import { APP_CONFIG } from '../config/app-config.token';
+import type { AppConfig } from '../config/app-config.interface';
+import type { Branch } from '../models/branch.model';
 
 describe('BranchApiService', () => {
   let service: BranchApiService;

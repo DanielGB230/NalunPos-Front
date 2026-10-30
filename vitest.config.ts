@@ -67,7 +67,6 @@ export default defineConfig({
       },
       include: [
         'libs/shared/**/*.ts',
-        'apps/NalunPos-Web/src/app/features/warehouses/data-access/**/*.ts',
         'apps/NalunPos-Web/src/app/features/warehouses/pages/**/*.ts',
         'apps/NalunPos-Admin-Web/src/app/features/tenants/data-access/**/*.ts',
         'apps/NalunPos-Admin-Web/src/app/features/tenants/pages/**/*.ts',
@@ -84,7 +83,6 @@ export default defineConfig({
         '**/config/**',
         'libs/shared/ui/**',
         'libs/shared/design-tokens/**',
-        'libs/shared/data-access/src/services/**',
       ],
     },
   },

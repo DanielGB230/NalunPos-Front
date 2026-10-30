@@ -4,8 +4,9 @@ import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { WarehouseApiService } from './warehouse-api.service';
-import { APP_CONFIG, type AppConfig } from '@nalunpos/shared/data-access';
-import type { Warehouse, CreateWarehouseRequest } from '../models/warehouse.interface';
+import { APP_CONFIG } from '../config/app-config.token';
+import type { AppConfig } from '../config/app-config.interface';
+import type { Warehouse, CreateWarehouseRequest } from '../models/warehouse.model';
 
 describe('WarehouseApiService', () => {
   let service: WarehouseApiService;

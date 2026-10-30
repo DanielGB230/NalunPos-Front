@@ -2,7 +2,7 @@ import type { Signal, WritableSignal } from '@angular/core';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { APP_NAV_CONFIG, AUTH_GATEWAY } from './nav-config.interface';
+import { APP_NAV_CONFIG, AUTH_GATEWAY } from '@nalunpos/shared/util';
 import { LayoutService } from './layout.service';
 
 @Component({

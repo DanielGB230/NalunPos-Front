@@ -1,12 +1,12 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { NotificationService } from '@nalunpos/shared/ui';
-import type {
-  Supplier,
-  CreateSupplierRequest,
-  UpdateSupplierRequest,
-} from '../../models/supplier.interface';
-import { SupplierApiService } from '../../data-access/supplier-api.service';
+import {
+  SupplierApiService,
+  type CreateSupplierRequest,
+  type Supplier,
+  type UpdateSupplierRequest,
+} from '@nalunpos/shared/data-access';
 
 export interface SupplierDialogData {
   supplier?: Supplier;

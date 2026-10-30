@@ -4,8 +4,7 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import type { FieldTree } from '@angular/forms/signals';
 import { form, submit, required, pattern, minLength, FormField } from '@angular/forms/signals';
-import { AUTH_GATEWAY } from '../layout/nav-config.interface';
-import { LOGIN_CONFIG } from './login-config.interface';
+import { AUTH_GATEWAY, LOGIN_CONFIG } from '@nalunpos/shared/util';
 
 interface LoginFormModel {
   email: string;

@@ -3,10 +3,9 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { WarehouseListComponent } from './warehouse-list.component';
-import { WarehouseApiService } from '../../data-access/warehouse-api.service';
 import { NotificationService } from '@nalunpos/shared/ui';
 import { MatDialog } from '@angular/material/dialog';
-import type { Warehouse } from '../../models/warehouse.interface';
+import { WarehouseApiService, type Warehouse } from '@nalunpos/shared/data-access';
 
 describe('WarehouseListComponent', () => {
   let component: WarehouseListComponent;

@@ -20,6 +20,7 @@ Este directorio documenta todas las decisiones arquitectónicas fundamentales ad
 |      [0010](./0010-exact-optional-property-types-evaluation.md)       | **Evaluación Técnica de exactOptionalPropertyTypes**                           | Aprobado  | 2026-10-28 | Compilador TypeScript       |
 |         [0011](./0011-feature-slice-standard-architecture.md)         | **Arquitectura Estándar de Feature Slices (Smart/Container vs Dumb)**          | Aprobado  | 2026-10-28 | Modularidad de Features     |
 | [0012](./0012-in-memory-token-storage-and-httponly-refresh-cookie.md) | **In-Memory Access Token Storage con HttpOnly SameSite=Strict Refresh Cookie** | Propuesto | 2026-10-28 | Seguridad Zero-Trust / Auth |
+|  [0013](./0013-canonical-data-access-and-ui-tokens-deduplication.md)  | **Ubicación Canónica Única para Servicios de Acceso a Datos y Tokens UI**      | Aprobado  | 2026-10-30 | Deduplicación / DRY / Datos |
 
 ---
 

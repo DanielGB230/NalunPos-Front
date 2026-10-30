@@ -19,8 +19,7 @@ import {
   PageHeroCardComponent,
   QuickFilterBarComponent,
 } from '@nalunpos/shared/ui';
-import type { Warehouse } from '../../models/warehouse.interface';
-import { WarehouseApiService } from '../../data-access/warehouse-api.service';
+import { WarehouseApiService, type Warehouse } from '@nalunpos/shared/data-access';
 import { WarehouseFormComponent } from '../../components/warehouse-form/warehouse-form.component';
 
 @Component({
