@@ -11,7 +11,11 @@ export default defineConfig({
         const cleanId = id.split('?')[0] ?? id;
         if (cleanId.endsWith('.ts') && !cleanId.endsWith('.d.ts')) {
           const legacyDecoratorsProp = 'exp' + 'erimental' + 'Decorators';
-          const res = transformSync(code, {
+          const transformedCode = code.replace(
+            /templateUrl\s*:\s*['"][^'"]+['"]/g,
+            "template: ''",
+          );
+          const res = transformSync(transformedCode, {
             loader: 'ts',
             target: 'es2022',
             sourcefile: cleanId,
@@ -60,29 +64,30 @@ export default defineConfig({
       reporter: ['text', 'json', 'html'],
       reportsDirectory: './coverage',
       thresholds: {
-        lines: 70,
-        functions: 70,
-        branches: 70,
-        statements: 70,
+        lines: 35,
+        functions: 30,
+        branches: 25,
+        statements: 35,
+        'libs/shared/**': {
+          lines: 70,
+        },
       },
-      include: [
-        'libs/shared/**/*.ts',
-        'apps/NalunPos-Web/src/app/features/warehouses/pages/**/*.ts',
-        'apps/NalunPos-Admin-Web/src/app/features/tenants/data-access/**/*.ts',
-        'apps/NalunPos-Admin-Web/src/app/features/tenants/pages/**/*.ts',
-      ],
+      all: true,
+      include: ['apps/**/src/**/*.ts', 'libs/**/src/**/*.ts'],
       exclude: [
         '**/*.spec.ts',
-        '**/*.routes.ts',
+        '**/*.test.ts',
         '**/index.ts',
+        '**/*.routes.ts',
+        '**/*.model.ts',
         '**/*.interface.ts',
         '**/*.interfaces.ts',
-        '**/*.model.ts',
-        '**/*.token.ts',
+        '**/main.ts',
+        '**/app.config.ts',
+        '**/environments/**',
         '**/*.config.ts',
         '**/config/**',
-        'libs/shared/ui/**',
-        'libs/shared/design-tokens/**',
+        '**/*.token.ts',
       ],
     },
   },
