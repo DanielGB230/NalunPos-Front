@@ -38,8 +38,8 @@
     "@schematics/angular": "~22.2.0",
     "@swc/helpers": "~0.5.18",
     "@tailwindcss/postcss": "4.3.3",
-    "@vitest/coverage-v8": "4.1.12",
-    "@vitest/ui": "4.1.12",
+    "@vitest/coverage-v8": "5.0.5",
+    "@vitest/ui": "5.0.5",
     "eslint": "9.31.0",
     "jsdom": "30.1.3",
     "nx": "23.2.1",
@@ -47,7 +47,7 @@
     "tslib": "^2.3.0",
     "typescript": "~6.0.3",
     "typescript-eslint": "8.72.1",
-    "vitest": "4.1.12"
+    "vitest": "5.0.5"
   },
   "dependencies": {
     "@angular/animations": "~22.2.0",
