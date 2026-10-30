@@ -1,7 +1,8 @@
+import type { WritableSignal } from '@angular/core';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import type { FieldTree } from '@angular/forms/signals';
 import { form, submit, required, pattern, minLength, FormField } from '@angular/forms/signals';
 import { AUTH_GATEWAY } from '../layout/nav-config.interface';
 import { LOGIN_CONFIG } from './login-config.interface';
@@ -14,7 +15,7 @@ interface LoginFormModel {
 @Component({
   selector: 'ui-base-login',
   standalone: true,
-  imports: [CommonModule, FormsModule, FormField],
+  imports: [FormsModule, FormField],
   templateUrl: './base-login.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -24,25 +25,28 @@ export class BaseLoginComponent {
   private readonly router = inject(Router);
   protected readonly config = inject(LOGIN_CONFIG);
 
-  protected readonly tenantIdentifier = signal(
+  protected readonly tenantIdentifier: WritableSignal<string> = signal(
     this.config.defaultTenantIdentifier ?? 'central-cafe',
   );
 
-  private readonly formModel = signal<LoginFormModel>({ email: '', password: '' });
+  private readonly formModel: WritableSignal<LoginFormModel> = signal<LoginFormModel>({
+    email: '',
+    password: '',
+  });
 
-  protected readonly loginForm = form(this.formModel, (fields) => {
+  protected readonly loginForm: FieldTree<LoginFormModel> = form(this.formModel, (fields) => {
     required(fields.email);
     pattern(fields.email, /^[^\s@]+@[^\s@]+\.[^\s@]+$/);
     required(fields.password);
     minLength(fields.password, 6);
   });
 
-  protected readonly emailField = this.loginForm.email;
-  protected readonly passwordField = this.loginForm.password;
+  protected readonly emailField: FieldTree<string> = this.loginForm.email;
+  protected readonly passwordField: FieldTree<string> = this.loginForm.password;
 
-  protected readonly isLoading = signal(false);
-  protected readonly errorMessage = signal<string | null>(null);
-  protected readonly showPassword = signal(false);
+  protected readonly isLoading: WritableSignal<boolean> = signal(false);
+  protected readonly errorMessage: WritableSignal<string | null> = signal<string | null>(null);
+  protected readonly showPassword: WritableSignal<boolean> = signal(false);
 
   protected togglePasswordVisibility(): void {
     this.showPassword.update((v) => !v);

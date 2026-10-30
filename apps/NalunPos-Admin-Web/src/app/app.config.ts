@@ -14,7 +14,6 @@ import {
 import { provideRouter, withComponentInputBinding, withViewTransitions } from '@angular/router';
 import { provideHttpClient, withInterceptors, withFetch } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { provideSignalFormsConfig } from '@angular/forms/signals';
 import { appRoutes } from './app.routes';
 import { environment } from '../environments/environment';
 import { authInterceptor, AuthService } from '@nalunpos/shared/auth';
@@ -24,7 +23,7 @@ import {
   errorInterceptor,
   provideRuntimeConfig,
 } from '@nalunpos/shared/data-access';
-import { APP_NAV_CONFIG, AUTH_GATEWAY, LOGIN_CONFIG } from '@nalunpos/shared/ui';
+import { APP_NAV_CONFIG, AUTH_GATEWAY, LOGIN_CONFIG } from '@nalunpos/shared/util';
 import { ADMIN_NAV_CONFIG } from './core/config/nav.config';
 import { ADMIN_LOGIN_CONFIG } from './core/config/login.config';
 
@@ -49,8 +48,6 @@ export const appConfig: ApplicationConfig = {
       withFetch(),
       withInterceptors([correlationIdInterceptor, authInterceptor, errorInterceptor]),
     ),
-    provideSignalFormsConfig({}),
-
     // Configuración compartida de Layout, Navegación y Autenticación
     { provide: APP_NAV_CONFIG, useValue: ADMIN_NAV_CONFIG },
     { provide: LOGIN_CONFIG, useValue: ADMIN_LOGIN_CONFIG },

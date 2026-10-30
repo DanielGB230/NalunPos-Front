@@ -6,7 +6,6 @@
 // =============================================================================
 
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { FormField, form, required, min } from '@angular/forms/signals';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import type { AppError, Warehouse } from '@nalunpos/shared/data-access';
@@ -29,7 +28,7 @@ interface TransferFormModel {
 @Component({
   selector: 'app-stock-transfer-form',
   standalone: true,
-  imports: [FormsModule, MatDialogModule, FormField],
+  imports: [MatDialogModule, FormField],
   templateUrl: './stock-transfer-form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -1,7 +1,7 @@
 import type { OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { AppDatePipe } from '@nalunpos/shared/util';
 import { TenantApiService } from '../../../tenants/data-access/tenant-api.service';
 import type { TenantDto } from '../../../tenants/models/tenant.model';
 
@@ -17,7 +17,7 @@ interface KpiStat {
 @Component({
   selector: 'app-dashboard-overview',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [AppDatePipe, RouterLink],
   templateUrl: './dashboard-overview.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

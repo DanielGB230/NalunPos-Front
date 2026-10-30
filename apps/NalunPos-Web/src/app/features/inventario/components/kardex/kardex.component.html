@@ -161,9 +161,9 @@
             </th>
             <td mat-cell *matCellDef="let mov" class="py-3.5 px-5 border-b border-[#DEDAF4]/60">
               <div class="font-mono text-xs font-semibold text-[#161B2D]">
-                {{ mov.createdAtUtc | date: 'dd/MM/yyyy' }}
+                {{ mov.createdAtUtc | appDate: 'dd/MM/yyyy' }}
               </div>
-              <div class="font-mono text-[10px] text-[#605596]">{{ mov.createdAtUtc | date: 'HH:mm:ss' }}</div>
+              <div class="font-mono text-[10px] text-[#605596]">{{ mov.createdAtUtc | appDate: 'HH:mm:ss' }}</div>
             </td>
           </ng-container>
 

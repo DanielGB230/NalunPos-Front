@@ -4,10 +4,15 @@
    elevaciones y variables de Angular Material M3.
    ============================================================================= */
 
-/* 1. Fuentes Auto-Alojadas (Offline y cumplimiento RGPD — Máximo 3 familias de texto) */
-@import '@fontsource/plus-jakarta-sans/index.css';
-@import '@fontsource/inter/index.css';
-@import '@fontsource/jetbrains-mono/index.css';
+/* 1. Fuentes Auto-Alojadas (Offline y cumplimiento RGPD — Subconjunto Latin optimizado con pesos requeridos) */
+@import '@fontsource/plus-jakarta-sans/latin-400.css';
+@import '@fontsource/plus-jakarta-sans/latin-600.css';
+@import '@fontsource/plus-jakarta-sans/latin-700.css';
+@import '@fontsource/inter/latin-400.css';
+@import '@fontsource/inter/latin-500.css';
+@import '@fontsource/inter/latin-600.css';
+@import '@fontsource/jetbrains-mono/latin-400.css';
+@import '@fontsource/jetbrains-mono/latin-500.css';
 @import '@fontsource-variable/material-symbols-outlined/index.css';
 
 /* 2. Angular Material 22 — Tema Oficial M3 Base */

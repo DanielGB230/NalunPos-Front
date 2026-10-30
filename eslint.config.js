@@ -45,6 +45,7 @@ export default tseslint.config(
         {
           enforceBuildableLibDependency: false,
           allow: [],
+          checkDynamicDependenciesExceptions: ['@nalunpos/shared/ui'],
           depConstraints: [
             {
               sourceTag: 'scope:web',

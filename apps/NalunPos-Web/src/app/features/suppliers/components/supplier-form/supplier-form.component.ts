@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { NotificationService } from '@nalunpos/shared/ui';
 import type {
@@ -9,8 +8,6 @@ import type {
 } from '../../models/supplier.interface';
 import { SupplierApiService } from '../../data-access/supplier-api.service';
 
-import { FormsModule } from '@angular/forms';
-
 export interface SupplierDialogData {
   supplier?: Supplier;
 }
@@ -18,7 +15,7 @@ export interface SupplierDialogData {
 @Component({
   selector: 'app-supplier-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatDialogModule],
+  imports: [MatDialogModule],
   templateUrl: './supplier-form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

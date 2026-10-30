@@ -1,6 +1,5 @@
 import type { OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { NotificationService } from '@nalunpos/shared/ui';
 import type {
@@ -26,7 +25,7 @@ export interface ReceiveLineModel {
 @Component({
   selector: 'app-purchase-order-receive',
   standalone: true,
-  imports: [CommonModule, MatDialogModule],
+  imports: [MatDialogModule],
   templateUrl: './purchase-order-receive.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

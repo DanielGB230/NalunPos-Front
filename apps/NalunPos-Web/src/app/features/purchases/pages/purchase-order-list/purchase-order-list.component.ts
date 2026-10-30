@@ -1,6 +1,6 @@
 import type { OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { AppDatePipe, AppNumberPipe } from '@nalunpos/shared/util';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import type { PageEvent } from '@angular/material/paginator';
 import { MatPaginatorModule } from '@angular/material/paginator';
@@ -22,7 +22,8 @@ import { PurchaseOrderReceiveComponent } from '../../components/purchase-order-r
   selector: 'app-purchase-order-list',
   standalone: true,
   imports: [
-    CommonModule,
+    AppDatePipe,
+    AppNumberPipe,
     MatTableModule,
     MatPaginatorModule,
     MatDialogModule,

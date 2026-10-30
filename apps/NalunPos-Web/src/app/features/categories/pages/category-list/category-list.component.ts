@@ -1,10 +1,10 @@
-import { DatePipe } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import type { PageEvent } from '@angular/material/paginator';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
+import { AppDatePipe } from '@nalunpos/shared/util';
 import type { AppError } from '@nalunpos/shared/data-access';
 import type {
   FilterDrawerConfig,
@@ -28,7 +28,7 @@ import { CategoryFormComponent } from '../../components/category-form/category-f
   selector: 'app-category-list',
   standalone: true,
   imports: [
-    DatePipe,
+    AppDatePipe,
     MatTableModule,
     MatPaginatorModule,
     MatDialogModule,

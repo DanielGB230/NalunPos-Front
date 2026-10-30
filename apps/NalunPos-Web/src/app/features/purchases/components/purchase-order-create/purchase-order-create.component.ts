@@ -1,7 +1,7 @@
 import type { OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { MatDialogRef, MatDialogModule } from '@angular/material/dialog';
+import { AppNumberPipe } from '@nalunpos/shared/util';
 import { NotificationService } from '@nalunpos/shared/ui';
 import {
   type Supplier,
@@ -22,7 +22,7 @@ export interface PurchaseOrderLineModel {
 @Component({
   selector: 'app-purchase-order-create',
   standalone: true,
-  imports: [CommonModule, MatDialogModule],
+  imports: [AppNumberPipe, MatDialogModule],
   templateUrl: './purchase-order-create.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

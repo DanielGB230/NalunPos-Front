@@ -181,7 +181,7 @@
                 *matCellDef="let tenant"
                 class="py-4 px-6 border-b border-[#DEDAF4]/60 text-xs text-[#605596] font-mono font-normal"
               >
-                {{ tenant.createdAtUtc | date: 'dd/MM/yyyy HH:mm' }}
+                {{ tenant.createdAtUtc | appDate: 'dd/MM/yyyy HH:mm' }}
               </td>
             </ng-container>
 

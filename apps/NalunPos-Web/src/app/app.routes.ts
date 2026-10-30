@@ -5,12 +5,6 @@
 
 import type { Routes } from '@angular/router';
 import { authGuard } from '@nalunpos/shared/auth';
-import {
-  AppShellComponent,
-  BaseLoginComponent,
-  ForbiddenComponent,
-  NotFoundComponent,
-} from '@nalunpos/shared/ui';
 
 export const appRoutes: Routes = [
   // ─── Ruta raíz: redirige según autenticación ─────────────────────────────
@@ -23,14 +17,16 @@ export const appRoutes: Routes = [
   // ─── Login (pública) ─────────────────────────────────────────────────────
   {
     path: 'login',
-    component: BaseLoginComponent,
+    loadComponent: () =>
+      import('@nalunpos/shared/ui').then((m) => m.BaseLoginComponent),
     title: 'Iniciar sesión — NalunPos',
   },
 
   // ─── Layout Protegido (Admin Negocio) ─────────────────────────────────────
   {
     path: '',
-    component: AppShellComponent,
+    loadComponent: () =>
+      import('@nalunpos/shared/ui').then((m) => m.AppShellComponent),
     canActivate: [authGuard],
     children: [
       {
@@ -98,12 +94,14 @@ export const appRoutes: Routes = [
   // ─── Páginas de error ─────────────────────────────────────────────────────
   {
     path: 'forbidden',
-    component: ForbiddenComponent,
+    loadComponent: () =>
+      import('@nalunpos/shared/ui').then((m) => m.ForbiddenComponent),
     title: 'Acceso denegado — NalunPos',
   },
   {
     path: '**',
-    component: NotFoundComponent,
+    loadComponent: () =>
+      import('@nalunpos/shared/ui').then((m) => m.NotFoundComponent),
     title: 'Página no encontrada — NalunPos',
   },
 ];

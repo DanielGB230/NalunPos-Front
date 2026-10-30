@@ -1,4 +1,3 @@
-import { CommonModule, DatePipe } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -27,7 +26,6 @@ import { SupplierFormComponent } from '../../components/supplier-form/supplier-f
   selector: 'app-supplier-list',
   standalone: true,
   imports: [
-    CommonModule,
     MatTableModule,
     MatPaginatorModule,
     MatDialogModule,

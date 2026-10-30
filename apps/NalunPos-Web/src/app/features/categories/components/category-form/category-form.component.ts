@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { NotificationService } from '@nalunpos/shared/ui';
@@ -9,8 +8,6 @@ import type {
 } from '../../models/category.interface';
 import { CategoryApiService } from '../../data-access/category-api.service';
 
-import { FormsModule } from '@angular/forms';
-
 export interface CategoryDialogData {
   category?: CategoryDto;
 }
@@ -18,7 +15,7 @@ export interface CategoryDialogData {
 @Component({
   selector: 'app-category-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatDialogModule],
+  imports: [MatDialogModule],
   templateUrl: './category-form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

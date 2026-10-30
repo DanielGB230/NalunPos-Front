@@ -1,4 +1,4 @@
-import type { AppNavConfig } from '@nalunpos/shared/ui';
+import type { AppNavConfig } from '@nalunpos/shared/util';
 
 export const ADMIN_NAV_CONFIG: AppNavConfig = {
   appTitle: 'NALUN POS',

@@ -1,15 +1,16 @@
+import type { Signal, WritableSignal } from '@angular/core';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { NavigationEnd, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map, startWith } from 'rxjs';
+import type { AuthUserGateway } from '@nalunpos/shared/util';
 import { APP_NAV_CONFIG, AUTH_GATEWAY } from './nav-config.interface';
 import { LayoutService } from './layout.service';
 
 @Component({
   selector: 'ui-header',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './header.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -19,9 +20,9 @@ export class HeaderComponent {
   private readonly router = inject(Router);
   private readonly layoutService = inject(LayoutService);
 
-  protected readonly currentUser = this.authGateway.currentUser;
+  protected readonly currentUser: Signal<AuthUserGateway | null> = this.authGateway.currentUser;
   protected readonly config = this.navConfig;
-  protected readonly showUserMenu = signal(false);
+  protected readonly showUserMenu: WritableSignal<boolean> = signal(false);
 
   // URL de la ruta activa convertida a Signal
   private readonly currentUrl = toSignal(
@@ -34,7 +35,7 @@ export class HeaderComponent {
   );
 
   // Nombre reactivo del módulo activo según la configuración inyectada
-  protected readonly activeModuleName = computed(() => {
+  protected readonly activeModuleName: Signal<string> = computed(() => {
     const url = this.currentUrl() ?? '';
     const mapEntries = Object.entries(this.navConfig.moduleMap);
     for (const [routePrefix, name] of mapEntries) {
@@ -45,7 +46,7 @@ export class HeaderComponent {
     return this.navConfig.defaultModuleName;
   });
 
-  protected readonly isSidebarCollapsed = this.layoutService.isSidebarCollapsed;
+  protected readonly isSidebarCollapsed: Signal<boolean> = this.layoutService.isSidebarCollapsed;
 
   protected toggleMobileMenu(): void {
     this.layoutService.toggleMobileMenu();

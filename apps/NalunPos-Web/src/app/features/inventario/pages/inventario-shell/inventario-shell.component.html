@@ -99,24 +99,12 @@
 
     <!-- ── Contenido de Tab: Stock Actual ── -->
     @if (activeTab() === 'stock') {
-      @defer (on viewport) {
-        <app-stock-list [warehouseId]="selectedWarehouseId()" [refreshTick]="refreshTick()" />
-      } @placeholder {
-        <div class="rounded-3xl glass-card border border-white/10 p-12 flex items-center justify-center">
-          <div class="w-8 h-8 rounded-full border-4 border-[#ACA0E7] border-t-transparent animate-spin"></div>
-        </div>
-      }
+      <app-stock-list [warehouseId]="selectedWarehouseId()" [refreshTick]="refreshTick()" />
     }
 
     <!-- ── Contenido de Tab: Kardex ── -->
     @if (activeTab() === 'kardex') {
-      @defer (on viewport) {
-        <app-kardex [warehouseId]="selectedWarehouseId()" [refreshTick]="refreshTick()" />
-      } @placeholder {
-        <div class="rounded-3xl glass-card border border-white/10 p-12 flex items-center justify-center">
-          <div class="w-8 h-8 rounded-full border-4 border-[#687FE5] border-t-transparent animate-spin"></div>
-        </div>
-      }
+      <app-kardex [warehouseId]="selectedWarehouseId()" [refreshTick]="refreshTick()" />
     }
 
     <!-- ── Contenido de Tab: Ajustes (Panel inline de historial) ── -->

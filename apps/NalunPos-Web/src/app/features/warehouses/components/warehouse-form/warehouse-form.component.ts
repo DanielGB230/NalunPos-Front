@@ -1,7 +1,5 @@
 import type { OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { NotificationService } from '@nalunpos/shared/ui';
 import type { Warehouse, CreateWarehouseRequest } from '../../models/warehouse.interface';
@@ -16,7 +14,7 @@ export interface WarehouseDialogData {
 @Component({
   selector: 'app-warehouse-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatDialogModule],
+  imports: [MatDialogModule],
   templateUrl: './warehouse-form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -1,4 +1,4 @@
-import type { LoginConfig } from '@nalunpos/shared/ui';
+import type { LoginConfig } from '@nalunpos/shared/util';
 
 export const ADMIN_LOGIN_CONFIG: LoginConfig = {
   portalTitle: 'Ingreso SuperAdmin',

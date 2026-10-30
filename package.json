@@ -3,6 +3,10 @@
   "version": "0.0.0",
   "license": "MIT",
   "type": "module",
+  "sideEffects": [
+    "*.css",
+    "*.scss"
+  ],
   "scripts": {
     "lint": "nx run-many -t lint",
     "format": "prettier --check .",

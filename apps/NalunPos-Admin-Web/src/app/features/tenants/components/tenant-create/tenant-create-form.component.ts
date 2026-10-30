@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FormField, form, minLength, pattern, required, submit } from '@angular/forms/signals';
@@ -17,7 +16,7 @@ interface TenantFormModel {
 @Component({
   selector: 'app-tenant-create-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatDialogModule, FormField],
+  imports: [FormsModule, MatDialogModule, FormField],
   templateUrl: './tenant-create-form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

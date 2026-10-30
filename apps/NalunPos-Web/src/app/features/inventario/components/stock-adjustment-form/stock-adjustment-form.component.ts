@@ -6,7 +6,6 @@
 // =============================================================================
 
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { FormField, form, required, min, max } from '@angular/forms/signals';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import type { AppError, Warehouse } from '@nalunpos/shared/data-access';
@@ -31,7 +30,7 @@ interface AdjustmentFormModel {
 @Component({
   selector: 'app-stock-adjustment-form',
   standalone: true,
-  imports: [FormsModule, MatDialogModule, FormField],
+  imports: [MatDialogModule, FormField],
   templateUrl: './stock-adjustment-form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

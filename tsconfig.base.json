@@ -26,6 +26,7 @@
       "@nalunpos/shared/auth": ["./libs/shared/auth/src/index.ts"],
       "@nalunpos/shared/data-access": ["./libs/shared/data-access/src/index.ts"],
       "@nalunpos/shared/ui": ["./libs/shared/ui/src/index.ts"],
+      "@nalunpos/shared/util": ["./libs/shared/util/src/index.ts"],
       "@nalunpos/shared/design-tokens": ["./libs/shared/design-tokens/src/index.ts"]
     }
   },

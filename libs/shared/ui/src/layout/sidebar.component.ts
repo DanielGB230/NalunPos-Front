@@ -1,5 +1,5 @@
+import type { Signal, WritableSignal } from '@angular/core';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { APP_NAV_CONFIG, AUTH_GATEWAY } from './nav-config.interface';
@@ -8,7 +8,7 @@ import { LayoutService } from './layout.service';
 @Component({
   selector: 'ui-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, MatTooltipModule],
+  imports: [RouterLink, RouterLinkActive, MatTooltipModule],
   templateUrl: './sidebar.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -18,13 +18,15 @@ export class SidebarComponent {
   private readonly layoutService = inject(LayoutService);
   protected readonly config = inject(APP_NAV_CONFIG);
 
-  protected readonly isHovered = signal(false);
-  protected readonly isSidebarCollapsed = this.layoutService.isSidebarCollapsed;
-  protected readonly isMobileMenuOpen = this.layoutService.isMobileMenuOpen;
-  protected readonly isMasterCollapsed = signal(false);
+  protected readonly isHovered: WritableSignal<boolean> = signal(false);
+  protected readonly isSidebarCollapsed: Signal<boolean> = this.layoutService.isSidebarCollapsed;
+  protected readonly isMobileMenuOpen: Signal<boolean> = this.layoutService.isMobileMenuOpen;
+  protected readonly isMasterCollapsed: WritableSignal<boolean> = signal(false);
 
   // El sidebar sólo está visualmente contraído si está colapsado Y el ratón NO está encima (hover)
-  protected readonly isCollapsed = computed(() => this.isSidebarCollapsed() && !this.isHovered());
+  protected readonly isCollapsed: Signal<boolean> = computed(
+    () => this.isSidebarCollapsed() && !this.isHovered(),
+  );
 
   protected onMouseEnter(): void {
     if (this.isSidebarCollapsed()) {
@@ -53,7 +55,9 @@ export class SidebarComponent {
     {} as Record<string, boolean>,
   );
 
-  protected readonly groupCollapsedState = signal<Record<string, boolean>>(this.initialGroupState);
+  protected readonly groupCollapsedState: WritableSignal<Record<string, boolean>> = signal<
+    Record<string, boolean>
+  >(this.initialGroupState);
 
   protected toggleCollapse(): void {
     this.layoutService.toggleSidebar();

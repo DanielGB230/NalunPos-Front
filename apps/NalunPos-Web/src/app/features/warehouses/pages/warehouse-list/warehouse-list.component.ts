@@ -1,4 +1,3 @@
-import { CommonModule, DatePipe } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -6,6 +5,7 @@ import type { PageEvent } from '@angular/material/paginator';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { AppDatePipe } from '@nalunpos/shared/util';
 import type {
   FilterDrawerConfig,
   MetricCardConfig,
@@ -27,8 +27,7 @@ import { WarehouseFormComponent } from '../../components/warehouse-form/warehous
   selector: 'app-warehouse-list',
   standalone: true,
   imports: [
-    CommonModule,
-    DatePipe,
+    AppDatePipe,
     MatTableModule,
     MatPaginatorModule,
     MatDialogModule,

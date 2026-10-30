@@ -1,4 +1,3 @@
-import { DatePipe } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -18,6 +17,7 @@ import {
   PageHeroCardComponent,
   QuickFilterBarComponent,
 } from '@nalunpos/shared/ui';
+import { AppDatePipe } from '@nalunpos/shared/util';
 import type { TenantDto } from '../../models/tenant.model';
 import { TenantApiService } from '../../data-access/tenant-api.service';
 import { TenantCreateFormComponent } from '../../components/tenant-create/tenant-create-form.component';
@@ -26,7 +26,7 @@ import { TenantCreateFormComponent } from '../../components/tenant-create/tenant
   selector: 'app-tenant-list',
   standalone: true,
   imports: [
-    DatePipe,
+    AppDatePipe,
     MatTableModule,
     MatPaginatorModule,
     MatDialogModule,

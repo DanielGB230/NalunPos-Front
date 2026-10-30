@@ -7,7 +7,7 @@
 
 import type { OnChanges, SimpleChanges } from '@angular/core';
 import { ChangeDetectionStrategy, Component, Input, computed, inject, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { AppDatePipe } from '@nalunpos/shared/util';
 import { MatTableModule } from '@angular/material/table';
 import type { PageEvent } from '@angular/material/paginator';
 import { MatPaginatorModule } from '@angular/material/paginator';
@@ -64,7 +64,7 @@ const MOVEMENT_TYPE_LABELS: Record<
 @Component({
   selector: 'app-kardex',
   standalone: true,
-  imports: [DatePipe, MatTableModule, MatPaginatorModule, QuickFilterBarComponent],
+  imports: [AppDatePipe, MatTableModule, MatPaginatorModule, QuickFilterBarComponent],
   templateUrl: './kardex.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

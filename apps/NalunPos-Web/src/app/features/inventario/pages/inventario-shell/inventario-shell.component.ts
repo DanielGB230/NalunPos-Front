@@ -17,9 +17,7 @@ import {
 import { type Warehouse, WarehouseApiService } from '@nalunpos/shared/data-access';
 import { StockListComponent } from '../../components/stock-list/stock-list.component';
 import { KardexComponent } from '../../components/kardex/kardex.component';
-// Modales cargados con MatDialog.open() — NO van en imports[]
-import { StockAdjustmentFormComponent } from '../../components/stock-adjustment-form/stock-adjustment-form.component';
-import { StockTransferFormComponent } from '../../components/stock-transfer-form/stock-transfer-form.component';
+
 
 export type InventarioTab = 'stock' | 'kardex' | 'ajustes' | 'traspasos';
 
@@ -142,12 +140,15 @@ export class InventarioShellComponent implements OnInit {
     this.refreshTick.update((v) => v + 1);
   }
 
-  protected openAdjustmentDialog(): void {
+  protected async openAdjustmentDialog(): Promise<void> {
     const warehouseId = this.selectedWarehouseId();
     if (!warehouseId) {
       this.notification.warning('Seleccione un almacén primero.', 'Sin selección');
       return;
     }
+    const { StockAdjustmentFormComponent } = await import(
+      '../../components/stock-adjustment-form/stock-adjustment-form.component'
+    );
     const ref = this.dialog.open(StockAdjustmentFormComponent, {
       width: '600px',
       maxWidth: '95vw',
@@ -160,7 +161,7 @@ export class InventarioShellComponent implements OnInit {
     });
   }
 
-  protected openTransferDialog(): void {
+  protected async openTransferDialog(): Promise<void> {
     if (!this.canTransfer()) {
       this.notification.warning(
         'Se necesitan al menos 2 almacenes para realizar un traspaso.',
@@ -168,6 +169,9 @@ export class InventarioShellComponent implements OnInit {
       );
       return;
     }
+    const { StockTransferFormComponent } = await import(
+      '../../components/stock-transfer-form/stock-transfer-form.component'
+    );
     const ref = this.dialog.open(StockTransferFormComponent, {
       width: '640px',
       maxWidth: '95vw',

@@ -1,10 +1,12 @@
 import type { Routes } from '@angular/router';
-import { DashboardOverviewComponent } from './pages/dashboard-overview/dashboard-overview.component';
 
 export const dashboardRoutes: Routes = [
   {
     path: '',
-    component: DashboardOverviewComponent,
+    loadComponent: () =>
+      import('./pages/dashboard-overview/dashboard-overview.component').then(
+        (m) => m.DashboardOverviewComponent,
+      ),
   },
   // TODO: Agregar rutas del feature 'dashboard'
 ];
