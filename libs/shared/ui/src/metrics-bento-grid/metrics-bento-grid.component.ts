@@ -9,7 +9,6 @@
 // =============================================================================
 
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
-import { NgClass } from '@angular/common';
 import type { MetricCardConfig, MetricColorVariant } from './metrics-bento-grid.model';
 
 /** Mapa de clases Tailwind por variante cromática */
@@ -26,7 +25,7 @@ interface VariantStyle {
 @Component({
   selector: 'lib-metrics-bento-grid',
   standalone: true,
-  imports: [NgClass],
+  imports: [],
   templateUrl: './metrics-bento-grid.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'block' },

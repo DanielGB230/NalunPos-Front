@@ -1,77 +1,81 @@
 # Directrices de Seguridad HTTP y Content Security Policy (CSP)
 
-Este documento especifica la política de cabeceras HTTP de seguridad, configuración de Content Security Policy (CSP) y directrices de mitigación de vulnerabilidades para las aplicaciones frontend de **NalunPos** (`NalunPos-Web` y `NalunPos-Admin-Web`).
+Este documento especifica la política de cabeceras HTTP de seguridad, configuración de Content Security Policy (CSP) en el cliente y en el servidor, y directrices de mitigación de vulnerabilidades para las aplicaciones frontend de **NalunPos** (`NalunPos-Web` y `NalunPos-Admin-Web`).
 
 ---
 
-## 1. Cabeceras HTTP de Seguridad Obligatorias
+## 1. Estrategia de Dos Capas para CSP y Cabeceras de Seguridad
 
-Todo servidor web, reverse proxy (Nginx, Caddy, Traefik, Cloudflare) o CDN que sirva los artefactos estáticos del frontend debe inyectar las siguientes cabeceras en todas las respuestas HTTP/HTTPS:
+Por especificación del estándar W3C (CSP Level 2 y 3), existen directivas de seguridad que los navegadores web **únicamente** procesan si son entregadas en las cabeceras de respuesta HTTP del servidor web o reverse proxy, siendo ignoradas si se declaran en una etiqueta `<meta>`.
 
-| Cabecera HTTP                  | Valor Recomendado                                      | Justificación                                                                                                    |
-| ------------------------------ | ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
-| `Content-Security-Policy`      | Ver sección 2                                          | Previene inyecciones XSS, clickjacking y carga de scripts o fuentes no autorizadas.                              |
-| `Strict-Transport-Security`    | `max-age=31536000; includeSubDomains; preload`         | Fuerza conexiones TLS/HTTPS durante 1 año y protege contra ataques de degradación (downgrade).                   |
-| `X-Content-Type-Options`       | `nosniff`                                              | Impide que el navegador intente inferir (sniff) el tipo MIME de los archivos.                                    |
-| `X-Frame-Options`              | `DENY`                                                 | Previene que las aplicaciones sean embebidas en `<frame>`, `<iframe>` u `<object>` (mitigación de clickjacking). |
-| `Referrer-Policy`              | `strict-origin-when-cross-origin`                      | Limita el envío de información sensible en la cabecera `Referer` hacia dominios de terceros.                     |
-| `Permissions-Policy`           | `camera=(), microphone=(), geolocation=(), payment=()` | Deshabilita hardware y APIs de navegador no requeridas por la aplicación POS.                                    |
-| `Cross-Origin-Opener-Policy`   | `same-origin`                                          | Aísla el contexto de ejecución de navegación frente a ventanas abiertas de otros orígenes.                       |
-| `Cross-Origin-Resource-Policy` | `same-origin`                                          | Bloquea la inclusión no autorizada de recursos por orígenes cruzados.                                            |
+Por ende, NalunPos implementa una estrategia de **Defensa en Profundidad en Dos Capas**:
+
+1. **Capa Cliente (`<meta>` en `index.html`)**: Protección intrínseca que viaja con los artefactos estáticos (SPA), activa incluso si la aplicación es probada localmente o servida sin configuración de servidor avanzada.
+2. **Capa Servidor/Edge (Nginx / Cloudflare / Caddy)**: Inyección obligatoria de cabeceras de transporte, aislamiento de contexto y directivas no soportadas por `<meta>`.
 
 ---
 
-## 2. Definición de Content Security Policy (CSP)
+## 2. Capa Cliente: `<meta http-equiv="Content-Security-Policy">`
 
-### 2.1 Política para Entorno de Producción
+Ambas aplicaciones (`apps/NalunPos-Web/src/index.html` y `apps/NalunPos-Admin-Web/src/index.html`) incluyen en su `<head>`:
 
-```http
-Content-Security-Policy:
-  default-src 'self';
-  script-src 'self';
-  style-src 'self' 'unsafe-inline';
-  font-src 'self' data:;
-  img-src 'self' data: https: blob:;
-  connect-src 'self' https://api.nalunpos.com;
-  object-src 'none';
-  base-uri 'self';
-  form-action 'self';
-  frame-ancestors 'none';
-  upgrade-insecure-requests;
+```html
+<meta
+  http-equiv="Content-Security-Policy"
+  content="default-src 'self'; script-src 'self' 'unsafe-hashes' 'sha256-MhtPZXr7+LpJUY5qtMutB+qWfQtMaPccfe7QXtCcEYc='; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: https: blob:; connect-src 'self' http://localhost:* https://*.nalunpos.com; object-src 'none'; base-uri 'self';"
+/>
 ```
 
-### 2.2 Desglose de Directivas
+### Desglose de Directivas en el Cliente:
 
-1. **`default-src 'self'`**: Restringe por defecto la carga de todos los tipos de recursos al mismo origen.
-2. **`script-src 'self'`**: Únicamente permite scripts locales empaquetados por Vite/Angular. Prohíbe terminantemente `unsafe-inline` y `unsafe-eval` en producción.
-3. **`style-src 'self' 'unsafe-inline'`**: Permite estilos de la aplicación y micro-animaciones inyectadas dinámicamente por Angular y Tailwind v4.
-4. **`font-src 'self' data:`**: Todas las tipografías corporativas (Inter, Plus Jakarta Sans, JetBrains Mono, Material Symbols) se alojan de manera autónoma (`@fontsource`). No se permiten llamadas a dominios externos como `fonts.googleapis.com`.
-5. **`img-src 'self' data: https: blob:`**: Permite imágenes locales, avatares y códigos QR generados dinámicamente en formato Data-URI o Blob.
-6. **`connect-src 'self' https://api.nalunpos.com`**: Restringe las llamadas `fetch` y `XMLHttpRequest` exclusivamente al mismo dominio y al dominio del API Backend empresarial.
-7. **`object-src 'none'`**: Deshabilita la ejecución de plugins heredados (Flash, Java, Silverlight).
-8. **`frame-ancestors 'none'`**: Garantiza que ningún sitio web externo pueda incrustar el sistema en un iframe.
+- **`default-src 'self'`**: Todo recurso no especificado explícitamente se restringe al origen de la aplicación.
+- **`script-src 'self' 'unsafe-hashes' 'sha256-MhtPZXr7+LpJUY5qtMutB+qWfQtMaPccfe7QXtCcEYc='`**: Solo se ejecutan scripts compilados y empaquetados por el build de Angular/Vite. El hash SHA-256 (`'sha256-MhtPZXr7+LpJUY5qtMutB+qWfQtMaPccfe7QXtCcEYc='`) y la directiva `'unsafe-hashes'` permiten exclusivamente el micro-manejador de eventos `onload="this.media='all'"` inyectado por la optimización de CSS crítico de Angular CLI (Critters/Beasties) al cargar las hojas de estilo diferidas, impidiendo cualquier otra ejecución inline no autorizada.
+- **`style-src 'self' 'unsafe-inline'`**: Permite estilos compilados y micro-animaciones dinámicas inyectadas por Tailwind CSS v4 y Angular.
+- **`font-src 'self' data:`**: Todas las tipografías corporativas (Inter, Plus Jakarta Sans, JetBrains Mono, Material Symbols) se alojan de forma autónoma en el bundle (`@fontsource`). Cero dependencias de Google Fonts en runtime.
+- **`img-src 'self' data: https: blob:`**: Soporte para imágenes locales, Data-URI (códigos QR, placeholders) y URLs seguras HTTPS.
+- **`connect-src 'self' http://localhost:* https://*.nalunpos.com`**: Restringe las llamadas `fetch`, `XMLHttpRequest` y WebSocket al origen actual, a los puertos de desarrollo local y a los subdominios de la API backend empresarial.
+- **`object-src 'none'`**: Bloquea por completo plugins obsoletos y vectores heredados (Flash, Java, Silverlight).
+- **`base-uri 'self'`**: Previene ataques de inyección de `<base href>` malicioso.
 
 ---
 
-## 3. Ejemplo de Configuración en Servidores Web
+## 3. Capa Servidor / Reverse Proxy (Despliegue Real)
 
-### 3.1 Nginx (`nginx.conf`)
+Las siguientes directivas y cabeceras **NO PUEDEN** ser aplicadas vía `<meta>` (los navegadores emiten advertencias y descartan las directivas si se colocan en `<meta>`):
+
+| Cabecera / Directiva               | Nivel de Inyección | Motivo / Justificación Técnica W3C                                                                                                       |
+| ---------------------------------- | :----------------: | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `frame-ancestors 'none'`           | Cabecera HTTP CSP  | W3C CSP prohíbe evaluar `frame-ancestors` en el DOM; debe evaluarse antes de pintar el documento para evitar clickjacking en `<iframe>`. |
+| `Strict-Transport-Security` (HSTS) |   Cabecera HTTP    | Obliga al navegador a usar TLS/HTTPS; ignorada totalmente dentro de `<meta>`.                                                            |
+| `X-Content-Type-Options: nosniff`  |   Cabecera HTTP    | Controla el análisis MIME en la fase de red del navegador.                                                                               |
+| `Referrer-Policy`                  |   Cabecera HTTP    | Previene filtración de URIs sensibles en la cabecera `Referer` en saltos cross-origin.                                                   |
+| `Permissions-Policy`               |   Cabecera HTTP    | Deshabilita hardware no utilizado (cámara, micrófono, geolocalización) a nivel de proceso del navegador.                                 |
+
+---
+
+## 4. Ejemplos de Configuración para Servidores de Producción
+
+### 4.1 Nginx (`nginx.conf`)
 
 ```nginx
 server {
     listen 443 ssl http2;
-    server_name app.nalunpos.com;
+    server_name *.nalunpos.com;
 
     root /usr/share/nginx/html;
     index index.html;
 
-    # Security Headers
-    add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: https: blob:; connect-src 'self' https://api.nalunpos.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none';" always;
+    # Content-Security-Policy completo en cabecera HTTP (incluyendo frame-ancestors)
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: https: blob:; connect-src 'self' https://*.nalunpos.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none';" always;
+
+    # Cabeceras de Transporte y Aislamiento
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
     add_header X-Content-Type-Options "nosniff" always;
     add_header X-Frame-Options "DENY" always;
     add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-    add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;
+    add_header Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()" always;
+    add_header Cross-Origin-Opener-Policy "same-origin" always;
+    add_header Cross-Origin-Resource-Policy "same-origin" always;
 
     location / {
         try_files $uri $uri/ /index.html;
@@ -79,16 +83,16 @@ server {
 }
 ```
 
-### 3.2 Caddy Server (`Caddyfile`)
+### 4.2 Caddy Server (`Caddyfile`)
 
 ```caddy
-app.nalunpos.com {
+*.nalunpos.com {
     root * /srv/dist/apps/NalunPos-Web/browser
     file_server
     try_files {path} /index.html
 
     header {
-        Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: https: blob:; connect-src 'self' https://api.nalunpos.com; object-src 'none'; frame-ancestors 'none';"
+        Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: https: blob:; connect-src 'self' https://*.nalunpos.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none';"
         Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
         X-Content-Type-Options "nosniff"
         X-Frame-Options "DENY"
@@ -100,7 +104,7 @@ app.nalunpos.com {
 
 ---
 
-## 4. Reglas de Higiene de Código en el Frontend
+## 5. Reglas de Higiene de Código en el Frontend
 
 Para asegurar la integridad del DOM y prevenir vulnerabilidades XSS en el cliente:
 

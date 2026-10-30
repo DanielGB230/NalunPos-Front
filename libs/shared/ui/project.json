@@ -5,13 +5,6 @@
   "sourceRoot": "libs/shared/ui/src",
   "tags": ["scope:shared", "type:ui"],
   "targets": {
-    "lint": {
-      "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"],
-      "options": {
-        "lintFilePatterns": ["libs/shared/ui/**/*.ts", "libs/shared/ui/**/*.html"]
-      }
-    },
     "test": {
       "executor": "nx:run-commands",
       "options": {

@@ -4,7 +4,6 @@
 // Paleta Morado (#ACA0E7) & Celeste (#92AAE7) - Versión Compacta Slim
 // =============================================================================
 
-import { NgClass } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -20,18 +19,18 @@ import type { NotificationData } from './notification.model';
 @Component({
   selector: 'app-toast-notification',
   standalone: true,
-  imports: [NgClass],
+  imports: [],
   template: `
     <div
       class="glass-pill-snackbar rounded-xl p-3 border relative overflow-hidden group w-full min-w-[320px] max-w-md"
-      [ngClass]="borderClass"
+      [class]="borderClass"
       (mouseenter)="onMouseEnter()"
       (mouseleave)="onMouseLeave()"
     >
       <!-- Auto-drain progress bar at bottom -->
       <div
         class="absolute bottom-0 left-0 h-0.5 progress-bar-anim rounded-full"
-        [ngClass]="progressClass"
+        [class]="progressClass"
         [style.animationDuration.ms]="durationMs"
         [style.animationPlayState]="isPaused() ? 'paused' : 'running'"
       ></div>
@@ -40,8 +39,8 @@ import type { NotificationData } from './notification.model';
         <div class="flex items-center gap-2.5 min-w-0">
           <!-- Status Dot & Pulse Ring -->
           <div class="relative flex items-center justify-center shrink-0">
-            <span class="w-2.5 h-2.5 rounded-full shadow-xs" [ngClass]="dotClass"></span>
-            <span class="absolute w-4 h-4 rounded-full pulse-dot" [ngClass]="ringClass"></span>
+            <span class="w-2.5 h-2.5 rounded-full shadow-xs" [class]="dotClass"></span>
+            <span class="absolute w-4 h-4 rounded-full pulse-dot" [class]="pulseAuraClass"></span>
           </div>
 
           <!-- Content Text Block -->
@@ -55,7 +54,7 @@ import type { NotificationData } from './notification.model';
               @if (badgeLabel) {
                 <span
                   class="hidden sm:inline-flex px-1.5 py-0.2 text-[9px] font-extrabold rounded uppercase border tracking-wider shrink-0"
-                  [ngClass]="badgeClass"
+                  [class]="badgeClass"
                 >
                   {{ badgeLabel }}
                 </span>
@@ -77,7 +76,7 @@ import type { NotificationData } from './notification.model';
               type="button"
               (click)="handleAction()"
               class="px-2.5 py-1 rounded-lg text-[10px] font-bold tracking-wide uppercase border shadow-2xs transition active:scale-95 flex items-center gap-1 cursor-pointer font-sans"
-              [ngClass]="actionBtnClass"
+              [class]="actionBtnClass"
             >
               <span>{{ data.actionText }}</span>
             </button>
@@ -270,7 +269,7 @@ export class ToastNotificationComponent implements OnInit, OnDestroy {
     }
   }
 
-  get ringClass(): string {
+  get pulseAuraClass(): string {
     switch (this.data.type) {
       case 'success':
         return 'bg-emerald-400/20';

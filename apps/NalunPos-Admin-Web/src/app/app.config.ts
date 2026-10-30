@@ -13,7 +13,6 @@ import {
 } from '@angular/core';
 import { provideRouter, withComponentInputBinding, withViewTransitions } from '@angular/router';
 import { provideHttpClient, withInterceptors, withFetch } from '@angular/common/http';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { appRoutes } from './app.routes';
 import { environment } from '../environments/environment';
 import {
@@ -34,7 +33,6 @@ import { ADMIN_LOGIN_CONFIG } from './core/config/login.config';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZonelessChangeDetection(),
-    provideAnimationsAsync(),
     provideBrowserGlobalErrorListeners(),
 
     // Carga de configuración validada en runtime (/config.json con fallback a environment)

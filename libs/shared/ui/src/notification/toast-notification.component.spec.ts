@@ -45,7 +45,7 @@ describe('ToastNotificationComponent', () => {
     expect(comp.borderClass).toContain('border');
     expect(comp.progressClass).toContain('emerald');
     expect(comp.dotClass).toContain('emerald');
-    expect(comp.ringClass).toContain('emerald');
+    expect(comp.pulseAuraClass).toContain('emerald');
     expect(comp.badgeClass).toContain('emerald');
     expect(comp.actionBtnClass).toContain('emerald');
 
@@ -103,7 +103,7 @@ describe('ToastNotificationComponent', () => {
     expect(comp.borderClass).toContain('rose');
     expect(comp.progressClass).toContain('rose');
     expect(comp.dotClass).toContain('rose');
-    expect(comp.ringClass).toContain('rose');
+    expect(comp.pulseAuraClass).toContain('rose');
     expect(comp.badgeClass).toContain('rose');
     expect(comp.actionBtnClass).toContain('rose');
   });

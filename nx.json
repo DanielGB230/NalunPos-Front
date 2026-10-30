@@ -7,6 +7,14 @@
     "production": ["default"],
     "sharedGlobals": []
   },
+  "plugins": [
+    {
+      "plugin": "@nx/eslint/plugin",
+      "options": {
+        "targetName": "lint"
+      }
+    }
+  ],
   "targetDefaults": {
     "@angular/build:application": {
       "cache": true,
@@ -23,10 +31,6 @@
     "test": {
       "cache": true,
       "inputs": ["default", "^production"]
-    },
-    "@nx/eslint:lint": {
-      "cache": true,
-      "inputs": ["default", "{workspaceRoot}/.eslintignore", "{workspaceRoot}/eslint.config.js"]
     }
   },
   "generators": {

@@ -4,13 +4,5 @@
   "projectType": "library",
   "sourceRoot": "libs/shared/design-tokens/src",
   "tags": ["scope:shared", "type:util"],
-  "targets": {
-    "lint": {
-      "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"],
-      "options": {
-        "lintFilePatterns": ["libs/shared/design-tokens/**/*.ts"]
-      }
-    }
-  }
+  "targets": {}
 }

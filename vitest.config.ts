@@ -10,8 +10,10 @@ export default defineConfig({
       transform(code: string, id: string) {
         const cleanId = id.split('?')[0] ?? id;
         if (cleanId.endsWith('.ts') && !cleanId.endsWith('.d.ts')) {
-          const legacyDecoratorsProp = 'exp' + 'erimental' + 'Decorators';
           const transformedCode = code.replace(/templateUrl\s*:\s*['"][^'"]+['"]/g, "template: ''");
+          // NOTA TÉCNICA: experimentalDecorators se activa aquí exclusivamente para el runner
+          // JIT en memoria de esbuild en Vitest (TestBed / Angular JIT en Node). Todos los
+          // archivos tsconfig*.json del repositorio tienen 0 experimentalDecorators.
           const res = transformSync(transformedCode, {
             loader: 'ts',
             target: 'es2022',
@@ -19,7 +21,7 @@ export default defineConfig({
             sourcemap: true,
             tsconfigRaw: {
               compilerOptions: {
-                [legacyDecoratorsProp]: true,
+                experimentalDecorators: true,
               },
             },
           });
