@@ -15,16 +15,14 @@ export const appRoutes: Routes = [
   // ─── Login (pública) ─────────────────────────────────────────────────────
   {
     path: 'login',
-    loadComponent: () =>
-      import('@nalunpos/shared/ui').then((m) => m.BaseLoginComponent),
+    loadComponent: () => import('@nalunpos/shared/ui').then((m) => m.BaseLoginComponent),
     title: 'Iniciar sesión — NalunPos Admin',
   },
 
   // ─── Layout Protegido (SuperAdmin exclusivo) ─────────────────────────────
   {
     path: '',
-    loadComponent: () =>
-      import('@nalunpos/shared/ui').then((m) => m.AppShellComponent),
+    loadComponent: () => import('@nalunpos/shared/ui').then((m) => m.AppShellComponent),
     canActivate: [authGuard],
     children: [
       {
@@ -68,14 +66,12 @@ export const appRoutes: Routes = [
   // ─── Páginas de error ─────────────────────────────────────────────────────
   {
     path: 'forbidden',
-    loadComponent: () =>
-      import('@nalunpos/shared/ui').then((m) => m.ForbiddenComponent),
+    loadComponent: () => import('@nalunpos/shared/ui').then((m) => m.ForbiddenComponent),
     title: 'Acceso denegado — NalunPos Admin',
   },
   {
     path: '**',
-    loadComponent: () =>
-      import('@nalunpos/shared/ui').then((m) => m.NotFoundComponent),
+    loadComponent: () => import('@nalunpos/shared/ui').then((m) => m.NotFoundComponent),
     title: 'Página no encontrada — NalunPos Admin',
   },
 ];

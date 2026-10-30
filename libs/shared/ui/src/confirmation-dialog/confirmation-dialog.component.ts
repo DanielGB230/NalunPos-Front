@@ -26,7 +26,9 @@ export class ConfirmationDialogComponent {
   protected readonly confirmText: WritableSignal<string> = signal(
     this.data.confirmText || 'SÍ, CONFIRMAR',
   );
-  protected readonly cancelText: WritableSignal<string> = signal(this.data.cancelText || 'CANCELAR');
+  protected readonly cancelText: WritableSignal<string> = signal(
+    this.data.cancelText || 'CANCELAR',
+  );
   protected readonly variant: WritableSignal<ConfirmationVariant> = signal<ConfirmationVariant>(
     this.data.variant || 'purple',
   );

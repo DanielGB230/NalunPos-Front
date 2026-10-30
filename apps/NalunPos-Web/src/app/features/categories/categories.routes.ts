@@ -4,8 +4,6 @@ export const categoriesRoutes: Routes = [
   {
     path: '',
     loadComponent: () =>
-      import('./pages/category-list/category-list.component').then(
-        (m) => m.CategoryListComponent,
-      ),
+      import('./pages/category-list/category-list.component').then((m) => m.CategoryListComponent),
   },
 ];

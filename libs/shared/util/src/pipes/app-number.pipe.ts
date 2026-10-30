@@ -15,10 +15,7 @@ import { Pipe } from '@angular/core';
   pure: true,
 })
 export class AppNumberPipe implements PipeTransform {
-  transform(
-    value: number | string | null | undefined,
-    digitsInfo: string = '1.2-2',
-  ): string {
+  transform(value: number | string | null | undefined, digitsInfo: string = '1.2-2'): string {
     if (value === null || value === undefined || value === '') return '';
 
     const num = typeof value === 'number' ? value : Number(value);
@@ -36,7 +33,8 @@ export class AppNumberPipe implements PipeTransform {
         minFraction = parseInt(firstFrac, 10) || 0;
       }
       const secondFrac = fracParts.length > 1 ? fracParts[1] : undefined;
-      maxFraction = secondFrac !== undefined ? parseInt(secondFrac, 10) || minFraction : minFraction;
+      maxFraction =
+        secondFrac !== undefined ? parseInt(secondFrac, 10) || minFraction : minFraction;
     }
 
     return new Intl.NumberFormat('en-US', {

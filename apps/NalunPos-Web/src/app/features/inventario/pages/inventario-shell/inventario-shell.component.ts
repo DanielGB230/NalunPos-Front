@@ -18,7 +18,6 @@ import { type Warehouse, WarehouseApiService } from '@nalunpos/shared/data-acces
 import { StockListComponent } from '../../components/stock-list/stock-list.component';
 import { KardexComponent } from '../../components/kardex/kardex.component';
 
-
 export type InventarioTab = 'stock' | 'kardex' | 'ajustes' | 'traspasos';
 
 @Component({

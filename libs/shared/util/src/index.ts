@@ -7,4 +7,3 @@ export * from './tokens/nav-config.interface';
 export * from './tokens/login-config.interface';
 export * from './pipes/app-date.pipe';
 export * from './pipes/app-number.pipe';
-
