@@ -28,7 +28,7 @@
     "@angular/language-service": "~22.2.0",
     "@nx/angular": "23.2.1",
     "@nx/eslint": "23.2.1",
-    "@nx/eslint-plugin": "23.2.1",
+    "@nx/eslint-plugin": "24.0.2",
     "@nx/js": "23.2.1",
     "@nx/playwright": "23.2.1",
     "@nx/vite": "23.2.1",
