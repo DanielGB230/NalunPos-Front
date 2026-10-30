@@ -31,6 +31,14 @@ export class AuthService {
   });
   readonly userRole: Signal<UserRole | null> = computed(() => this._currentUser()?.role ?? null);
   readonly tenantId: Signal<string | null> = computed(() => this._currentUser()?.tenantId ?? null);
+  readonly token: Signal<string | null> = computed(() => this._currentUser()?.token ?? null);
+
+  /**
+   * Retorna el token de autenticación en memoria de la sesión activa, o null si no existe.
+   */
+  getToken(): string | null {
+    return this._currentUser()?.token ?? null;
+  }
 
   private apiUrl = '';
 

@@ -79,6 +79,8 @@ describe('AuthService', () => {
     expect(service.currentUser()?.email).toBe('admin@nalunpos.com');
     expect(service.userRole()).toBe('SuperAdmin');
     expect(service.tenantId()).toBe('tenant-enterprise-01');
+    expect(service.getToken()).toBe(mockAuthResponse.token);
+    expect(service.token()).toBe(mockAuthResponse.token);
 
     expect(sessionStorage.getItem('nalunpos_token')).toBe(mockAuthResponse.token);
     expect(sessionStorage.getItem('nalunpos_session')).toContain('admin@nalunpos.com');

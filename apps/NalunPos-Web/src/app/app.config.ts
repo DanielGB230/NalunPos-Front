@@ -16,7 +16,11 @@ import { provideHttpClient, withInterceptors, withFetch } from '@angular/common/
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { appRoutes } from './app.routes';
 import { environment } from '../environments/environment';
-import { authInterceptor, AuthService } from '@nalunpos/shared/auth';
+import {
+  authTokenInterceptor,
+  sessionExpiredInterceptor,
+  AuthService,
+} from '@nalunpos/shared/auth';
 import {
   APP_CONFIG,
   correlationIdInterceptor,
@@ -51,9 +55,10 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(
       withFetch(),
       withInterceptors([
-        correlationIdInterceptor, // 1° — agrega X-Correlation-Id
-        authInterceptor, // 2° — agrega Authorization: Bearer
-        errorInterceptor, // 3° — traduce errores HTTP → AppError
+        correlationIdInterceptor, // 1° — Agrega X-Correlation-Id
+        authTokenInterceptor, // 2° — Agrega Authorization: Bearer <token>
+        sessionExpiredInterceptor, // 3° — Maneja respuestas 401 (logout/login) y 403 (/forbidden)
+        errorInterceptor, // 4° — Traduce HttpErrorResponse → AppError
       ]),
     ),
 
