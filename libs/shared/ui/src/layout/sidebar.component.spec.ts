@@ -4,7 +4,12 @@ import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { SidebarComponent } from './sidebar.component';
 import { LayoutService } from './layout.service';
-import { APP_NAV_CONFIG, AUTH_GATEWAY, type AppNavConfig, type AuthGateway } from '@nalunpos/shared/util';
+import {
+  APP_NAV_CONFIG,
+  AUTH_GATEWAY,
+  type AppNavConfig,
+  type AuthGateway,
+} from '@nalunpos/shared/util';
 
 describe('SidebarComponent', () => {
   let routerMock: { navigate: ReturnType<typeof vi.fn> };

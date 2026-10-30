@@ -11,10 +11,7 @@ export default defineConfig({
         const cleanId = id.split('?')[0] ?? id;
         if (cleanId.endsWith('.ts') && !cleanId.endsWith('.d.ts')) {
           const legacyDecoratorsProp = 'exp' + 'erimental' + 'Decorators';
-          const transformedCode = code.replace(
-            /templateUrl\s*:\s*['"][^'"]+['"]/g,
-            "template: ''",
-          );
+          const transformedCode = code.replace(/templateUrl\s*:\s*['"][^'"]+['"]/g, "template: ''");
           const res = transformSync(transformedCode, {
             loader: 'ts',
             target: 'es2022',

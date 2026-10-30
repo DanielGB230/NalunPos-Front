@@ -25,10 +25,7 @@ describe('ConfirmationDialogService', () => {
     };
 
     TestBed.configureTestingModule({
-      providers: [
-        ConfirmationDialogService,
-        { provide: MatDialog, useValue: dialogMock },
-      ],
+      providers: [ConfirmationDialogService, { provide: MatDialog, useValue: dialogMock }],
     });
 
     service = TestBed.inject(ConfirmationDialogService);

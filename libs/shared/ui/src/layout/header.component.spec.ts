@@ -6,7 +6,12 @@ import { signal } from '@angular/core';
 import { of } from 'rxjs';
 import { HeaderComponent } from './header.component';
 import { LayoutService } from './layout.service';
-import { APP_NAV_CONFIG, AUTH_GATEWAY, type AppNavConfig, type AuthGateway } from '@nalunpos/shared/util';
+import {
+  APP_NAV_CONFIG,
+  AUTH_GATEWAY,
+  type AppNavConfig,
+  type AuthGateway,
+} from '@nalunpos/shared/util';
 
 describe('HeaderComponent', () => {
   let routerMock: { url: string; events: any; navigate: ReturnType<typeof vi.fn> };

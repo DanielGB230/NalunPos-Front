@@ -4,7 +4,12 @@ import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { BaseLoginComponent } from './base-login.component';
-import { AUTH_GATEWAY, LOGIN_CONFIG, type AuthGateway, type LoginConfig } from '@nalunpos/shared/util';
+import {
+  AUTH_GATEWAY,
+  LOGIN_CONFIG,
+  type AuthGateway,
+  type LoginConfig,
+} from '@nalunpos/shared/util';
 
 describe('BaseLoginComponent', () => {
   let routerMock: { navigate: ReturnType<typeof vi.fn> };
@@ -70,7 +75,9 @@ describe('BaseLoginComponent', () => {
   });
 
   it('debe manejar errores de inicio de sesión', async () => {
-    authGatewayMock.login = vi.fn().mockReturnValue(throwError(() => ({ message: 'Error de credenciales' })));
+    authGatewayMock.login = vi
+      .fn()
+      .mockReturnValue(throwError(() => ({ message: 'Error de credenciales' })));
     const comp = TestBed.inject(BaseLoginComponent);
 
     (comp as any).formModel.set({
