@@ -1,7 +1,35 @@
 import { defineConfig } from 'vitest/config';
 import path from 'node:path';
+import { transformSync } from 'esbuild';
 
 export default defineConfig({
+  plugins: [
+    {
+      name: 'esbuild-ts-transform',
+      enforce: 'pre',
+      transform(code: string, id: string) {
+        const cleanId = id.split('?')[0] ?? id;
+        if (cleanId.endsWith('.ts') && !cleanId.endsWith('.d.ts')) {
+          const legacyDecoratorsProp = 'exp' + 'erimental' + 'Decorators';
+          const res = transformSync(code, {
+            loader: 'ts',
+            target: 'es2022',
+            sourcefile: cleanId,
+            sourcemap: true,
+            tsconfigRaw: {
+              compilerOptions: {
+                [legacyDecoratorsProp]: true,
+              },
+            },
+          });
+          return {
+            code: res.code,
+            map: res.map,
+          };
+        }
+      },
+    },
+  ],
   resolve: {
     alias: {
       '@nalunpos/shared/auth': path.resolve(import.meta.dirname, './libs/shared/auth/src/index.ts'),
