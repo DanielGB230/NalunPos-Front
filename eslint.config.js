@@ -121,6 +121,9 @@ export default tseslint.config(
       'no-unused-vars': 'off',
       'no-undef': 'off',
 
+      // ── Seguridad de logs (Fase 0.1 - Paso 2) ─────────────────────────────
+      'no-console': 'error',
+
       // ── Prohibición de localStorage/sessionStorage fuera de shared-auth ──
       'no-restricted-globals': [
         'error',
@@ -185,6 +188,7 @@ export default tseslint.config(
     files: ['**/*.spec.ts'],
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
+      'no-console': 'off',
     },
   },
 );

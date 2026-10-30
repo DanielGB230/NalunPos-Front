@@ -62,11 +62,8 @@ export class TenantCreateFormComponent {
   }
 
   protected async onSubmit(): Promise<void> {
-    console.log('onSubmit triggered. Current model:', this.formModel());
-
     await submit(this.tenantForm, {
       action: async () => {
-        console.log('Form is valid! Sending request...');
         const currentModel = this.formModel();
 
         const request: CreateTenantRequest = {
@@ -79,8 +76,7 @@ export class TenantCreateFormComponent {
         this.isLoading.set(true);
 
         this.tenantApiService.createTenant(request).subscribe({
-          next: (tenantId) => {
-            console.log('Tenant creado exitosamente con ID:', tenantId);
+          next: () => {
             this.isLoading.set(false);
             this.notificationService.success(
               `El tenant ${request.name} fue aprovisionado exitosamente.`,
@@ -89,7 +85,6 @@ export class TenantCreateFormComponent {
             this.close(true);
           },
           error: (error: unknown) => {
-            console.error('Request failed', error);
             this.isLoading.set(false);
             const errObj =
               typeof error === 'object' && error !== null
@@ -105,7 +100,6 @@ export class TenantCreateFormComponent {
         });
       },
       onInvalid: () => {
-        console.warn('Formulario inválido:', this.formModel());
         const msg =
           'Por favor, complete todos los campos obligatorios respetando el formato requerido.';
         this.notificationService.warning(msg, 'Datos Incompletos');
