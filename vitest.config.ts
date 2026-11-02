@@ -85,8 +85,6 @@ export default defineConfig({
         '**/app.config.ts',
         '**/environments/**',
         '**/*.config.ts',
-        '**/config/**',
-        '**/*.token.ts',
       ],
     },
   },

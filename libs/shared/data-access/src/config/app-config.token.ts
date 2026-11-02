@@ -22,7 +22,7 @@ export const APP_CONFIG = new InjectionToken<AppConfig>('APP_CONFIG');
  * Rechaza el arranque si falta apiUrl o tiene un formato no válido.
  */
 export function validateAppConfig(raw: unknown): AppConfig {
-  if (typeof raw !== 'object' || raw === null) {
+  if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) {
     throw new Error('Configuración de runtime inválida: el contenido debe ser un objeto JSON.');
   }
 
@@ -35,12 +35,33 @@ export function validateAppConfig(raw: unknown): AppConfig {
   }
 
   const trimmedUrl = candidate['apiUrl'].trim();
-  const isValidUrl =
-    trimmedUrl.startsWith('http://') ||
-    trimmedUrl.startsWith('https://') ||
-    trimmedUrl.startsWith('/');
 
-  if (!isValidUrl) {
+  if (trimmedUrl.startsWith('//')) {
+    throw new Error(
+      `Configuración de runtime inválida: apiUrl "${trimmedUrl}" no puede ser una URL relativa al protocolo (//).`,
+    );
+  }
+
+  let normalizedUrl: string;
+
+  if (trimmedUrl.startsWith('http://') || trimmedUrl.startsWith('https://')) {
+    try {
+      const parsed = new URL(trimmedUrl);
+      if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+        throw new Error('Protocolo inválido');
+      }
+      if (!parsed.hostname) {
+        throw new Error('Hostname ausente');
+      }
+    } catch {
+      throw new Error(
+        `Configuración de runtime inválida: apiUrl "${trimmedUrl}" no es una URL válida (esquema http/https malformado).`,
+      );
+    }
+    normalizedUrl = trimmedUrl.replace(/\/+$/, '');
+  } else if (trimmedUrl.startsWith('/')) {
+    normalizedUrl = trimmedUrl.length > 1 ? trimmedUrl.replace(/\/+$/, '') : '/';
+  } else {
     throw new Error(
       `Configuración de runtime inválida: apiUrl "${trimmedUrl}" no es una URL válida (debe iniciar con http://, https:// o /).`,
     );
@@ -54,7 +75,7 @@ export function validateAppConfig(raw: unknown): AppConfig {
       : undefined;
 
   return {
-    apiUrl: trimmedUrl.replace(/\/$/, ''), // normalizar sin slash final
+    apiUrl: normalizedUrl,
     appName,
     production,
     features,
@@ -108,6 +129,19 @@ export class AppConfigService {
       return validatedFallback;
     }
   }
+}
+
+/**
+ * Función helper de nivel superior para cargar y validar AppConfig runtime.
+ * Si se pasa una instancia de AppConfigService, actualiza también su estado reactivo.
+ */
+export async function loadAppConfig(
+  configPath: string,
+  fallback: AppConfig,
+  service?: AppConfigService,
+): Promise<AppConfig> {
+  const targetService = service ?? new AppConfigService();
+  return targetService.loadConfig(configPath, fallback);
 }
 
 /**
