@@ -315,4 +315,53 @@ describe('Cadena Completa de Interceptores HTTP (Test de Integración Real)', ()
 
     req.flush([]);
   });
+
+  it('f) Peticion con colision de prefijo de dominio (https://api.nalunpos.com.evil.io/api/v1/warehouses) → NO adjunta Authorization', () => {
+    vi.spyOn(authService, 'getToken').mockReturnValue('super-secret-token');
+
+    httpClient.get('https://api.nalunpos.com.evil.io/api/v1/warehouses').subscribe();
+
+    const req = httpMock.expectOne('https://api.nalunpos.com.evil.io/api/v1/warehouses');
+    expect(req.request.headers.has('Authorization')).toBe(false);
+    expect(req.request.headers.has('X-Correlation-Id')).toBe(true);
+
+    req.flush([]);
+  });
+
+  it('g) Peticion protocol-relative (//evil.io/api/v1/warehouses) → NO adjunta Authorization', () => {
+    vi.spyOn(authService, 'getToken').mockReturnValue('super-secret-token');
+
+    httpClient.get('//evil.io/api/v1/warehouses').subscribe();
+
+    const req = httpMock.expectOne('//evil.io/api/v1/warehouses');
+    expect(req.request.headers.has('Authorization')).toBe(false);
+    expect(req.request.headers.has('X-Correlation-Id')).toBe(true);
+
+    req.flush([]);
+  });
+
+  it('h) Peticion a subdominio o puerto distinto (https://api.nalunpos.com:8443/api/v1/warehouses) → NO adjunta Authorization', () => {
+    vi.spyOn(authService, 'getToken').mockReturnValue('super-secret-token');
+
+    httpClient.get('https://api.nalunpos.com:8443/api/v1/warehouses').subscribe();
+
+    const req = httpMock.expectOne('https://api.nalunpos.com:8443/api/v1/warehouses');
+    expect(req.request.headers.has('Authorization')).toBe(false);
+    expect(req.request.headers.has('X-Correlation-Id')).toBe(true);
+
+    req.flush([]);
+  });
+
+  it('i) Peticion a ruta relativa /api/v1/warehouses con sesion activa → envia Authorization Bearer y X-Correlation-Id', () => {
+    const activeToken = 'enterprise-relative-token-123';
+    vi.spyOn(authService, 'getToken').mockReturnValue(activeToken);
+
+    httpClient.get('/api/v1/warehouses').subscribe();
+
+    const req = httpMock.expectOne('/api/v1/warehouses');
+    expect(req.request.headers.get('Authorization')).toBe(`Bearer ${activeToken}`);
+    expect(req.request.headers.has('X-Correlation-Id')).toBe(true);
+
+    req.flush([]);
+  });
 });
