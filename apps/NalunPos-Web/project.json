@@ -12,6 +12,7 @@
       "defaultConfiguration": "production",
       "options": {
         "outputPath": "dist/apps/NalunPos-Web",
+        "index": "apps/NalunPos-Web/src/index.html",
         "browser": "apps/NalunPos-Web/src/main.ts",
         "tsConfig": "apps/NalunPos-Web/tsconfig.app.json",
         "inlineStyleLanguage": "css",
@@ -52,7 +53,11 @@
         "development": {
           "optimization": false,
           "extractLicenses": false,
-          "sourceMap": true
+          "sourceMap": true,
+          "index": {
+            "input": "apps/NalunPos-Web/src/index.dev.html",
+            "output": "index.html"
+          }
         }
       }
     },

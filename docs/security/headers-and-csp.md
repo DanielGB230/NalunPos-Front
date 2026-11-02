@@ -10,36 +10,91 @@ Por especificación del estándar W3C (CSP Level 2 y 3), existen directivas de s
 
 Por ende, NalunPos implementa una estrategia de **Defensa en Profundidad en Dos Capas**:
 
-1. **Capa Cliente (`<meta>` en `index.html`)**: Protección intrínseca que viaja con los artefactos estáticos (SPA), activa incluso si la aplicación es probada localmente o servida sin configuración de servidor avanzada.
+1. **Capa Cliente (`<meta>` en `index.html` / `index.dev.html`)**: Protección intrínseca que viaja con los artefactos estáticos (SPA), activa incluso si la aplicación es probada localmente o servida sin configuración de servidor avanzada.
 2. **Capa Servidor/Edge (Nginx / Cloudflare / Caddy)**: Inyección obligatoria de cabeceras de transporte, aislamiento de contexto y directivas no soportadas por `<meta>`.
 
 ---
 
-## 2. Capa Cliente: `<meta http-equiv="Content-Security-Policy">`
+## 2. Segregación Estricta de Entornos: Producción vs Desarrollo
 
-Ambas aplicaciones (`apps/NalunPos-Web/src/index.html` y `apps/NalunPos-Admin-Web/src/index.html`) incluyen en su `<head>`:
+Para garantizar el principio de mínimo privilegio en runtime, se segregan por completo las políticas CSP según el target de compilación en `project.json`:
+
+### 2.1 Política de Producción (`src/index.html`)
+
+El archivo `index.html` de producción elimina por completo cualquier mención a `localhost`, puertos de depuración y comodines abiertos (`*`):
 
 ```html
 <meta
   http-equiv="Content-Security-Policy"
-  content="default-src 'self'; script-src 'self' 'unsafe-hashes' 'sha256-MhtPZXr7+LpJUY5qtMutB+qWfQtMaPccfe7QXtCcEYc='; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: https: blob:; connect-src 'self' http://localhost:* https://*.nalunpos.com; object-src 'none'; base-uri 'self';"
+  content="default-src 'self'; script-src 'self' 'sha256-LMY6wYoFV9I4wWzxaq1N/dTpl4iurQktw706UCHK3vM='; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self' https://api.nalunpos.com; object-src 'none'; base-uri 'self';"
 />
 ```
 
-### Desglose de Directivas en el Cliente:
+#### Desglose de Directivas en Producción:
 
 - **`default-src 'self'`**: Todo recurso no especificado explícitamente se restringe al origen de la aplicación.
-- **`script-src 'self' 'unsafe-hashes' 'sha256-MhtPZXr7+LpJUY5qtMutB+qWfQtMaPccfe7QXtCcEYc='`**: Solo se ejecutan scripts compilados y empaquetados por el build de Angular/Vite. El hash SHA-256 (`'sha256-MhtPZXr7+LpJUY5qtMutB+qWfQtMaPccfe7QXtCcEYc='`) y la directiva `'unsafe-hashes'` permiten exclusivamente el micro-manejador de eventos `onload="this.media='all'"` inyectado por la optimización de CSS crítico de Angular CLI (Critters/Beasties) al cargar las hojas de estilo diferidas, impidiendo cualquier otra ejecución inline no autorizada.
-- **`style-src 'self' 'unsafe-inline'`**: Permite estilos compilados y micro-animaciones dinámicas inyectadas por Tailwind CSS v4 y Angular.
-- **`font-src 'self' data:`**: Todas las tipografías corporativas (Inter, Plus Jakarta Sans, JetBrains Mono, Material Symbols) se alojan de forma autónoma en el bundle (`@fontsource`). Cero dependencias de Google Fonts en runtime.
-- **`img-src 'self' data: https: blob:`**: Soporte para imágenes locales, Data-URI (códigos QR, placeholders) y URLs seguras HTTPS.
-- **`connect-src 'self' http://localhost:* https://*.nalunpos.com`**: Restringe las llamadas `fetch`, `XMLHttpRequest` y WebSocket al origen actual, a los puertos de desarrollo local y a los subdominios de la API backend empresarial.
+- **`script-src 'self' 'sha256-LMY6wYoFV9I4wWzxaq1N/dTpl4iurQktw706UCHK3vM='`**:
+  - Restringe la ejecución exclusivamente a scripts compilados y empaquetados por el build de producción (`'self'`).
+  - Prohíbe `'unsafe-inline'`, `'unsafe-eval'` y `'unsafe-hashes'`.
+  - El hash SHA-256 determinista `'sha256-LMY6wYoFV9I4wWzxaq1N/dTpl4iurQktw706UCHK3vM='` es indispensable para la carga asíncrona de estilos de Angular CLI (ver sección 3).
+- **`style-src 'self' 'unsafe-inline'`**: Permite estilos compilados y clases utilitarias dinámicas inyectadas por Tailwind CSS v4 y Angular Material M3.
+- **`font-src 'self' data:`**: Todas las tipografías corporativas (Inter, Plus Jakarta Sans, JetBrains Mono, Material Symbols) se alojan de forma autónoma en el bundle (`@fontsource`). Cero dependencias externas en runtime.
+- **`img-src 'self' data: blob:`**: Permite únicamente imágenes del mismo origen, Data-URI (códigos QR / avatares dinámicos) y objetos Blob locales. Se eliminó el comodín genérico `https:` para evitar filtraciones por carga de recursos no autenticados.
+- **`connect-src 'self' https://api.nalunpos.com`**: Restringe las llamadas `fetch`, `XMLHttpRequest` y WebSocket estrictamente al origen propio (`'self'`) y al host canónico exacto de la API backend en producción (`https://api.nalunpos.com`). Cero comodines (`*`) y cero orígenes de desarrollo local (`localhost`).
 - **`object-src 'none'`**: Bloquea por completo plugins obsoletos y vectores heredados (Flash, Java, Silverlight).
-- **`base-uri 'self'`**: Previene ataques de inyección de `<base href>` malicioso.
+- **`base-uri 'self'`**: Previene ataques de inyección de etiquetas `<base href>` manipuladas.
+
+### 2.2 Política de Desarrollo Local (`src/index.dev.html`)
+
+Para permitir la depuración local con ASP.NET Core (`https://localhost:7232` u otros puertos de backend), el build de desarrollo (`configurations.development` en `project.json`) reemplaza el archivo de entrada mediante la opción `"index"`:
+
+```html
+<meta
+  http-equiv="Content-Security-Policy"
+  content="default-src 'self'; script-src 'self' 'sha256-LMY6wYoFV9I4wWzxaq1N/dTpl4iurQktw706UCHK3vM='; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob: https:; connect-src 'self' http://localhost:* https://localhost:* https://api.nalunpos.com; object-src 'none'; base-uri 'self';"
+/>
+```
+
+En desarrollo, `connect-src` incluye `http://localhost:*` y `https://localhost:*`, permitiendo al desarrollador conectar con el API backend ejecutándose en un puerto local arbitrario.
 
 ---
 
-## 3. Capa Servidor / Reverse Proxy (Despliegue Real)
+## 3. Evaluación de `'unsafe-hashes'` y Hash SHA-256 en `script-src`
+
+### 3.1 Eliminación de `'unsafe-hashes'`
+
+En la Fase 0.1 se utilizó preventivamente `'unsafe-hashes'` ante la suposición de un manejador de evento inline `onload`.
+Tras la auditoría técnica en Fase 0.2, **se eliminó por completo `'unsafe-hashes'`**, dado que el compilador de Angular 22 (`@angular/build:application` con Beasties) inyecta un elemento `<script>` explícito y no un atributo de evento en el DOM. Por estándar W3C CSP, las etiquetas `<script>` se autorizan directamente mediante su hash criptográfico SHA-256 sin requerir `'unsafe-hashes'`, resultando en una directiva más estricta y segura.
+
+### 3.2 Cadena Exacta y Hash Requerido
+
+- **Cadena en el DOM generada por Beasties**:
+  ```javascript
+  document.querySelectorAll('link[data-beasties-media]').forEach(function (l) {
+    l.media = l.getAttribute('data-beasties-media');
+    l.removeAttribute('data-beasties-media');
+  });
+  ```
+- **Cálculo criptográfico**: `crypto.createHash('sha256').update("document.querySelectorAll('link[data-beasties-media]').forEach(function(l){l.media=l.getAttribute('data-beasties-media');l.removeAttribute('data-beasties-media')})").digest('base64')`
+- **Hash resultante**: `sha256-LMY6wYoFV9I4wWzxaq1N/dTpl4iurQktw706UCHK3vM=`
+
+### 3.3 Mecanismo que lo Requiere
+
+Angular CLI activa por defecto la extracción de CSS crítico (`optimization.styles.inlineCritical: true`).
+Bajo este mecanismo:
+
+1. El CSS esencial para el First Contentful Paint se inyecta directamente en un bloque `<style>` en el `<head>`.
+2. Para evitar bloquear el hilo principal con el resto de hojas de estilo globales (`styles.css` y Angular Material M3), la etiqueta `<link>` se genera en modo diferido:
+   ```html
+   <link rel="stylesheet" href="styles-XXXX.css" media="print" data-beasties-media="all" />
+   <noscript><link rel="stylesheet" href="styles-XXXX.css" /></noscript>
+   ```
+3. Al final del `<body>`, Beasties inserta el micro-script que restaura `media="all"`.
+4. El hash SHA-256 autoriza deterministamente la ejecución de este micro-script específico sin habilitar `'unsafe-inline'`, garantizando que los smoke tests de Playwright y las visitas en producción no sufran bloqueos de CSP ni excepciones de consola.
+
+---
+
+## 4. Capa Servidor / Reverse Proxy (Despliegue Real)
 
 Las siguientes directivas y cabeceras **NO PUEDEN** ser aplicadas vía `<meta>` (los navegadores emiten advertencias y descartan las directivas si se colocan en `<meta>`):
 
@@ -53,20 +108,20 @@ Las siguientes directivas y cabeceras **NO PUEDEN** ser aplicadas vía `<meta>` 
 
 ---
 
-## 4. Ejemplos de Configuración para Servidores de Producción
+## 5. Ejemplos de Configuración para Servidores de Producción
 
-### 4.1 Nginx (`nginx.conf`)
+### 5.1 Nginx (`nginx.conf`)
 
 ```nginx
 server {
     listen 443 ssl http2;
-    server_name *.nalunpos.com;
+    server_name app.nalunpos.com admin.nalunpos.com;
 
     root /usr/share/nginx/html;
     index index.html;
 
-    # Content-Security-Policy completo en cabecera HTTP (incluyendo frame-ancestors)
-    add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: https: blob:; connect-src 'self' https://*.nalunpos.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none';" always;
+    # Content-Security-Policy estricto en cabecera HTTP
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'sha256-LMY6wYoFV9I4wWzxaq1N/dTpl4iurQktw706UCHK3vM='; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self' https://api.nalunpos.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none';" always;
 
     # Cabeceras de Transporte y Aislamiento
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
@@ -83,16 +138,16 @@ server {
 }
 ```
 
-### 4.2 Caddy Server (`Caddyfile`)
+### 5.2 Caddy Server (`Caddyfile`)
 
 ```caddy
-*.nalunpos.com {
+app.nalunpos.com, admin.nalunpos.com {
     root * /srv/dist/apps/NalunPos-Web/browser
     file_server
     try_files {path} /index.html
 
     header {
-        Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: https: blob:; connect-src 'self' https://*.nalunpos.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none';"
+        Content-Security-Policy "default-src 'self'; script-src 'self' 'sha256-LMY6wYoFV9I4wWzxaq1N/dTpl4iurQktw706UCHK3vM='; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self' https://api.nalunpos.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none';"
         Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
         X-Content-Type-Options "nosniff"
         X-Frame-Options "DENY"
@@ -104,7 +159,7 @@ server {
 
 ---
 
-## 5. Reglas de Higiene de Código en el Frontend
+## 6. Reglas de Higiene de Código en el Frontend
 
 Para asegurar la integridad del DOM y prevenir vulnerabilidades XSS en el cliente:
 
