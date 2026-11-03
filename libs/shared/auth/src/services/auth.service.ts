@@ -11,7 +11,12 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import type { Observable } from 'rxjs';
 import { tap } from 'rxjs';
-import type { AuthResponse, LoginRequest, UserRole } from '../interfaces/auth.interfaces';
+import {
+  USER_ROLES,
+  type AuthResponse,
+  type LoginRequest,
+  type UserRole,
+} from '../interfaces/auth.interfaces';
 import { UserSession } from '../models/user-session.model';
 
 interface StoredAuthSession {
@@ -23,8 +28,6 @@ interface StoredAuthSession {
   token: string;
   expiresAt: string;
 }
-
-const VALID_ROLES: readonly string[] = ['SuperAdmin', 'TenantAdmin', 'Cashier', 'Inventory'];
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -121,7 +124,7 @@ export class AuthService {
         parsed.email.trim() === '' ||
         !('role' in parsed) ||
         typeof parsed.role !== 'string' ||
-        !VALID_ROLES.includes(parsed.role) ||
+        !(USER_ROLES as readonly string[]).includes(parsed.role) ||
         !('expiresAt' in parsed) ||
         typeof parsed.expiresAt !== 'string'
       ) {

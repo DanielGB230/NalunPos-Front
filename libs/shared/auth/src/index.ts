@@ -4,6 +4,7 @@
 // =============================================================================
 
 // Contratos de autenticación
+export { USER_ROLES } from './interfaces/auth.interfaces';
 export type {
   LoginRequest,
   AuthResponse,

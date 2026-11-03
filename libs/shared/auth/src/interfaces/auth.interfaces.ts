@@ -26,4 +26,5 @@ export interface AuthUserDto {
   readonly tenantId: string | null;
 }
 
-export type UserRole = 'SuperAdmin' | 'TenantAdmin' | 'Cashier' | 'Inventory';
+export const USER_ROLES = ['SuperAdmin', 'TenantAdmin', 'Cashier', 'Inventory'] as const;
+export type UserRole = (typeof USER_ROLES)[number];
