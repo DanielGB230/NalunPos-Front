@@ -80,6 +80,36 @@ function findIndexFiles(targetPath) {
 }
 
 /**
+ * Detecta el nombre de la app (ej. 'NalunPos-Web' o 'NalunPos-Admin-Web') a partir de la ruta del archivo.
+ */
+function detectAppName(filePath) {
+  const normalized = filePath.replace(/\\/g, '/');
+  const match = normalized.match(/(?:dist\/)?apps\/([^/]+)/);
+  if (match) {
+    return match[1];
+  }
+  return null;
+}
+
+/**
+ * Resuelve la ruta del archivo de configuración de ejemplo de producción para una app dada.
+ */
+function resolveAppExampleConfig(appName) {
+  if (!appName) return null;
+  const candidates = [
+    path.join(workspaceRoot, 'apps', appName, 'config', 'config.example.json'),
+    path.join(workspaceRoot, 'apps', appName, 'config', 'config.prod.example.json'),
+    path.join(workspaceRoot, 'apps', appName, 'config', 'config.prod.json'),
+  ];
+  for (const candidate of candidates) {
+    if (fs.existsSync(candidate)) {
+      return candidate;
+    }
+  }
+  return null;
+}
+
+/**
  * Verifica las restricciones de CSP sobre un archivo index.html compilado.
  */
 function verifyIndexHtml(filePath) {
@@ -104,6 +134,8 @@ function verifyIndexHtml(filePath) {
 
   // c) connect-src NO contiene "localhost" ni "*"
   const connectSrc = directives['connect-src'];
+  let expectedApiOrigin = 'https://api.nalunpos.com'; // Origen canónico de producción por defecto (ADR 0014)
+
   if (!connectSrc || connectSrc.length === 0) {
     errors.push(`Directiva 'connect-src' ausente en la CSP`);
   } else {
@@ -114,6 +146,44 @@ function verifyIndexHtml(filePath) {
       if (token === '*' || token === "'*'") {
         errors.push(`'connect-src' contiene comodín '*' prohibido en producción: "${token}"`);
       }
+    }
+
+    // Coherencia de connect-src con la plantilla de configuración de producción (ADR 0014)
+    const appName = detectAppName(filePath);
+    const configPath = resolveAppExampleConfig(appName);
+
+    if (configPath) {
+      try {
+        const rawConfig = fs.readFileSync(configPath, 'utf-8');
+        const parsedConfig = JSON.parse(rawConfig);
+        if (!parsedConfig.apiUrl || typeof parsedConfig.apiUrl !== 'string') {
+          errors.push(
+            `Plantilla de configuración ${path.relative(workspaceRoot, configPath)} no contiene una propiedad 'apiUrl' válida.`,
+          );
+        } else {
+          expectedApiOrigin = new URL(parsedConfig.apiUrl).origin;
+          console.log(
+            `  ℹ Plantilla config detectada (${path.relative(workspaceRoot, configPath)}): apiUrl origin = "${expectedApiOrigin}"`,
+          );
+        }
+      } catch (err) {
+        errors.push(
+          `Error al parsear plantilla ${path.relative(workspaceRoot, configPath)}: ${err.message}`,
+        );
+      }
+    } else {
+      console.log(
+        `  ℹ Plantilla config.example.json aún no presente en disco; validando contra origen canónico fijado por ADR 0014: "${expectedApiOrigin}"`,
+      );
+    }
+
+    const hasExpectedOrigin = connectSrc.some(
+      (token) => token.toLowerCase() === expectedApiOrigin.toLowerCase(),
+    );
+    if (!hasExpectedOrigin) {
+      errors.push(
+        `El origen de API canónico "${expectedApiOrigin}" NO está explícitamente incluido en 'connect-src' de la CSP. Tokens actuales: [${connectSrc.join(', ')}]`,
+      );
     }
   }
 
@@ -155,6 +225,9 @@ function verifyIndexHtml(filePath) {
       `  ✓ ${inlineScriptCount} script(s) inline verificado(s) con hash SHA-256 válido en 'script-src'.`,
     );
     console.log(`  ✓ 'connect-src' libre de 'localhost' y comodines '*'.`);
+    console.log(
+      `  ✓ Origen canónico de API ("${expectedApiOrigin}") verificado en 'connect-src' (ADR 0014).`,
+    );
     console.log(`  ✓ Sin atributos de eventos inline ('on*=').`);
   } else {
     for (const err of errors) {

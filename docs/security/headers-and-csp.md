@@ -57,6 +57,24 @@ Para permitir la depuración local con ASP.NET Core (`https://localhost:7232` u 
 
 En desarrollo, `connect-src` incluye `http://localhost:*` y `https://localhost:*`, permitiendo al desarrollador conectar con el API backend ejecutándose en un puerto local arbitrario.
 
+### 2.3 Origen Canónico de API y Estrategia de Despliegue (ADR 0014)
+
+Conforme a lo resuelto en el **ADR 0014**, el ecosistema de producción opera bajo una regla de origen canónico estricto:
+
+1. **Host Canónico Único:**
+   - En producción, el host de backend autorizado es única y exclusivamente `https://api.nalunpos.com`.
+   - La CSP embebida en `<meta>` en `src/index.html` lo lista de manera explícita y literal en `connect-src`.
+   - Se prohíben taxativamente comodines (`*`) o comodines de subdominio (`*.nalunpos.com`) en la CSP del cliente SPA.
+
+2. **Regla de Co-Commit Sincronizado:**
+   - La directiva `connect-src` y la configuración de runtime (`/config.json`, plantilla `config.example.json`) deben estar 100% alineadas en todo momento.
+   - Si la infraestructura empresarial requiere alterar el dominio o subdominio de la API, **es mandatorio actualizar la directiva `connect-src` en `src/index.html` y la plantilla de configuración en el mismo commit**. No es admisible un commit que modifique una sin la otra.
+
+3. **Estrategia y Flujo de Despliegue:**
+   - **Compilación e Inmutabilidad:** `nx run-many -t build -c production` genera los artefactos estáticos inmutables en `dist/apps/*/browser`.
+   - **Verificación Automatizada en CI:** Como paso posterior inmediato al build en GitHub Actions, se ejecuta `npm run verify:csp` (`tools/verify-csp.mjs`). Este script valida que el `apiUrl` de la plantilla de configuración esté listado literalmente en `connect-src` y que no existan orígenes de desarrollo o comodines. Si existe discrepancia, el job falla y cancela el despliegue.
+   - **Entrega en Runtime (Servidor Web / Reverse Proxy):** Al desplegar la SPA en el servidor web (Nginx, S3/CloudFront, Caddy), se suministra el archivo `/config.json` apuntando al origen canónico. La CSP inmutable garantiza que ningún intento de inyección o desconfiguración desvíe las credenciales JWT hacia dominios externos.
+
 ---
 
 ## 3. Evaluación de `'unsafe-hashes'` y Hash SHA-256 en `script-src`
