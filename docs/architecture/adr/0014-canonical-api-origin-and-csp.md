@@ -49,4 +49,3 @@ Por ende, se requiere una decisión arquitectónica explícita que resuelva la t
   - Detección determinista y automatizada en pipelines de CI/CD ante cualquier desalineación entre dominios.
 - **Negativas / Compromisos:**
   - Cambiar el dominio de la API de producción requiere generar una nueva compilación y despliegue del frontend (no puede realizarse exclusivamente modificando un archivo estático en el servidor sin actualizar el código fuente). Este compromiso se asume conscientemente en favor de la seguridad de la plataforma.
-
