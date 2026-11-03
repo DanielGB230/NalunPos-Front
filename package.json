@@ -13,6 +13,7 @@
     "format:fix": "prettier --write .",
     "test": "nx run-many -t test",
     "build": "nx run-many -t build",
+    "verify:csp": "node tools/verify-csp.mjs",
     "e2e": "playwright test"
   },
   "private": true,

@@ -20,6 +20,33 @@ test.describe('NalunPos-Admin-Web Smoke Suite', () => {
     expect(consoleErrors).toEqual([]);
   });
 
+  test('no debe registrar violaciones de Content Security Policy (securitypolicyviolation) al cargar /login', async ({
+    page,
+  }) => {
+    await page.addInitScript(() => {
+      window.addEventListener('securitypolicyviolation', (e: SecurityPolicyViolationEvent) => {
+        const globalAny = window as unknown as { __cspViolations?: unknown[] };
+        globalAny.__cspViolations = globalAny.__cspViolations || [];
+        globalAny.__cspViolations.push({
+          blockedURI: e.blockedURI,
+          violatedDirective: e.violatedDirective,
+          originalPolicy: e.originalPolicy,
+        });
+      });
+    });
+
+    await page.goto('/login');
+    await expect(page).toHaveTitle(/NalunPos/i);
+    await expect(page.locator('#email-input')).toBeVisible();
+
+    const recordedViolations = await page.evaluate(() => {
+      const globalAny = window as unknown as { __cspViolations?: unknown[] };
+      return globalAny.__cspViolations || [];
+    });
+
+    expect(recordedViolations).toEqual([]);
+  });
+
   test('debe validar campos requeridos de administrador', async ({ page }) => {
     await page.goto('/login');
     const submitBtn = page.locator('button[type="submit"]');

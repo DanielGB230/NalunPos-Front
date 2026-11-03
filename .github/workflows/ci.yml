@@ -88,6 +88,9 @@ jobs:
             exit 1
           }
 
+      - name: Verify CSP against Production Artifacts
+        run: npm run verify:csp
+
   security-audit:
     name: Security Vulnerability Audit
     runs-on: ubuntu-latest
