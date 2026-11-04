@@ -40,10 +40,10 @@ npm run format:fix
 ### 4. Pruebas Unitarias y Cobertura (Vitest)
 
 ```bash
-# Ejecutar suite completa de pruebas unitarias
+# Ejecutar suite completa de pruebas unitarias (165 tests en 28 suites)
 npx vitest run
 
-# Ejecutar pruebas unitarias con reporte de cobertura de código (>70%)
+# Ejecutar pruebas unitarias con reporte de cobertura de código v8 (43.95% líneas global, >95% en libs core)
 npx vitest run --coverage
 ```
 
@@ -55,6 +55,15 @@ npm run e2e
 # O mediante Playwright CLI
 npx playwright test
 ```
+
+### 6. Verificación de Seguridad y CSP (Build Artifacts)
+
+```bash
+# Verificar integridad de CSP, hashes SHA-256 de scripts inline y ausencia de config.json / localhost en dist
+npm run verify:csp
+```
+
+Herramienta Node nativa ([`tools/verify-csp.mjs`](./tools/verify-csp.mjs)) que valida automáticamente los artefactos de producción en `dist/apps/`. Comprueba que la metaetiqueta CSP exista, que cada `<script>` inline tenga su hash SHA-256 en base64 en `script-src`, que no existan atributos de eventos inline (`on*=`), que `connect-src` apunte al origen canónico de producción (`https://api.nalunpos.com` según ADR 0014) sin `localhost` ni comodines `*`, y que ningún archivo de distribución contenga cadenas `localhost` ni archivos `config.json` de desarrollo.
 
 ---
 
@@ -68,15 +77,21 @@ NalunPos-Front/
 ├── apps/
 │   ├── NalunPos-Web/           # Aplicación POS Operativa Standalone (Angular 22)
 │   └── NalunPos-Admin-Web/     # Aplicación Consola SuperAdmin Standalone (Angular 22)
+├── e2e/
+│   ├── nalunpos-web.smoke.spec.ts       # Pruebas de humo E2E y verificación de CSP en NalunPos-Web
+│   └── nalunpos-admin-web.smoke.spec.ts # Pruebas de humo E2E y verificación de CSP en NalunPos-Admin-Web
 ├── libs/shared/
-│   ├── auth/                   # AuthService, Guards, Interceptors, DTOs de Sesión
-│   ├── data-access/            # Token APP_CONFIG, Correlation-ID, Error Interceptor
-│   ├── ui/                     # Componentes visuales reutilizables, Layouts, Toasts
+│   ├── auth/                   # AuthService, Guards, Interceptors (token, session-expired), Interfaces
+│   ├── data-access/            # Token APP_CONFIG, Correlation-ID, Error Interceptor, Servicios API
+│   ├── ui/                     # Componentes visuales reutilizables, Layouts, Toasts, Auth Gateway
 │   └── design-tokens/          # Tokens M3 centralizados (theme.css), fuentes auto-alojadas
+├── tools/
+│   └── verify-csp.mjs          # Script nativo de verificación de CSP y artefactos compilados
 ├── docs/
 │   ├── architecture/
 │   │   ├── architecture.md     # Documento maestro de arquitectura frontend
-│   │   └── adr/                # Registro de Decisiones de Arquitectura (ADR 0001 - 0012)
+│   │   ├── history/            # Registros históricos de refactorizaciones de hitos
+│   │   └── adr/                # Registro de Decisiones de Arquitectura (ADR 0001 - 0014)
 │   └── security/
 │       └── headers-and-csp.md  # Cabeceras de seguridad y Content Security Policy
 ├── playwright.config.ts        # Configuración de pruebas E2E multi-proyecto
@@ -95,6 +110,6 @@ NalunPos-Front/
 - **Formularios**: Signal Forms (`form()`, binding `[formField]`, validadores funcionales).
 - **Estilos**: Tailwind CSS v4 + Angular Material M3 unificados mediante `libs/shared/design-tokens/src/theme.css` — Cero `!important`.
 - **Tipografías**: 100% auto-alojadas con `@fontsource` (Plus Jakarta Sans, Inter, JetBrains Mono, Material Symbols) — Cero peticiones externas a CDNs.
-- **Configuración de Runtime**: 12-factor compliant vía `/config.json` e inyección de token `APP_CONFIG`.
-- **Seguridad**: 0 usos de `innerHTML` o `bypassSecurityTrust*`. Registro propuesto de in-memory auth con HttpOnly cookie ([ADR 0012](./docs/architecture/adr/0012-in-memory-token-storage-and-httponly-refresh-cookie.md)).
-- **Documentación de Decisiones**: Ver índice completo en [ADR README](./docs/architecture/adr/README.md).
+- **Configuración de Runtime**: 12-factor compliant inyectada vía token `APP_CONFIG`. En producción, `/config.json` es suministrado externamente por el hosting conforme al [ADR 0014](./docs/architecture/adr/0014-canonical-api-origin-and-csp.md).
+- **Seguridad**: 0 usos de `innerHTML` o `bypassSecurityTrust*`. CSP estricta en producción sin `unsafe-inline` ni comodines ([ADR 0014](./docs/architecture/adr/0014-canonical-api-origin-and-csp.md)). Registro propuesto de in-memory auth con HttpOnly cookie ([ADR 0012](./docs/architecture/adr/0012-in-memory-token-storage-and-httponly-refresh-cookie.md)). Deduplicación canónica de datos y tokens ([ADR 0013](./docs/architecture/adr/0013-canonical-data-access-and-ui-tokens-deduplication.md)).
+- **Documentación de Decisiones**: Ver índice completo en [ADR README](./docs/architecture/adr/README.md) (ADR 0001 a 0014) y [Arquitectura](./docs/architecture/architecture.md).

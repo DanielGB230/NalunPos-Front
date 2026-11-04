@@ -31,3 +31,9 @@ Este directorio documenta todas las decisiones arquitectónicas fundamentales ad
 2. **Desacoplamiento Estricto**: Ninguna librería o feature importa dependencias internas violando las reglas de módulos configuradas en `eslint.config.js`.
 3. **Cero Dependencias Comerciales**: El monorepo utiliza exclusivamente librerías de código abierto permissivo (MIT, Apache 2.0, BSD-3-Clause, OFL).
 4. **Configuración Dinámica**: No existen URLs ni endpoints codificados estáticamente en el código fuente de los clientes web.
+
+---
+
+## Registros Históricos de Refactorización
+
+- [Refactor F0-4: Eliminación de Duplicación entre Apps y Extracción a Shared-UI](../history/refactor-f0-4-duplication-elimination.md)

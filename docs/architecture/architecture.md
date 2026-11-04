@@ -11,7 +11,7 @@ El ecosistema frontend de **NalunPos** está construido sobre un **Monorepo Nx**
 
 ### 1.2 Librerías Compartidas (`libs/shared/`)
 
-- **`libs/shared/auth`**: `AuthService`, interceptores de autorización (`authInterceptor`), guards funcionales (`authGuard`, `roleGuard`), interfaces tipadas y modelo de sesión de usuario `UserSession`.
+- **`libs/shared/auth`**: `AuthService`, interceptores de autorización y control de sesión (`authTokenInterceptor`, `sessionExpiredInterceptor`), guards funcionales (`authGuard`, `roleGuard`), interfaces tipadas y modelo de sesión de usuario `UserSession`.
 - **`libs/shared/data-access`**: Configuración dinámica de runtime (`APP_CONFIG`, `AppConfigService`), interceptores globales (`correlationIdInterceptor`, `errorInterceptor`) y modelos de error estandarizados (`ProblemDetails`, `AppError`).
 - **`libs/shared/ui`**: Componentes visuales puros reutilizables (`AppShellComponent`, `HeaderComponent`, `SidebarComponent`, `BaseLoginComponent`, `PageHeroCardComponent`, `MetricsBentoGridComponent`, `QuickFilterBarComponent`, `AdvancedFilterDrawerComponent`, `NotificationService`).
 - **`libs/shared/design-tokens`**: Fuente única de verdad visual M3 (`theme.css`), tokens de diseño semánticos y tipografías auto-alojadas (`@fontsource`).
@@ -42,6 +42,26 @@ graph TD
 2. **`libs/shared/*`** **NUNCA** importan código de `apps/*`.
 3. **`libs/shared/ui`** es de presentación pura; consume tokens de diseño y no realiza peticiones HTTP directas ni gestiona lógica de negocio.
 4. **Cero Dependencias Circulares**: Cada capa tiene un flujo unidireccional estricto.
+
+### 2.1 Cadena de Interceptores HTTP Funcionales y Orden Estricto
+
+Ambas aplicaciones (`apps/NalunPos-Web/src/app/app.config.ts` y `apps/NalunPos-Admin-Web/src/app/app.config.ts`) configuran una cadena idéntica y estricta de interceptores HTTP funcionales mediante `provideHttpClient(withFetch(), withInterceptors([...]))`:
+
+1. **`correlationIdInterceptor`** (1° — `libs/shared/data-access`):
+   - Genera y adjunta la cabecera `X-Correlation-Id` con un UUIDv4 único a cada petición saliente para telemetría y rastreo distribuido.
+2. **`authTokenInterceptor`** (2° — `libs/shared/auth`):
+   - Inyecta la cabecera `Authorization: Bearer <token>` obtenida desde `AuthService`.
+   - **Validación de Origen Estricto (ADR 0014):** Comprueba que el origen de la URL destino coincida de manera exacta con el origen canónico autorizado (`apiUrl`), mitigando colisiones de orígenes y URLs malformadas para prevenir fugas de tokens.
+3. **`sessionExpiredInterceptor`** (3° — `libs/shared/auth`):
+   - Captura respuestas HTTP 401 (Unauthorized) y 403 (Forbidden). En caso de 401, limpia la sesión activa y redirige a `/login`. En caso de 403, redirige a `/forbidden`.
+4. **`errorInterceptor`** (4° — `libs/shared/data-access`):
+   - Captura cualquier `HttpErrorResponse` remanente y lo transforma en el modelo estandarizado de dominio `AppError` (`ProblemDetails` RFC 7807).
+
+**¿Por qué es crítico este orden?**
+
+- `correlationIdInterceptor` debe ser el primero para que cualquier error originado en los interceptores subsecuentes conserve su identificador de correlación.
+- `authTokenInterceptor` debe preceder a los manejadores de respuesta para garantizar que solo se envíen credenciales a destinos autorizados.
+- `sessionExpiredInterceptor` debe ejecutarse antes de `errorInterceptor` para que las expiraciones de sesión (401/403) desencadenen la redirección y limpieza inmediata antes de ser tratadas como errores genéricos de red.
 
 ---
 
@@ -76,11 +96,15 @@ Para erradicar conflictos de especificidad CSS y preservar una identidad visual 
 
 ## 5. Configuración en Runtime (12-Factor App)
 
-Las aplicaciones no contienen URLs de backend hardcodeadas (ADR 0009):
+Las aplicaciones no contienen URLs de backend hardcodeadas (ADR 0009 y ADR 0014):
 
-- En el arranque (`main.ts`), `provideAppInitializer()` solicita `/config.json` servido desde `public/`.
-- La configuración se valida e inyecta a través del token fuertemente tipado `APP_CONFIG`.
-- Principio **"Build Once, Deploy Anywhere"**: El mismo artefacto compilado en producción puede desplegarse en cualquier infraestructura modificando exclusivamente el archivo `/config.json`.
+- **Modelo en Producción**: El build de producción **NO** empaqueta ningún archivo `config.json` en `dist/` ni en `public/`. Los artefactos compilados son completamente inmutables.
+- **Suministro Externo en Despliegue**: El entorno de hosting (Cloudflare Pages, Nginx, CDN o contenedor) provee `/config.json` copiando y adaptando la plantilla `apps/<app>/config/config.example.json` junto a los artefactos estáticos (ADR 0014).
+- **Inyección y Validación Fuerte**: En el arranque (`main.ts`), `provideAppInitializer()` solicita `/config.json`, validándolo estrictamente mediante `validateAppConfig` e inyectándolo a través del token fuertemente tipado `APP_CONFIG`.
+- **Desarrollo Local vs Producción**:
+  - En desarrollo, si `/config.json` no está presente, se utiliza un fallback transparente derivado de `environment.ts` (`https://localhost:7232`).
+  - En producción, opera bajo un principio **fail-closed**: si `/config.json` no existe (HTTP 404) o sus campos son inválidos, la aplicación detiene su inicialización e impide realizar peticiones a endpoints no autorizados.
+- **Principio "Build Once, Deploy Anywhere"**: El mismo artefacto compilado se despliega en cualquier infraestructura modificando exclusivamente el archivo `/config.json` externo.
 
 ---
 
@@ -88,21 +112,25 @@ Las aplicaciones no contienen URLs de backend hardcodeadas (ADR 0009):
 
 1. **Pruebas Unitarias Rápidas con Vitest**:
    - Ejecutadas en entorno `jsdom` con inicialización JIT nativa de Angular 22 (`@angular/compiler` + `@angular/platform-browser/testing`).
-   - Cobertura de código monitoreada con `@vitest/coverage-v8`, con umbral global obligatorio > 70% (actualmente > 96% en lógica de negocio).
-2. **Pruebas E2E Smoke con Playwright**:
-   - Pruebas end-to-end automatizadas en Chromium headless con interceptación y simulación de respuestas API mediante `page.route()`.
-   - Verificación de carga de vistas de login, validaciones reactivas y redirección de navegación tras autenticación exitosa.
+   - Cobertura de código monitoreada con `@vitest/coverage-v8`: 165 tests unitarios en 28 suites pasando al 100%, con cobertura global de 43.95% de líneas en el monorepo y superior al 95% en librerías críticas de lógica de negocio (`libs/shared/auth` y `libs/shared/data-access`).
+2. **Verificación Automatizada de Seguridad de Artefactos y CSP (`verify:csp`)**:
+   - Herramienta nativa [`tools/verify-csp.mjs`](../../tools/verify-csp.mjs) ejecutada en CI tras el build de producción para validar la integridad de directivas CSP, hashes SHA-256 de scripts inline, ausencia total de `config.json` y de `localhost` en artefactos compilados.
+3. **Pruebas E2E Smoke con Playwright**:
+   - Pruebas end-to-end automatizadas en Chromium headless con interceptación de red vía `page.route()`, incluyendo intercepción de `/config.json` y monitoreo de eventos DOM `securitypolicyviolation`.
 
 ---
 
 ## 7. Directrices de Seguridad Frontend
 
 - **Ausencia total de vulnerabilidades XSS**: 0 usos de `innerHTML` crudo y 0 usos de `bypassSecurityTrust*`.
-- **Content Security Policy (CSP)**: Reglas estrictas documentadas en `docs/security/headers-and-csp.md` con prohibición de `unsafe-inline` para scripts y restricción de orígenes autorizados.
+- **Content Security Policy (CSP) Estricta (ADR 0014)**: Origen canónico fijo (`https://api.nalunpos.com`) en `connect-src`, hashes SHA-256 en `script-src` y prohibición absoluta de `unsafe-inline` y comodines `*`.
+- **Deduplicación Canónica de Datos y Tokens UI (ADR 0013)**: Centralización DRY de servicios de datos en `libs/shared/data-access` y abstracción `AUTH_GATEWAY` en `libs/shared/ui`.
 - **Evolución hacia Autenticación Zero-Trust (ADR 0012)**: Almacenamiento en memoria volátil de access tokens de corta duración combinado con refresh tokens en cookies seguras `HttpOnly` y `SameSite=Strict`.
 
 ---
 
-## 8. Registro de Decisiones de Arquitectura (ADRs)
+## 8. Registro de Decisiones de Arquitectura (ADRs) y Registros Históricos
 
-El registro maestro de decisiones se encuentra en [`docs/architecture/adr/README.md`](./adr/README.md), abarcando desde **ADR 0001** hasta **ADR 0012**.
+- **Índice Maestro de ADRs**: El registro maestro de decisiones se encuentra en [`docs/architecture/adr/README.md`](./adr/README.md), abarcando desde **ADR 0001** hasta **ADR 0014**.
+- **Registros Históricos de Refactorización**:
+  - [Refactor F0-4: Eliminación de Duplicación entre Apps y Extracción a Shared-UI](./history/refactor-f0-4-duplication-elimination.md).
