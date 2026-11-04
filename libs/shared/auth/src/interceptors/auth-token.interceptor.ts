@@ -86,7 +86,11 @@ export const authTokenInterceptor: HttpInterceptorFn = (req, next) => {
   }
 
   const baseURI =
-    typeof document !== 'undefined' && document.baseURI ? document.baseURI : 'http://localhost';
+    typeof document !== 'undefined' && document.baseURI
+      ? document.baseURI
+      : typeof window !== 'undefined' && window.location?.origin
+        ? window.location.origin
+        : 'about:blank';
 
   if (!isAuthorizedApiRequest(req.url, baseURI, appConfig?.apiUrl)) {
     return next(req);

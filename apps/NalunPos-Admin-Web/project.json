@@ -26,6 +26,12 @@
       },
       "configurations": {
         "production": {
+          "fileReplacements": [
+            {
+              "replace": "apps/NalunPos-Admin-Web/src/environments/environment.ts",
+              "with": "apps/NalunPos-Admin-Web/src/environments/environment.prod.ts"
+            }
+          ],
           "optimization": {
             "scripts": true,
             "styles": {

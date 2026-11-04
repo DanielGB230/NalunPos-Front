@@ -70,10 +70,15 @@ Conforme a lo resuelto en el **ADR 0014**, el ecosistema de producción opera ba
    - La directiva `connect-src` y la configuración de runtime (`/config.json`, plantilla `config.example.json`) deben estar 100% alineadas en todo momento.
    - Si la infraestructura empresarial requiere alterar el dominio o subdominio de la API, **es mandatorio actualizar la directiva `connect-src` en `src/index.html` y la plantilla de configuración en el mismo commit**. No es admisible un commit que modifique una sin la otra.
 
-3. **Estrategia y Flujo de Despliegue:**
-   - **Compilación e Inmutabilidad:** `nx run-many -t build -c production` genera los artefactos estáticos inmutables en `dist/apps/*/browser`.
-   - **Verificación Automatizada en CI:** Como paso posterior inmediato al build en GitHub Actions, se ejecuta `npm run verify:csp` (`tools/verify-csp.mjs`). Este script valida que el `apiUrl` de la plantilla de configuración esté listado literalmente en `connect-src` y que no existan orígenes de desarrollo o comodines. Si existe discrepancia, el job falla y cancela el despliegue.
-   - **Entrega en Runtime (Servidor Web / Reverse Proxy):** Al desplegar la SPA en el servidor web (Nginx, S3/CloudFront, Caddy), se suministra el archivo `/config.json` apuntando al origen canónico. La CSP inmutable garantiza que ningún intento de inyección o desconfiguración desvíe las credenciales JWT hacia dominios externos.
+3. **Estrategia y Flujo de Despliegue (Fail-Closed):**
+   - **Compilación e Inmutabilidad:** `nx run-many -t build -c production` genera los artefactos estáticos inmutables en `dist/apps/*/browser`. Por política de seguridad, **ningún archivo `config.json` es incluido en el bundle compilado `dist/`**, evitando por diseño arranques accidentales contra `localhost` u orígenes de desarrollo.
+   - **Verificación Automatizada en CI:** Como paso posterior inmediato al build en GitHub Actions, se ejecuta `npm run verify:csp` (`tools/verify-csp.mjs`). Este script valida:
+     a) Que existan obligatoriamente las plantillas `apps/<app>/config/config.example.json` con `"production": true` y origen autorizado.
+     b) Que ningún archivo `config.json` exista en `dist/apps/`.
+     c) Que ningún archivo compilado (`.html`, `.js`, `.css`, `.json`) contenga la cadena `"localhost"`.
+     d) Que el `apiUrl` canónico esté explícitamente permitido en `connect-src` de la CSP. Si existe cualquier discrepancia o residuo, el job falla y cancela el despliegue.
+   - **Aprovisionamiento en Runtime (Servidor Web / Reverse Proxy / Cloud):** Al desplegar la SPA en el servidor web (Nginx, S3/CloudFront, Caddy, etc.), el pipeline de despliegue o administrador del servidor debe proveer `/config.json` en la raíz del virtual host a partir de la plantilla `apps/<app>/config/config.example.json`.
+   - **Comportamiento Fail-Closed:** Si el servidor web no suministra `/config.json` (HTTP 404), la aplicación aborta inmediatamente el bootstrap con un error explícito y no arranca, garantizando que nunca opere con datos residuales ni configuraciones vulnerables.
 
 ---
 

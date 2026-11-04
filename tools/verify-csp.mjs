@@ -5,7 +5,9 @@ import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const workspaceRoot = path.resolve(__dirname, '..');
+const defaultWorkspaceRoot = path.resolve(__dirname, '..');
+
+const REQUIRED_APPS = ['NalunPos-Web', 'NalunPos-Admin-Web'];
 
 /**
  * Extrae el valor del atributo content de la etiqueta <meta http-equiv="Content-Security-Policy">
@@ -84,6 +86,11 @@ function findIndexFiles(targetPath) {
  */
 function detectAppName(filePath) {
   const normalized = filePath.replace(/\\/g, '/');
+  for (const app of REQUIRED_APPS) {
+    if (normalized.includes(app)) {
+      return app;
+    }
+  }
   const match = normalized.match(/(?:dist\/)?apps\/([^/]+)/);
   if (match) {
     return match[1];
@@ -92,29 +99,133 @@ function detectAppName(filePath) {
 }
 
 /**
- * Resuelve la ruta del archivo de configuración de ejemplo de producción para una app dada.
+ * Verifica la existencia y contenido de las plantillas apps/<app>/config/config.example.json.
  */
-function resolveAppExampleConfig(appName) {
-  if (!appName) return null;
-  const candidates = [
-    path.join(workspaceRoot, 'apps', appName, 'config', 'config.example.json'),
-    path.join(workspaceRoot, 'apps', appName, 'config', 'config.prod.example.json'),
-    path.join(workspaceRoot, 'apps', appName, 'config', 'config.prod.json'),
-  ];
-  for (const candidate of candidates) {
-    if (fs.existsSync(candidate)) {
-      return candidate;
+function verifyAppTemplates(appsRoot) {
+  console.log(
+    `\n--- 1. Verificación de plantillas de configuración de producción (config.example.json) ---`,
+  );
+  const errors = [];
+  const appConfigs = {};
+
+  for (const app of REQUIRED_APPS) {
+    const configPath = path.join(appsRoot, 'apps', app, 'config', 'config.example.json');
+    const relativePath = path.relative(appsRoot, configPath);
+
+    if (!fs.existsSync(configPath)) {
+      errors.push(`Falta la plantilla requerida de configuración de producción: ${relativePath}`);
+      console.error(`  ✗ ERROR: ${relativePath} no existe.`);
+      continue;
+    }
+
+    try {
+      const raw = fs.readFileSync(configPath, 'utf-8');
+      const parsed = JSON.parse(raw);
+
+      if (typeof parsed.apiUrl !== 'string' || !parsed.apiUrl.trim()) {
+        errors.push(`La plantilla ${relativePath} debe contener una propiedad 'apiUrl' no vacía.`);
+      }
+
+      if (parsed.production !== true) {
+        errors.push(
+          `La plantilla ${relativePath} debe contener '"production": true' (se encontró: ${parsed.production}).`,
+        );
+      }
+
+      const parsedUrl = new URL(parsed.apiUrl);
+      appConfigs[app] = {
+        configPath,
+        apiUrl: parsed.apiUrl,
+        origin: parsedUrl.origin,
+      };
+      console.log(`  ✓ ${relativePath} verificado: production=true, origin="${parsedUrl.origin}"`);
+    } catch (err) {
+      errors.push(`Error al leer o parsear ${relativePath}: ${err.message}`);
+      console.error(`  ✗ ERROR: ${relativePath}: ${err.message}`);
     }
   }
-  return null;
+
+  return { errors, appConfigs };
+}
+
+/**
+ * Verifica que NO exista ningún archivo config.json dentro de la carpeta de artefactos de distribución.
+ */
+function verifyNoConfigJsonInDist(distDir, workspaceRoot) {
+  console.log(`\n--- 2. Verificación de exclusión de config.json en artefactos compilados ---`);
+  const errors = [];
+  if (!fs.existsSync(distDir)) {
+    return errors;
+  }
+
+  function scan(dir) {
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    for (const entry of entries) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        scan(full);
+      } else if (entry.name.toLowerCase() === 'config.json') {
+        const rel = path.relative(workspaceRoot, full);
+        errors.push(`Archivo 'config.json' de desarrollo detectado indebidamente en dist: ${rel}`);
+        console.error(`  ✗ ERROR: Archivo config.json presente en el artefacto: ${rel}`);
+      }
+    }
+  }
+
+  scan(distDir);
+  if (errors.length === 0) {
+    console.log(`  ✓ Ningún archivo 'config.json' encontrado en los artefactos compilados.`);
+  }
+  return errors;
+}
+
+/**
+ * Verifica que ningún archivo (.html, .js, .css, .json) dentro de dist contenga la cadena 'localhost'.
+ */
+function verifyNoLocalhostInDist(distDir, workspaceRoot) {
+  console.log(`\n--- 3. Verificación de ausencia de 'localhost' en artefactos compilados ---`);
+  const errors = [];
+  if (!fs.existsSync(distDir)) {
+    return errors;
+  }
+
+  const validExts = new Set(['.html', '.js', '.css', '.json']);
+
+  function scan(dir) {
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    for (const entry of entries) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        scan(full);
+      } else {
+        const ext = path.extname(entry.name).toLowerCase();
+        if (validExts.has(ext)) {
+          const content = fs.readFileSync(full, 'utf-8');
+          if (/localhost/i.test(content)) {
+            const rel = path.relative(workspaceRoot, full);
+            errors.push(`Cadena 'localhost' prohibida detectada en artefacto: ${rel}`);
+            console.error(`  ✗ ERROR: ${rel} contiene la cadena 'localhost'.`);
+          }
+        }
+      }
+    }
+  }
+
+  scan(distDir);
+  if (errors.length === 0) {
+    console.log(
+      `  ✓ Cero apariciones de 'localhost' en todos los archivos compilados (.html, .js, .css, .json).`,
+    );
+  }
+  return errors;
 }
 
 /**
  * Verifica las restricciones de CSP sobre un archivo index.html compilado.
  */
-function verifyIndexHtml(filePath) {
+function verifyIndexHtml(filePath, appConfigs, workspaceRoot) {
   const relativePath = path.relative(workspaceRoot, filePath);
-  console.log(`\n[verify-csp] Analizando: ${relativePath}`);
+  console.log(`\n--- 4. Verificación de CSP en index.html: ${relativePath} ---`);
 
   if (!fs.existsSync(filePath)) {
     return [`El archivo no existe: ${filePath}`];
@@ -126,7 +237,10 @@ function verifyIndexHtml(filePath) {
   // d) La meta CSP existe
   const cspContent = extractCspMeta(html);
   if (!cspContent) {
-    errors.push(`No se encontró la etiqueta <meta http-equiv="Content-Security-Policy">`);
+    errors.push(
+      `No se encontró la etiqueta <meta http-equiv="Content-Security-Policy"> en ${relativePath}`,
+    );
+    console.error(`  ✗ ERROR: Etiqueta meta CSP ausente.`);
     return errors;
   }
 
@@ -134,47 +248,25 @@ function verifyIndexHtml(filePath) {
 
   // c) connect-src NO contiene "localhost" ni "*"
   const connectSrc = directives['connect-src'];
-  let expectedApiOrigin = 'https://api.nalunpos.com'; // Origen canónico de producción por defecto (ADR 0014)
+  const appName = detectAppName(filePath);
+  const appConfig = appName ? appConfigs[appName] : null;
+  const expectedApiOrigin = appConfig ? appConfig.origin : 'https://api.nalunpos.com';
 
   if (!connectSrc || connectSrc.length === 0) {
-    errors.push(`Directiva 'connect-src' ausente en la CSP`);
+    errors.push(`Directiva 'connect-src' ausente en la CSP de ${relativePath}`);
+    console.error(`  ✗ ERROR: Directiva connect-src ausente.`);
   } else {
     for (const token of connectSrc) {
       if (/localhost/i.test(token)) {
-        errors.push(`'connect-src' contiene 'localhost' prohibido en producción: "${token}"`);
-      }
-      if (token === '*' || token === "'*'") {
-        errors.push(`'connect-src' contiene comodín '*' prohibido en producción: "${token}"`);
-      }
-    }
-
-    // Coherencia de connect-src con la plantilla de configuración de producción (ADR 0014)
-    const appName = detectAppName(filePath);
-    const configPath = resolveAppExampleConfig(appName);
-
-    if (configPath) {
-      try {
-        const rawConfig = fs.readFileSync(configPath, 'utf-8');
-        const parsedConfig = JSON.parse(rawConfig);
-        if (!parsedConfig.apiUrl || typeof parsedConfig.apiUrl !== 'string') {
-          errors.push(
-            `Plantilla de configuración ${path.relative(workspaceRoot, configPath)} no contiene una propiedad 'apiUrl' válida.`,
-          );
-        } else {
-          expectedApiOrigin = new URL(parsedConfig.apiUrl).origin;
-          console.log(
-            `  ℹ Plantilla config detectada (${path.relative(workspaceRoot, configPath)}): apiUrl origin = "${expectedApiOrigin}"`,
-          );
-        }
-      } catch (err) {
         errors.push(
-          `Error al parsear plantilla ${path.relative(workspaceRoot, configPath)}: ${err.message}`,
+          `'connect-src' contiene 'localhost' prohibido en producción: "${token}" en ${relativePath}`,
         );
       }
-    } else {
-      console.log(
-        `  ℹ Plantilla config.example.json aún no presente en disco; validando contra origen canónico fijado por ADR 0014: "${expectedApiOrigin}"`,
-      );
+      if (token === '*' || token === "'*'") {
+        errors.push(
+          `'connect-src' contiene comodín '*' prohibido en producción: "${token}" en ${relativePath}`,
+        );
+      }
     }
 
     const hasExpectedOrigin = connectSrc.some(
@@ -182,7 +274,10 @@ function verifyIndexHtml(filePath) {
     );
     if (!hasExpectedOrigin) {
       errors.push(
-        `El origen de API canónico "${expectedApiOrigin}" NO está explícitamente incluido en 'connect-src' de la CSP. Tokens actuales: [${connectSrc.join(', ')}]`,
+        `El origen de API canónico "${expectedApiOrigin}" de config.example.json NO está en 'connect-src' de ${relativePath}. Tokens: [${connectSrc.join(', ')}]`,
+      );
+      console.error(
+        `  ✗ ERROR: Origen "${expectedApiOrigin}" no autorizado en connect-src: [${connectSrc.join(', ')}]`,
       );
     }
   }
@@ -191,7 +286,10 @@ function verifyIndexHtml(filePath) {
   const inlineEventHandlerRegex = /\s(on[a-z]+)\s*=\s*['"][^'"]*['"]/gi;
   let eventMatch;
   while ((eventMatch = inlineEventHandlerRegex.exec(html)) !== null) {
-    errors.push(`Atributo de evento inline detectado: "${eventMatch[0].trim()}"`);
+    errors.push(
+      `Atributo de evento inline detectado: "${eventMatch[0].trim()}" en ${relativePath}`,
+    );
+    console.error(`  ✗ ERROR: Evento inline "${eventMatch[0].trim()}".`);
   }
 
   // a) Cada <script> inline sin src debe tener su sha256 (base64) en script-src
@@ -213,8 +311,9 @@ function verifyIndexHtml(filePath) {
       const found = scriptSrcTokens.some((t) => t.toLowerCase() === expectedToken.toLowerCase());
       if (!found) {
         errors.push(
-          `Script inline (#${inlineScriptCount}) con hash SHA-256 "${expectedToken}" NO está autorizado en 'script-src'.\n  Contenido: "${scriptBody.trim().substring(0, 120)}..."`,
+          `Script inline (#${inlineScriptCount}) con hash SHA-256 "${expectedToken}" NO está autorizado en 'script-src' en ${relativePath}.\n  Contenido: "${scriptBody.trim().substring(0, 120)}..."`,
         );
+        console.error(`  ✗ ERROR: Script inline con hash ${expectedToken} no autorizado.`);
       }
     }
   }
@@ -229,49 +328,66 @@ function verifyIndexHtml(filePath) {
       `  ✓ Origen canónico de API ("${expectedApiOrigin}") verificado en 'connect-src' (ADR 0014).`,
     );
     console.log(`  ✓ Sin atributos de eventos inline ('on*=').`);
-  } else {
-    for (const err of errors) {
-      console.error(`  ✗ ERROR: ${err}`);
-    }
   }
 
   return errors;
 }
 
 function main() {
-  const customTarget = process.argv[2];
-  const targetPath = customTarget
-    ? path.resolve(process.cwd(), customTarget)
+  const customDistTarget = process.argv[2];
+  const customWorkspaceRoot = process.argv[3];
+
+  const workspaceRoot = customWorkspaceRoot
+    ? path.resolve(process.cwd(), customWorkspaceRoot)
+    : defaultWorkspaceRoot;
+
+  const targetDistPath = customDistTarget
+    ? path.resolve(process.cwd(), customDistTarget)
     : path.join(workspaceRoot, 'dist', 'apps');
 
   console.log(`=============================================================================`);
-  console.log(`Verificación de Content Security Policy (CSP) contra artefactos construidos`);
-  console.log(`Ruta objetivo: ${targetPath}`);
+  console.log(`Verificación de Artefactos de Producción y Content Security Policy (CSP)`);
+  console.log(`Workspace:  ${workspaceRoot}`);
+  console.log(`Artefactos: ${targetDistPath}`);
   console.log(`=============================================================================`);
 
-  const indexFiles = findIndexFiles(targetPath);
+  let totalErrors = 0;
 
+  // 1. Validar plantillas apps/*/config/config.example.json
+  const { errors: templateErrors, appConfigs } = verifyAppTemplates(workspaceRoot);
+  totalErrors += templateErrors.length;
+
+  // 2. Validar que no exista config.json en dist
+  const noConfigJsonErrors = verifyNoConfigJsonInDist(targetDistPath, workspaceRoot);
+  totalErrors += noConfigJsonErrors.length;
+
+  // 3. Validar que no exista "localhost" en dist
+  const noLocalhostErrors = verifyNoLocalhostInDist(targetDistPath, workspaceRoot);
+  totalErrors += noLocalhostErrors.length;
+
+  // 4. Validar index.html y CSP en cada bundle
+  const indexFiles = findIndexFiles(targetDistPath);
   if (indexFiles.length === 0) {
     console.error(
-      `\n✗ ERROR CRÍTICO: No se encontraron archivos 'index.html' para verificar en:\n  ${targetPath}`,
+      `\n✗ ERROR CRÍTICO: No se encontraron archivos 'index.html' en:\n  ${targetDistPath}`,
     );
-    console.error(`Asegúrese de ejecutar primero 'nx run-many -t build -c production'.`);
     process.exit(1);
   }
 
-  let totalErrors = 0;
   for (const file of indexFiles) {
-    const fileErrors = verifyIndexHtml(file);
+    const fileErrors = verifyIndexHtml(file, appConfigs, workspaceRoot);
     totalErrors += fileErrors.length;
   }
 
-  console.log(`\n-----------------------------------------------------------------------------`);
+  console.log(`\n=============================================================================`);
   if (totalErrors > 0) {
-    console.error(`✗ VERIFICACIÓN FALLIDA: Se encontraron ${totalErrors} problema(s) de CSP.`);
+    console.error(
+      `✗ VERIFICACIÓN FALLIDA: Se encontraron ${totalErrors} problema(s) en artefactos.`,
+    );
     process.exit(1);
   } else {
     console.log(
-      `✓ VERIFICACIÓN EXITOSA: Todos los artefactos (${indexFiles.length}) cumplen estrictamente la CSP.`,
+      `✓ VERIFICACIÓN EXITOSA: Todos los artefactos cumplen estrictamente seguridad y CSP.`,
     );
     process.exit(0);
   }

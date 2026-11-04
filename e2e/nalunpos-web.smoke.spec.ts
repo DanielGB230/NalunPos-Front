@@ -1,6 +1,21 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('NalunPos-Web Smoke Suite', () => {
+  test.beforeEach(async ({ page }) => {
+    // Interceptación de /config.json para servir configuración runtime de producción sin requerir config.json en dist
+    await page.route('**/config.json', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          apiUrl: 'https://api.nalunpos.com',
+          appName: 'NalunPos — Panel Operativo',
+          production: true,
+        }),
+      });
+    });
+  });
+
   test('debe cargar la pantalla de login sin errores de consola no controlados', async ({
     page,
   }) => {
