@@ -1,9 +1,11 @@
 ---
 name: inventory-domain-rules
-description: Reglas del dominio de inventario, Kardan/Ledger de stock y concurrencia (inventory-001, inventory-002, inventory-003). Usar al trabajar con stock, movimientos de almacén, transferencias o ajustes.
+description: Reglas del dominio de inventario, Kardex/Ledger de stock y concurrencia (inventory-001, inventory-002, inventory-003). Usar al trabajar con stock, movimientos de almacén, transferencias o ajustes.
 ---
 
 <!-- Origen: D:\NalunPosApp\.agents\skills\inventory-domain-rules (copiado el 2026-11-05) -->
+
+> **Nota:** Las especificaciones de dominio que cita este skill (inventory-001, inventory-002, inventory-003) corresponden al repositorio NalunPos-Api, NO a docs/architecture/adr de este repo. En el frontend prevalecen AGENTS.md y los ADR 0001-0014 locales.
 
 # NalunPos Inventory Domain Rules Skill
 

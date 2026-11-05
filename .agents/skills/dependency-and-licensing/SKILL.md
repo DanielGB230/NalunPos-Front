@@ -5,6 +5,8 @@ description: Políticas de licenciamiento de código de terceros y reemplazo de 
 
 <!-- Origen: D:\NalunPosApp\.agents\skills\dependency-and-licensing (copiado el 2026-11-05) -->
 
+> **Nota:** Los números de ADR que cita este skill (ADR 0013, ADR 0014) corresponden al repositorio NalunPos-Api, NO a docs/architecture/adr de este repo. En el frontend prevalecen AGENTS.md y los ADR 0001-0014 locales.
+
 # NalunPos Dependency & Licensing Policy Skill
 
 ## 1. Política de Licencias (ADR 0013)

@@ -5,6 +5,8 @@ description: Arquitectura de Multi-tenancy SaaS, aislamiento de datos, onboardin
 
 <!-- Origen: D:\NalunPosApp\.agents\skills\saas-multitenancy-and-security (copiado el 2026-11-05) -->
 
+> **Nota:** Los números de ADR que cita este skill (ADR 0008, ADR 0009, ADR 0012, ADR 0015) corresponden al repositorio NalunPos-Api, NO a docs/architecture/adr de este repo. En el frontend prevalecen AGENTS.md y los ADR 0001-0014 locales.
+
 # NalunPos SaaS Multi-Tenancy & Security Skill
 
 ## 1. Estrategia de Aislamiento de Tenant (ADR 0008, ADR 0009)
