@@ -150,7 +150,7 @@ Las aplicaciones no contienen URLs de backend hardcodeadas (ADR 0009 y ADR 0014)
 
 - **Ausencia total de vulnerabilidades XSS**: 0 usos de `innerHTML` crudo y 0 usos de `bypassSecurityTrust*`.
 - **Content Security Policy (CSP) Estricta (ADR 0014)**: Origen canónico fijo (`https://api.nalunpos.com`) en `connect-src`, hashes SHA-256 y cero `'unsafe-inline'` en `script-src`; `style-src` permite `'unsafe-inline'` por requerimiento dinámico de Tailwind CSS v4 y Angular Material M3, con prohibición absoluta de comodines `*` en orígenes de red.
-- **Deduplicación Canónica de Datos y Tokens UI (ADR 0013)**: Centralización DRY de servicios de datos en `libs/shared/data-access` y abstracción `AUTH_GATEWAY` en `libs/shared/ui`.
+- **Deduplicación Canónica de Datos y Tokens UI (ADR 0013)**: Centralización DRY de servicios de datos en `libs/shared/data-access` y abstracción desacoplada `AUTH_GATEWAY` en `libs/shared/util` (consumida por `libs/shared/ui` y provista en `apps/*` con `AuthService`).
 - **Evolución hacia Autenticación Zero-Trust (ADR 0012)**: Almacenamiento en memoria volátil de access tokens de corta duración combinado con refresh tokens en cookies seguras `HttpOnly` y `SameSite=Strict`.
 
 ---

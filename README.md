@@ -83,7 +83,8 @@ NalunPos-Front/
 ├── libs/shared/
 │   ├── auth/                   # AuthService, Guards, Interceptors (token, session-expired), Interfaces
 │   ├── data-access/            # Token APP_CONFIG, Correlation-ID, Error Interceptor, Servicios API
-│   ├── ui/                     # Componentes visuales reutilizables, Layouts, Toasts, Auth Gateway
+│   ├── ui/                     # Componentes visuales reutilizables, Layouts, Toasts, Consumo de Auth Gateway
+│   ├── util/                   # Pipes de formato, Tokens desacoplados (AUTH_GATEWAY, APP_NAV_CONFIG)
 │   └── design-tokens/          # Tokens M3 centralizados (theme.css), fuentes auto-alojadas
 ├── tools/
 │   └── verify-csp.mjs          # Script nativo de verificación de CSP y artefactos compilados
