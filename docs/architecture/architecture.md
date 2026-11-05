@@ -47,21 +47,43 @@ graph TD
 
 Ambas aplicaciones (`apps/NalunPos-Web/src/app/app.config.ts` y `apps/NalunPos-Admin-Web/src/app/app.config.ts`) configuran una cadena idéntica y estricta de interceptores HTTP funcionales mediante `provideHttpClient(withFetch(), withInterceptors([...]))`:
 
-1. **`correlationIdInterceptor`** (1° — `libs/shared/data-access`):
-   - Genera y adjunta la cabecera `X-Correlation-Id` con un UUIDv4 único a cada petición saliente para telemetría y rastreo distribuido.
-2. **`authTokenInterceptor`** (2° — `libs/shared/auth`):
-   - Inyecta la cabecera `Authorization: Bearer <token>` obtenida desde `AuthService`.
-   - **Validación de Origen Estricto (ADR 0014):** Comprueba que el origen de la URL destino coincida de manera exacta con el origen canónico autorizado (`apiUrl`), mitigando colisiones de orígenes y URLs malformadas para prevenir fugas de tokens.
-3. **`sessionExpiredInterceptor`** (3° — `libs/shared/auth`):
-   - Captura respuestas HTTP 401 (Unauthorized) y 403 (Forbidden). En caso de 401, limpia la sesión activa y redirige a `/login`. En caso de 403, redirige a `/forbidden`.
-4. **`errorInterceptor`** (4° — `libs/shared/data-access`):
-   - Captura cualquier `HttpErrorResponse` remanente y lo transforma en el modelo estandarizado de dominio `AppError` (`ProblemDetails` RFC 7807).
+```typescript
+withInterceptors([
+  correlationIdInterceptor, // 1° — Agrega X-Correlation-Id
+  authTokenInterceptor, // 2° — Agrega Authorization: Bearer <token>
+  sessionExpiredInterceptor, // 3° — Maneja respuestas 401 (logout/login) y 403 (/forbidden)
+  errorInterceptor, // 4° — Traduce HttpErrorResponse → AppError
+]);
+```
 
-**¿Por qué es crítico este orden?**
+#### Flujo Bidireccional de RxJS y Mecánica Real de la Cadena
 
-- `correlationIdInterceptor` debe ser el primero para que cualquier error originado en los interceptores subsecuentes conserve su identificador de correlación.
-- `authTokenInterceptor` debe preceder a los manejadores de respuesta para garantizar que solo se envíen credenciales a destinos autorizados.
-- `sessionExpiredInterceptor` debe ejecutarse antes de `errorInterceptor` para que las expiraciones de sesión (401/403) desencadenen la redirección y limpieza inmediata antes de ser tratadas como errores genéricos de red.
+En Angular `provideHttpClient(withInterceptors([...]))`, las peticiones y las respuestas/errores recorren el arreglo en sentidos opuestos:
+
+1. **Flujo de Peticiones Salientes (Request — Izquierda a Derecha / 1° → 4°):**
+   - **`correlationIdInterceptor` (1°)**: Genera y adjunta la cabecera `X-Correlation-Id` con un UUIDv4 único a la solicitud saliente antes de que continúe su viaje.
+   - **`authTokenInterceptor` (2°)**: Inyecta la cabecera `Authorization: Bearer <token>` obtenida desde `AuthService`, tras validar coincidencia exacta de origen contra `apiUrl` (ADR 0014) y mitigar colisiones de dominios o URLs malformadas.
+   - **`sessionExpiredInterceptor` (3°)**: Pasa la petición intacta hacia adelante invocando `next(req)`.
+   - **`errorInterceptor` (4°)**: Pasa la petición directamente hacia el backend invocando `next(req)`.
+
+2. **Flujo de Respuestas y Errores Entrantes (Response / Error — Derecha a Izquierda / 4° → 1°):**
+   - **`errorInterceptor` (4° en la lista — PRIMERO en la ruta de retorno de error):**
+     Al ser el último interceptor declarado, su operador `catchError` se ejecuta en primer lugar ante cualquier fallo de red o respuesta HTTP de error. Convierte **TODOS** los errores HTTP (`HttpErrorResponse`) en instancias fuertemente tipadas de `AppError` (traduciendo `ProblemDetails` RFC 7807 o generando mensajes estandarizados para errores 400, 401, 403, 404, 500 y fallo de conexión con status 0).
+   - **`sessionExpiredInterceptor` (3° en la lista — SEGUNDO en la ruta de retorno de error):**
+     Recibe en su `catchError` el error ya procesado y transformado por `errorInterceptor`. Por tanto, recibe una instancia de `AppError` (o un `HttpErrorResponse` si en algún contexto aislado no intervino el conversor). La función `extractHttpStatus(error)` extrae polimórficamente el código numérico `status` de ambos tipos:
+     - Si el status es `401` y la petición no es `/auth/login` (evitando cerrar sesión o redirigir cuando el usuario introduce credenciales incorrectas en el formulario de acceso), invoca `authService.logout()`.
+     - Si el status es `403`, redirige a la vista `/forbidden`.
+     - Finalmente, re-lanza el error (`throwError(() => error)`) para que los suscriptores y componentes consumidores reciban el `AppError` tipado.
+   - **`authTokenInterceptor` (2°)** y **`correlationIdInterceptor` (1°)**:
+     Dejan pasar la respuesta o el error hacia el suscriptor final sin interferir en la sesión.
+
+#### ¿Por qué es crítico este orden y Advertencia de Integración?
+
+- `errorInterceptor` debe estar al final del arreglo para que sea el primero en atrapar el `HttpErrorResponse` nativo en el flujo de retorno y transformarlo en `AppError`.
+- `sessionExpiredInterceptor` debe preceder a `errorInterceptor` en el arreglo para que en el retorno de error se ejecute después de este, consumiendo el `AppError` unificado con `extractHttpStatus`.
+
+> [!WARNING]
+> **Advertencia de Mantenibilidad:** **NO** reordenar los interceptores en `app.config.ts`. Cualquier alteración en el orden romperá el flujo bidireccional y las aserciones de integración. Toda modificación debe ser validada contra el test de integración de la cadena completa en [`libs/shared/auth/src/interceptors/session-expired.interceptor.spec.ts`](../../libs/shared/auth/src/interceptors/session-expired.interceptor.spec.ts#L171-L285) (`describe('Cadena Completa de Interceptores HTTP (Test de Integración Real)')`).
 
 ---
 
@@ -112,7 +134,11 @@ Las aplicaciones no contienen URLs de backend hardcodeadas (ADR 0009 y ADR 0014)
 
 1. **Pruebas Unitarias Rápidas con Vitest**:
    - Ejecutadas en entorno `jsdom` con inicialización JIT nativa de Angular 22 (`@angular/compiler` + `@angular/platform-browser/testing`).
-   - Cobertura de código monitoreada con `@vitest/coverage-v8`: 165 tests unitarios en 28 suites pasando al 100%, con cobertura global de 43.95% de líneas en el monorepo y superior al 95% en librerías críticas de lógica de negocio (`libs/shared/auth` y `libs/shared/data-access`).
+   - Cobertura de código monitoreada con `@vitest/coverage-v8`: 165 tests unitarios en 28 suites pasando al 100%, con cobertura global de 43.95% de líneas en el monorepo y cobertura real por librería:
+     - **`libs/shared/util`**: 100.00% líneas (100% stmts, 100% branches, 100% funciones).
+     - **`libs/shared/auth`**: 98.13% líneas (98.21% stmts, 86.96% branches, 100% funciones).
+     - **`libs/shared/data-access`**: 98.13% líneas (98.21% stmts, 93.06% branches, 100% funciones).
+     - **`libs/shared/ui`**: 91.16% líneas (92.31% stmts, 63.96% branches, 95.38% funciones).
 2. **Verificación Automatizada de Seguridad de Artefactos y CSP (`verify:csp`)**:
    - Herramienta nativa [`tools/verify-csp.mjs`](../../tools/verify-csp.mjs) ejecutada en CI tras el build de producción para validar la integridad de directivas CSP, hashes SHA-256 de scripts inline, ausencia total de `config.json` y de `localhost` en artefactos compilados.
 3. **Pruebas E2E Smoke con Playwright**:
@@ -123,7 +149,7 @@ Las aplicaciones no contienen URLs de backend hardcodeadas (ADR 0009 y ADR 0014)
 ## 7. Directrices de Seguridad Frontend
 
 - **Ausencia total de vulnerabilidades XSS**: 0 usos de `innerHTML` crudo y 0 usos de `bypassSecurityTrust*`.
-- **Content Security Policy (CSP) Estricta (ADR 0014)**: Origen canónico fijo (`https://api.nalunpos.com`) en `connect-src`, hashes SHA-256 en `script-src` y prohibición absoluta de `unsafe-inline` y comodines `*`.
+- **Content Security Policy (CSP) Estricta (ADR 0014)**: Origen canónico fijo (`https://api.nalunpos.com`) en `connect-src`, hashes SHA-256 y cero `'unsafe-inline'` en `script-src`; `style-src` permite `'unsafe-inline'` por requerimiento dinámico de Tailwind CSS v4 y Angular Material M3, con prohibición absoluta de comodines `*` en orígenes de red.
 - **Deduplicación Canónica de Datos y Tokens UI (ADR 0013)**: Centralización DRY de servicios de datos en `libs/shared/data-access` y abstracción `AUTH_GATEWAY` en `libs/shared/ui`.
 - **Evolución hacia Autenticación Zero-Trust (ADR 0012)**: Almacenamiento en memoria volátil de access tokens de corta duración combinado con refresh tokens en cookies seguras `HttpOnly` y `SameSite=Strict`.
 

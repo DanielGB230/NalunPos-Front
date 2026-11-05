@@ -43,7 +43,7 @@ npm run format:fix
 # Ejecutar suite completa de pruebas unitarias (165 tests en 28 suites)
 npx vitest run
 
-# Ejecutar pruebas unitarias con reporte de cobertura de código v8 (43.95% líneas global, >95% en libs core)
+# Ejecutar pruebas unitarias con reporte de cobertura de código v8 (43.95% líneas global; por librería: util 100%, auth 98.13%, data-access 98.13%, ui 91.16%)
 npx vitest run --coverage
 ```
 
@@ -111,5 +111,5 @@ NalunPos-Front/
 - **Estilos**: Tailwind CSS v4 + Angular Material M3 unificados mediante `libs/shared/design-tokens/src/theme.css` — Cero `!important`.
 - **Tipografías**: 100% auto-alojadas con `@fontsource` (Plus Jakarta Sans, Inter, JetBrains Mono, Material Symbols) — Cero peticiones externas a CDNs.
 - **Configuración de Runtime**: 12-factor compliant inyectada vía token `APP_CONFIG`. En producción, `/config.json` es suministrado externamente por el hosting conforme al [ADR 0014](./docs/architecture/adr/0014-canonical-api-origin-and-csp.md).
-- **Seguridad**: 0 usos de `innerHTML` o `bypassSecurityTrust*`. CSP estricta en producción sin `unsafe-inline` ni comodines ([ADR 0014](./docs/architecture/adr/0014-canonical-api-origin-and-csp.md)). Registro propuesto de in-memory auth con HttpOnly cookie ([ADR 0012](./docs/architecture/adr/0012-in-memory-token-storage-and-httponly-refresh-cookie.md)). Deduplicación canónica de datos y tokens ([ADR 0013](./docs/architecture/adr/0013-canonical-data-access-and-ui-tokens-deduplication.md)).
+- **Seguridad**: 0 usos de `innerHTML` o `bypassSecurityTrust*`. CSP estricta en producción: sin `'unsafe-inline'` en `script-src` (hashes SHA-256 para scripts inline); `style-src` permite `'unsafe-inline'` por requerimiento de Tailwind CSS v4 y Angular Material ([ADR 0014](./docs/architecture/adr/0014-canonical-api-origin-and-csp.md)). Registro propuesto de in-memory auth con HttpOnly cookie ([ADR 0012](./docs/architecture/adr/0012-in-memory-token-storage-and-httponly-refresh-cookie.md)). Deduplicación canónica de datos y tokens ([ADR 0013](./docs/architecture/adr/0013-canonical-data-access-and-ui-tokens-deduplication.md)).
 - **Documentación de Decisiones**: Ver índice completo en [ADR README](./docs/architecture/adr/README.md) (ADR 0001 a 0014) y [Arquitectura](./docs/architecture/architecture.md).
