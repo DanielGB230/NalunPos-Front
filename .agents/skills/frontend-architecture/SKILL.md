@@ -15,13 +15,13 @@ Para reglas de aislamiento e invariantes estrictos, consultar [AGENTS.md (seccio
 
 1. **Aplicaciones (`apps/`)**:
    - `NalunPos-Admin-Web`: Panel de control de plataforma para SuperAdmin (Control Plane). Tagged: `["scope:admin", "type:app"]`.
-   - `NalunPos-Web`: Panel operativo comercial (TenantAdmin, Cajero, Inventario). Tagged: `["scope:client", "type:app"]`.
+   - `NalunPos-Web`: Panel operativo comercial (TenantAdmin, Cajero, Inventario). Tagged: `["scope:web", "type:app"]`.
 2. **Librerías Compartidas (`libs/shared/`)**:
-   - `auth`: `AuthService`, guards funcionales (`authGuard`, `roleGuard`), gestión de sesión y los interceptores `authTokenInterceptor` (2°) y `sessionExpiredInterceptor` (3°). Tagged: `["scope:shared", "type:auth"]`.
+   - `auth`: `AuthService`, guards funcionales (`authGuard`, `roleGuard`), gestión de sesión y los interceptores `authTokenInterceptor` (2°) y `sessionExpiredInterceptor` (3°). Tagged: `["scope:shared", "type:data-access"]`.
    - `data-access`: Clientes HTTP base, configuración dinámica `APP_CONFIG`, modelos de error (`AppError`, `ProblemDetails`) y los interceptores `correlationIdInterceptor` (1°) y `errorInterceptor` (4°). Tagged: `["scope:shared", "type:data-access"]`.
    - `ui`: Componentes de presentación puros desacoplados de llamadas HTTP directas. Tagged: `["scope:shared", "type:ui"]`.
    - `util`: Funciones auxiliares puras, pipes de formateo (`AppDatePipe`, `AppNumberPipe`) y tokens desacoplados de inyección como `AUTH_GATEWAY` e interfaz `AuthGateway` ([`libs/shared/util/src/tokens/nav-config.interface.ts`](../../libs/shared/util/src/tokens/nav-config.interface.ts)). Tagged: `["scope:shared", "type:util"]`.
-   - `design-tokens`: Tokens visuales y temas unificados (CSS/JSON). Tagged: `["scope:shared", "type:design-tokens"]`.
+   - `design-tokens`: Tokens visuales y temas unificados (CSS/JSON). Tagged: `["scope:shared", "type:util"]`.
 
 ## 2. Cadena de Interceptores HTTP y Mecánica Bidireccional
 
@@ -38,7 +38,9 @@ La cadena HTTP está registrada en `app.config.ts` de ambas aplicaciones. Su ord
 Para la política completa, consultar [AGENTS.md sección 5](../../AGENTS.md#5-seguridad-frontend-y-gestión-de-configuración) y ADRs `0003`, `0009`, `0012` y `0014`.
 
 - **`config.json` fuera del bundle**: No se incluye ningún archivo `config.json` dentro del bundle de producción compilado ni en `public/`. Se versionan plantillas en `apps/<app>/config/config.example.json` y el entorno de hosting aprovisiona `/config.json` dinámicamente en runtime.
-- **Almacenamiento de Tokens Zero-Trust**: Tokens gestionados en memoria volátil (Signals). Prohibido `localStorage` y `sessionStorage` para credenciales de acceso JWT bajo el modelo de refresh token en cookie HttpOnly.
+- **Almacenamiento de Tokens y Sesión (Estado Actual y Transición F1)**:
+  - **Fase 0 (Actual — ADR 0003 vigente)**: El token JWT y los datos de sesión persisten en una única clave en `sessionStorage` (`nalunpos_auth_session`), gestionada de forma exclusiva por `AuthService` (`libs/shared/auth/src/services/auth.service.ts`) y consumida reactivamente mediante Signals en memoria. Queda estrictamente proscrito acceder a `sessionStorage` o `localStorage` directamente desde componentes, guards o interceptores (forzado por ESLint).
+  - **Fase F1 (Propuesta — ADR 0012)**: Transición a almacenamiento 100% en memoria volátil (Signals) para el access token, delegando la renovación a una cookie `HttpOnly` para refresh token (`credentials: 'include'`). Esta arquitectura entrará en vigor cuando el backend habilite el endpoint `/api/v1/auth/refresh`.
 - **Content Security Policy (CSP)**: `default-src 'self'`; `script-src 'self'` con hash SHA-256 para scripts inline (sin `'unsafe-inline'`); `style-src 'self' 'unsafe-inline'` (requerido por Tailwind CSS v4 y Angular Material M3); `connect-src 'self' https://api.nalunpos.com` (origen canónico estricto según ADR 0014). Validado automáticamente con `npm run verify:csp`.
 
 ## 4. Arquitectura Visual & UI Enterprise

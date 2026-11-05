@@ -234,6 +234,16 @@ A fecha de la última ejecución formal en la rama `main` @ `a6a2a46`:
    - En `WarehouseApiService`, los métodos de modificación (`PUT`, `PATCH status`, `PATCH default`) lanzan errores descriptivos en espera de disponibilidad de endpoints en la API.
 6. **Normalización de Encabezados en ADRs Históricos:**
    - De los 14 ADRs existentes (`0001` a `0014`), únicamente **4 ADRs** (`0003`, `0004`, `0009` y `0012`) cumplen explícitamente con los tres encabezados mínimos (`Contexto`, `Decisión`, `Consecuencias`). Los **10 ADRs restantes** (`0001`, `0002`, `0005`, `0006`, `0007`, `0008`, `0010`, `0011`, `0013` y `0014`) no cuentan con la terna completa (los ADRs `0001`, `0002`, `0006`, `0007`, `0008`, `0010`, `0011`, `0013` y `0014` carecen de `## Contexto` explícito al residir en el párrafo introductorio o en razones, y el ADR `0005` carece de `## Consecuencias`), quedando catalogados para normalización en una tarea futura de limpieza documental sin alterar sus decisiones.
+7. **CRÍTICO — Mapeo de rol de la sesión y elevación implícita de privilegios (Falla Fail-Open):**
+   - **Evidencia en Frontend:** En [`libs/shared/auth/src/models/user-session.model.ts:43`](./libs/shared/auth/src/models/user-session.model.ts#L43), el método `UserSession.fromAuthResponse` asigna por defecto `let role: UserRole = 'SuperAdmin';`. Las ramas condicionales posteriores ([L45–L48](./libs/shared/auth/src/models/user-session.model.ts#L45-L48)) únicamente reconocen valores para `'SuperAdmin'` (0), `'TenantAdmin'` (1), `'Cashier'` (2) e `'Inventory'` (3).
+   - **Evidencia en Backend:** La auditoría del repositorio `NalunPos-Api` confirma que:
+     a) `LoginResponse` (`src/Pos.Application/Authentication/Commands/Login/LoginCommandHandler.cs:61`) devuelve `RoleId` como un `Guid` y no un campo de rol por nombre ni número.
+     b) El backend define internamente el enum `UserRole` (`src/Pos.Domain/Enums/UserRole.cs:8-12`) con los nombres `SuperAdmin`, `TenantAdmin`, `Cajero` (en español), `InventoryManager` y `Supervisor`.
+     c) El generador de tokens (`src/Pos.Infrastructure/Authentication/JwtTokenGenerator.cs:46, 51`) únicamente emite el claim `ClaimTypes.Role` (`"SuperAdmin"`) para el rol de plataforma `SuperAdminRoleId`; para los usuarios de tenant solo emite el claim de id `"roleId": user.RoleId.ToString()`.
+   - **Consecuencia de Seguridad:** Al iniciar sesión cualquier usuario de tenant, `response.user?.role ?? response.role` evalúa como `undefined`, provocando que la asignación por defecto `role = 'SuperAdmin'` permanezca inalterada. Todo usuario queda mapeado inadvertidamente con privilegios de `SuperAdmin` en la sesión del frontend (comportamiento _fail-open_).
+   - **Acción Pendiente (Fase F1 / Sincronización Contractual):**
+     1. Acordar y alinear el contrato de backend para devolver el nombre de rol canónico o claim JWT estandarizado.
+     2. Modificar `UserSession.fromAuthResponse` para operar en modo **fail-closed**: si el rol no es reconocido o viene indefinido, la sesión debe invalidarse o rechazarse explícitamente lanzando error de autorización, impidiendo cualquier elevación no controlada de privilegios.
 
 ---
 
