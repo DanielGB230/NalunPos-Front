@@ -26,7 +26,7 @@ Este documento define las reglas de ingeniería, invariantes arquitectónicos, c
 | Tecnología / Paquete                       |   Versión Exacta    | Rol en el Ecosistema                                                     |
 | :----------------------------------------- | :-----------------: | :----------------------------------------------------------------------- |
 | **Angular Core / Common / Router / Forms** |      `~22.2.0`      | Framework web standalone, detección zoneless, control flow nativo        |
-| **Angular Material / CDK**                 |      `~22.2.0`      | Sistema de componentes accesibles Material Design 3                      |
+| **Angular Material**                       |      `~22.2.0`      | Sistema de componentes accesibles Material Design 3                      |
 | **Angular Build / CLI**                    |      `~22.2.0`      | Herramientas de build y compilador Vite / Application Builder            |
 | **Nx Monorepo Tools**                      |      `23.3.1`       | Gestión de dependencias, grafos de compilación, caché y boundaries       |
 | **TypeScript**                             |      `~6.0.3`       | Compilación estricta y tipado de dominio                                 |
@@ -50,7 +50,7 @@ Este documento define las reglas de ingeniería, invariantes arquitectónicos, c
 3. **Estabilidad Primero:**
    - Ninguna modificación de código puede degradar la suite existente de pruebas unitarias o E2E, ni generar warnings en el build de producción.
 4. **Cero Dependencias Comerciales de Pago (Zero Paid Lock-In):**
-   - El proyecto utiliza exclusivamente dependencias FOSS de licencia permisiva (MIT, Apache 2.0, BSD-3-Clause, OFL). No dependas de servicios o librerías de pago. El hosting de referencia contemplado es Cloudflare Pages (capa gratuita).
+   - Se exigen dependencias gratuitas y de licencia FOSS permisiva (MIT, Apache-2.0, BSD, OFL), prohibiendo paquetes con licencias comerciales o servicios SaaS de pago. El hosting de referencia contemplado es hosting estático gratuito (por ejemplo, Cloudflare Pages).
 5. **Presupuesto de Rendimiento Intocable (Initial Budget 500 kB):**
    - Cada aplicación (`apps/*/project.json`) tiene configurado un límite estricto de warning en `500kb` para el bundle inicial. Todo módulo de feature debe cargarse mediante lazy loading standalone (`loadChildren` / `loadComponent`).
 6. **Cero Evasiones de Tipado en Código de Producción:**
@@ -206,7 +206,7 @@ Cualquier cambio estructural, introducción de una nueva librería, alteración 
 
 1. **Ubicación:** `docs/architecture/adr/`.
 2. **Numeración:** Consecutiva de 4 dígitos, ej. `0015-<titulo-en-kebab-case>.md`.
-3. **Formato:** Estructura MADR (Contexto, Alternativas Evaluadas, Decisión, Consecuencias).
+3. **Formato:** Estructura basada en MADR con formato mínimo obligatorio: **`Contexto, Decisión, Consecuencias`** (dejando `Alternativas Evaluadas` como sección recomendada cuando aplique, no obligatoria).
 4. **Registro:** Añadir la entrada al índice maestro en [`docs/architecture/adr/README.md`](./docs/architecture/adr/README.md) y referenciarlo en [`docs/architecture/architecture.md`](./docs/architecture/architecture.md).
 
 ---
@@ -229,6 +229,8 @@ A fecha de la última ejecución formal en la rama `main` @ `a6a2a46`:
 3. **Deuda de Landing Page:**
    - La etiqueta `scope:landing` está reservada en las reglas de ESLint, pero la aplicación correspondiente aún no ha sido generada en `apps/`.
 4. **Tipado `any` en Pruebas Unitarias de UI:**
-   - Existen 48 ocurrencias de `as any` en los specs de `libs/shared/ui` catalogadas para refactorización en fases de limpieza de tests.
+   - Existen exactamente **46 ocurrencias de `as any`** y **1 ocurrencia de `: any`** (en `header.component.spec.ts:17`), totalizando 47 usos de `any` concentrados exclusivamente en `libs/shared/ui/src/**/*.spec.ts` catalogados para refactorización en fases de limpieza de tests.
 5. **Endpoints de Almacenes Pendientes en Backend:**
    - En `WarehouseApiService`, los métodos de modificación (`PUT`, `PATCH status`, `PATCH default`) lanzan errores descriptivos en espera de disponibilidad de endpoints en la API.
+6. **Normalización de Encabezados en ADRs Históricos:**
+   - De los 14 ADRs existentes (`0001` a `0014`), los ADRs `0003`, `0004`, `0005`, `0009` y `0012` cumplen explícitamente con los tres encabezados mínimos (`Contexto`, `Decisión`, `Consecuencias`). Los ADRs `0001`, `0002`, `0006`, `0007`, `0008`, `0010`, `0011`, `0013` y `0014` no cuentan con un encabezado `## Contexto` explícito (su contexto reside en el párrafo introductorio bajo el título principal o en la sección de razones) y están catalogados para normalización en una tarea futura de limpieza documental sin alterar sus decisiones.
