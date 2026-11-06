@@ -213,7 +213,7 @@ Cualquier cambio estructural, introducción de una nueva librería, alteración 
 
 ## 9. Estado Actual y Deuda Técnica Conocida
 
-El estado con cifras y fecha vigente está en docs/STATUS.md (TODO: enlazar en el Paso 4):
+El estado con cifras y fecha vigente está detallado en [`docs/STATUS.md`](./docs/STATUS.md):
 
 1. **Cobertura Real por Zonas (`npx vitest run --coverage`):**
    - **Métricas Globales del Monorepo:** 43.95% de líneas (165 pruebas en 28 suites pasando al 100%).
@@ -260,3 +260,16 @@ El repositorio cuenta con skills de agentes estructurados en `.agents/skills/` q
 | **`dependency-and-licensing`**       | [`.agents/skills/dependency-and-licensing/SKILL.md`](./.agents/skills/dependency-and-licensing/SKILL.md)             | Políticas de licenciamiento permisivo FOSS y reemplazo de dependencias comerciales (al evaluar o agregar nuevos paquetes npm al monorepo).                                                   |
 | **`saas-multitenancy-and-security`** | [`.agents/skills/saas-multitenancy-and-security/SKILL.md`](./.agents/skills/saas-multitenancy-and-security/SKILL.md) | Arquitectura de multi-tenancy SaaS, aislamiento de datos, onboarding y seguridad (al trabajar con tenants, autenticación, claims o roles).                                                   |
 | **`inventory-domain-rules`**         | [`.agents/skills/inventory-domain-rules/SKILL.md`](./.agents/skills/inventory-domain-rules/SKILL.md)                 | Reglas del dominio de inventario, Kardex/Ledger inmutable de stock y concurrencia optimista (al trabajar con vistas de stock, movimientos de almacén, transferencias o ajustes).             |
+
+---
+
+## 11. Documentos de Referencia del Repositorio
+
+- **Estado y Métricas Reales:** [`docs/STATUS.md`](./docs/STATUS.md)
+- **Guía de Despliegue en Producción:** [`docs/deployment.md`](./docs/deployment.md)
+- **Guía para Nuevas Features:** [`docs/guides/new-feature.md`](./docs/guides/new-feature.md)
+- **Guía de Contribución y DoD:** [`CONTRIBUTING.md`](./CONTRIBUTING.md)
+- **Política de Seguridad:** [`SECURITY.md`](./SECURITY.md)
+- **Arquitectura Frontend:** [`docs/architecture/architecture.md`](./docs/architecture/architecture.md)
+- **Registro de ADRs (0001 a 0014):** [`docs/architecture/adr/README.md`](./docs/architecture/adr/README.md)
+- **Cabeceras HTTP y Content Security Policy:** [`docs/security/headers-and-csp.md`](./docs/security/headers-and-csp.md)

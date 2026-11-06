@@ -93,13 +93,35 @@ NalunPos-Front/
 │   │   ├── architecture.md     # Documento maestro de arquitectura frontend
 │   │   ├── history/            # Registros históricos de refactorizaciones de hitos
 │   │   └── adr/                # Registro de Decisiones de Arquitectura (ADR 0001 - 0014)
-│   └── security/
-│       └── headers-and-csp.md  # Cabeceras de seguridad y Content Security Policy
+│   ├── guides/
+│   │   └── new-feature.md      # Guía estándar para creación de nuevas features
+│   ├── security/
+│   │   └── headers-and-csp.md  # Cabeceras de seguridad y Content Security Policy
+│   ├── deployment.md           # Guía de despliegue estático, runtime config y cabeceras
+│   └── STATUS.md               # Estado vivo, métricas reales, suites y registro de deudas
+├── .agents/skills/             # Skills auditados para agentes de IA en el monorepo
+├── AGENTS.md                   # Reglas, límites y directrices para agentes y desarrolladores
+├── CONTRIBUTING.md             # Guía de contribución, conventional commits y DoD
+├── SECURITY.md                 # Política de seguridad y divulgación responsable
 ├── playwright.config.ts        # Configuración de pruebas E2E multi-proyecto
 ├── vitest.config.ts            # Configuración de Vitest con entorno JSDOM y cobertura V8
 ├── eslint.config.js            # ESLint Flat Config con @nx/enforce-module-boundaries
 └── package.json
 ```
+
+---
+
+## 📚 Documentación y Guías del Proyecto
+
+- **Directrices de Desarrollo y Agentes:** [`AGENTS.md`](./AGENTS.md)
+- **Guía de Contribución y Definition of Done:** [`CONTRIBUTING.md`](./CONTRIBUTING.md)
+- **Política de Seguridad:** [`SECURITY.md`](./SECURITY.md)
+- **Estado Vivo y Métricas Reales:** [`docs/STATUS.md`](./docs/STATUS.md)
+- **Guía de Despliegue en Producción:** [`docs/deployment.md`](./docs/deployment.md)
+- **Guía para Creación de Nuevas Features:** [`docs/guides/new-feature.md`](./docs/guides/new-feature.md)
+- **Arquitectura del Sistema Frontend:** [`docs/architecture/architecture.md`](./docs/architecture/architecture.md)
+- **Registro de Decisiones de Arquitectura (ADR 0001 - 0014):** [`docs/architecture/adr/README.md`](./docs/architecture/adr/README.md)
+- **Directrices de Seguridad HTTP y CSP:** [`docs/security/headers-and-csp.md`](./docs/security/headers-and-csp.md)
 
 ---
 

@@ -77,8 +77,7 @@ Conforme a lo resuelto en el **ADR 0014**, el ecosistema de producción opera ba
      b) Que ningún archivo `config.json` exista en `dist/apps/`.
      c) Que ningún archivo compilado (`.html`, `.js`, `.css`, `.json`) contenga la cadena `"localhost"`.
      d) Que el `apiUrl` canónico esté explícitamente permitido en `connect-src` de la CSP. Si existe cualquier discrepancia o residuo, el job falla y cancela el despliegue.
-   - **Aprovisionamiento en Runtime (Servidor Web / Reverse Proxy / Cloud):** Al desplegar la SPA en el servidor web (Nginx, S3/CloudFront, Caddy, etc.), el pipeline de despliegue o administrador del servidor debe proveer `/config.json` en la raíz del virtual host a partir de la plantilla `apps/<app>/config/config.example.json`.
-   - **Comportamiento Fail-Closed:** Si el servidor web no suministra `/config.json` (HTTP 404), la aplicación aborta inmediatamente el bootstrap con un error explícito y no arranca, garantizando que nunca opere con datos residuales ni configuraciones vulnerables.
+   - **Aprovisionamiento Operativo y Fail-Closed:** El procedimiento paso a paso para proveer `/config.json` en runtime en servidores web o Cloudflare Pages y el comportamiento fail-closed se detallan en [docs/deployment.md](../deployment.md#3-aprovisionamiento-de-configjson-en-runtime-fail-closed).
 
 ---
 
@@ -131,54 +130,9 @@ Las siguientes directivas y cabeceras **NO PUEDEN** ser aplicadas vía `<meta>` 
 
 ---
 
-## 5. Ejemplos de Configuración para Servidores de Producción
+## 5. Configuración en Servidores y Edge CDNs
 
-### 5.1 Nginx (`nginx.conf`)
-
-```nginx
-server {
-    listen 443 ssl http2;
-    server_name app.nalunpos.com admin.nalunpos.com;
-
-    root /usr/share/nginx/html;
-    index index.html;
-
-    # Content-Security-Policy estricto en cabecera HTTP
-    add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'sha256-LMY6wYoFV9I4wWzxaq1N/dTpl4iurQktw706UCHK3vM='; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self' https://api.nalunpos.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none';" always;
-
-    # Cabeceras de Transporte y Aislamiento
-    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
-    add_header X-Content-Type-Options "nosniff" always;
-    add_header X-Frame-Options "DENY" always;
-    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-    add_header Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()" always;
-    add_header Cross-Origin-Opener-Policy "same-origin" always;
-    add_header Cross-Origin-Resource-Policy "same-origin" always;
-
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
-}
-```
-
-### 5.2 Caddy Server (`Caddyfile`)
-
-```caddy
-app.nalunpos.com, admin.nalunpos.com {
-    root * /srv/dist/apps/NalunPos-Web/browser
-    file_server
-    try_files {path} /index.html
-
-    header {
-        Content-Security-Policy "default-src 'self'; script-src 'self' 'sha256-LMY6wYoFV9I4wWzxaq1N/dTpl4iurQktw706UCHK3vM='; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self' https://api.nalunpos.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none';"
-        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
-        X-Content-Type-Options "nosniff"
-        X-Frame-Options "DENY"
-        Referrer-Policy "strict-origin-when-cross-origin"
-        Permissions-Policy "camera=(), microphone=(), geolocation=()"
-    }
-}
-```
+Para evitar la duplicación de directivas operativas de infraestructura, los archivos de configuración listos para producción para **Cloudflare Pages** (`_headers`), **Nginx** (`nginx.conf`) y **Caddy** (`Caddyfile`) están centralizados y documentados en [docs/deployment.md](../deployment.md#5-configuración-de-cabeceras-http-de-producción).
 
 ---
 
