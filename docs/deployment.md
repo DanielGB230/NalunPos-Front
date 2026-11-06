@@ -55,7 +55,7 @@ La salida compilada se genera en las siguientes rutas del sistema de archivos:
 
 De acuerdo con el **ADR 0014**, el paquete de compilación estático en `dist/` es inmutable e independiente del entorno:
 
-- **Ningún archivo `config.json` se incluye dentro de `src/public/` ni en el bundle compilado.**
+- **Ningún archivo `config.json` se incluye dentro de los assets de las aplicaciones ni en el bundle compilado.**
 - El comando `npm run verify:csp` (`tools/verify-csp.mjs`) en el flujo de CI aborta el pipeline si detecta algún `config.json` en `dist/apps/` o si encuentra la cadena `"localhost"`.
 - Esta arquitectura previene por diseño que artefactos compilados con variables de depuración local alcancen entornos productivos.
 
@@ -93,10 +93,10 @@ En el paso de despliegue (CD) o durante la preparación del servidor, `/config.j
 
 ### 3.3 Comportamiento Fail-Closed
 
-El bootstrap de la aplicación implementa `APP_INITIALIZER` a través de `AppConfigToken`:
+El bootstrap de las aplicaciones (`apps/*/src/app/app.config.ts`) registra la inicialización reactiva mediante `provideRuntimeConfig` y `provideAppInitializer`, exponiendo la configuración fuertemente tipada en el token de inyección `APP_CONFIG`:
 
-- Si la petición HTTP a `/config.json` falla (HTTP 404, error de red o timeout), la aplicación aborta inmediatamente el inicio y muestra un error crítico en consola.
-- La aplicación **nunca opera con valores por defecto en memoria**, impidiendo ejecuciones contra orígenes inseguros o no autorizados.
+- **En Producción (`production: true`):** El método `AppConfigService.loadConfig` (invocado por `loadAppConfig` / `provideRuntimeConfig`) opera estrictamente _fail-closed_. Si la petición HTTP a `/config.json` retorna un código distinto de HTTP 200 (como HTTP 404), un error de red o timeout, la promesa se rechaza lanzando un error crítico que cancela inmediatamente el arranque de Angular. La aplicación **nunca opera con valores por defecto ni fallbacks en memoria**, garantizando que jamás interactúe con orígenes no autorizados.
+- **En Desarrollo (`production: false`):** Exclusivamente en modo de desarrollo local, si `/config.json` no está disponible en el servidor local, el loader recurre de forma tolerante a las variables locales declaradas en `environment.ts` para facilitar el flujo de depuración.
 
 ---
 

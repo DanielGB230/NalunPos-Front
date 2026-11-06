@@ -20,7 +20,7 @@ Las dos aplicaciones del monorepo (`NalunPos-Web` y `NalunPos-Admin-Web`) presen
 Según las reglas estrictas de módulos (`module-boundaries` de Nx y ESLint):
 
 - `libs/shared/ui` está etiquetada como `type:ui` y solo puede depender de librerías `type:ui` o `type:util`.
-- Por tanto, `shared-ui` **no puede** importar directamente `AuthService` de `@nalunpos/shared/auth` (`type:auth`).
+- Por tanto, `shared-ui` **no puede** importar directamente `AuthService` de `@nalunpos/shared/auth` (`type:data-access`).
 
 Para cumplir rigurosamente con esta restricción sin parches:
 

@@ -65,6 +65,18 @@ npm run verify:csp
 
 Herramienta Node nativa ([`tools/verify-csp.mjs`](./tools/verify-csp.mjs)) que valida automáticamente los artefactos de producción en `dist/apps/`. Comprueba que la metaetiqueta CSP exista, que cada `<script>` inline tenga su hash SHA-256 en base64 en `script-src`, que no existan atributos de eventos inline (`on*=`), que `connect-src` apunte al origen canónico de producción (`https://api.nalunpos.com` según ADR 0014) sin `localhost` ni comodines `*`, y que ningún archivo de distribución contenga cadenas `localhost` ni archivos `config.json` de desarrollo.
 
+### 7. Verificación Documental y Candados Automáticos
+
+```bash
+# Ejecutar suite de pruebas unitarias de herramientas de verificación (node:test nativo)
+npm run test:tools
+
+# Auditar integridad documental y cumplimiento de las 9 reglas de documentación
+npm run verify:docs
+```
+
+Herramienta Node nativa modular ([`tools/verify-docs/`](./tools/verify-docs/index.mjs)) que audita en tiempo real que ningún enlace relativo esté roto, que los ADRs y el índice estén sincronizados 1:1, que los comandos `npm run` citados existan en `package.json`, que no se usen términos obsoletos, que la tabla de skills coincida con el disco, que los frontmatters de skills sean válidos, que los disclaimers de ADR existan, que las rutas de código citadas existan físicamente y que las etiquetas de Nx (`scope:*`, `type:*`) coincidan con los `project.json`.
+
 ---
 
 ## 🏛️ Estructura del Monorepo
@@ -87,7 +99,8 @@ NalunPos-Front/
 │   ├── util/                   # Pipes de formato, Tokens desacoplados (AUTH_GATEWAY, APP_NAV_CONFIG)
 │   └── design-tokens/          # Tokens M3 centralizados (theme.css), fuentes auto-alojadas
 ├── tools/
-│   └── verify-csp.mjs          # Script nativo de verificación de CSP y artefactos compilados
+│   ├── verify-csp.mjs          # Script nativo de verificación de CSP y artefactos compilados
+│   └── verify-docs/            # Candado modular de integridad documental y sus pruebas unitarias
 ├── docs/
 │   ├── architecture/
 │   │   ├── architecture.md     # Documento maestro de arquitectura frontend

@@ -36,6 +36,12 @@ jobs:
       - name: Run ESLint
         run: npm run lint
 
+      - name: Run Tools Unit Tests
+        run: npm run test:tools
+
+      - name: Verify Documentation Integrity
+        run: npm run verify:docs
+
   test-and-coverage:
     name: Unit Tests & Coverage
     runs-on: ubuntu-latest

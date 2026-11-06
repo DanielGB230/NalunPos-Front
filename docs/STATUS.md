@@ -2,7 +2,7 @@
 
 **Fecha de Actualización:** 2026-11-06  
 **Rama Base:** `main`  
-**Commit Base de Auditoría:** `30d2bb6090652af8dac0e5eafc398c9183f6463e` (Paso 3 completado)
+**Estado de Auditoría:** Vigente en rama `main` (FRONT FASE 0.4)
 
 Este documento refleja el estado real, empírico y verificable del frontend de NalunPos (`NalunPos-Front`). Toda métrica, cifra de cobertura, tamaño de bundle y resultado de seguridad proviene de ejecuciones directas realizadas en el entorno de integración continua y desarrollo.
 
@@ -88,13 +88,13 @@ Este documento refleja el estado real, empírico y verificable del frontend de N
 
 - **Estado:** Existen **47 usos de `any`** en el repositorio (**46 ocurrencias de `as any`** y **1 ocurrencia de `: any`** en `libs/shared/ui/src/layout/header.component.spec.ts:17`), concentrados exclusivamente en los specs de `libs/shared/ui/src/**/*.spec.ts`. Cero usos en código de producción (`apps/` o `libs/*/src/lib/`).
 
-### 5. Endpoints de Actualización en `WarehouseApiService`
+### 5. Endpoints de Modificación en `WarehouseApiService`
 
-- **Estado:** `WarehouseApiService` (`libs/shared/data-access/src/services/warehouse-api.service.ts`) implementa `getWarehouses`, `getWarehouseById` y `createWarehouse`. Los métodos `updateWarehouse` (`PUT`/`PATCH`) y `deleteWarehouse` están pendientes de integración según la evolución de la API backend.
+- **Estado:** `WarehouseApiService` (`libs/shared/data-access/src/services/warehouse-api.service.ts`) implementa operativamente `getWarehouses` y `createWarehouse`. Los métodos de modificación (`updateWarehouse` [PUT], `changeWarehouseStatus` [PATCH status] y `setDefaultWarehouse` [PATCH default]) sí están declarados en el servicio y lanzan errores descriptivos en espera de la activación de sus endpoints en el backend.
 
 ### 6. Normalización de Encabezados en ADRs Históricos
 
-- **Estado:** 4 ADRs (`0003`, `0004`, `0009`, `0012`) cuentan con la estructura completa de encabezados estándar (`## Contexto`, `## Decisión`, `## Consecuencias`). 10 ADRs históricos (`0001`, `0002`, `0005`, `0006`, `0007`, `0008`, `0010`, `0011`, `0013`, `0014`) están pendientes de normalización de encabezados en el Paso 5.
+- **Estado:** 4 ADRs (`0003`, `0004`, `0009`, `0012`) cuentan con la estructura completa de encabezados estándar (`## Contexto`, `## Decisión`, `## Consecuencias`). 10 ADRs históricos (`0001`, `0002`, `0005`, `0006`, `0007`, `0008`, `0010`, `0011`, `0013`, `0014`) están catalogados para normalización de encabezados en una tarea futura de limpieza documental.
 
 ### 7. RIESGO CRÍTICO DE ROLES (Prioridad Inmediata tras Cierre Documental)
 

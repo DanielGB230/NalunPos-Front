@@ -38,7 +38,7 @@ graph TD
     Auth --> DataAccess
 ```
 
-1. **`apps/*`** consumen `libs/shared/*` según su scope (`scope:web`, `scope:admin-web`).
+1. **`apps/*`** consumen `libs/shared/*` según su scope (`scope:web`, `scope:admin`).
 2. **`libs/shared/*`** **NUNCA** importan código de `apps/*`.
 3. **`libs/shared/ui`** es de presentación pura; consume tokens de diseño y no realiza peticiones HTTP directas ni gestiona lógica de negocio.
 4. **Cero Dependencias Circulares**: Cada capa tiene un flujo unidireccional estricto.

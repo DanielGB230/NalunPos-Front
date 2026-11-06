@@ -12,8 +12,10 @@
     "format": "prettier --check .",
     "format:fix": "prettier --write .",
     "test": "nx run-many -t test",
+    "test:tools": "node --test tools/verify-docs/**/*.spec.mjs",
     "build": "nx run-many -t build",
     "verify:csp": "node tools/verify-csp.mjs",
+    "verify:docs": "node tools/verify-docs/index.mjs",
     "e2e": "playwright test"
   },
   "private": true,

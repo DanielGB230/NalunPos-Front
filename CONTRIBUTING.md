@@ -101,15 +101,17 @@ Para que cualquier feature, componente o servicio se considere terminado y apto 
 
 Todos los comandos se ejecutan desde la raíz del monorepo y se encuentran declarados en `package.json`:
 
-| Comando npm              | Script Subyacente           | Propósito                                                                  |
-| :----------------------- | :-------------------------- | :------------------------------------------------------------------------- |
-| **`npm run lint`**       | `nx run-many -t lint`       | Analiza límites de módulos y reglas de ESLint en todos los proyectos.      |
-| **`npm run format`**     | `prettier --check .`        | Verifica el estilo y formateo de todo el repositorio.                      |
-| **`npm run format:fix`** | `prettier --write .`        | Aplica el formateo automático de Prettier a todos los archivos soportados. |
-| **`npm test`**           | `nx run-many -t test`       | Ejecuta la suite completa de pruebas unitarias con Vitest.                 |
-| **`npm run build`**      | `nx run-many -t build`      | Compila las aplicaciones para producción validando presupuestos y tipos.   |
-| **`npm run verify:csp`** | `node tools/verify-csp.mjs` | Audita artefactos compilados, plantillas de configuración y CSP estricta.  |
-| **`npm run e2e`**        | `playwright test`           | Ejecuta las pruebas automatizadas de extremo a extremo (E2E Smoke Tests).  |
+| Comando npm               | Script Subyacente                             | Propósito                                                                   |
+| :------------------------ | :-------------------------------------------- | :-------------------------------------------------------------------------- |
+| **`npm run lint`**        | `nx run-many -t lint`                         | Analiza límites de módulos y reglas de ESLint en todos los proyectos.       |
+| **`npm run format`**      | `prettier --check .`                          | Verifica el estilo y formateo de todo el repositorio.                       |
+| **`npm run format:fix`**  | `prettier --write .`                          | Aplica el formateo automático de Prettier a todos los archivos soportados.  |
+| **`npm test`**            | `nx run-many -t test`                         | Ejecuta la suite completa de pruebas unitarias con Vitest.                  |
+| **`npm run test:tools`**  | `node --test tools/verify-docs/**/*.spec.mjs` | Ejecuta las pruebas unitarias nativas de las herramientas y reglas de docs. |
+| **`npm run build`**       | `nx run-many -t build`                        | Compila las aplicaciones para producción validando presupuestos y tipos.    |
+| **`npm run verify:csp`**  | `node tools/verify-csp.mjs`                   | Audita artefactos compilados, plantillas de configuración y CSP estricta.   |
+| **`npm run verify:docs`** | `node tools/verify-docs/index.mjs`            | Audita la integridad documental, enlaces, ADRs, skills y consistencia tags. |
+| **`npm run e2e`**         | `playwright test`                             | Ejecuta las pruebas automatizadas de extremo a extremo (E2E Smoke Tests).   |
 
 ---
 
