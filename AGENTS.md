@@ -213,7 +213,7 @@ Cualquier cambio estructural, introducción de una nueva librería, alteración 
 
 ## 9. Estado Actual y Deuda Técnica Conocida
 
-A fecha de la última ejecución formal en la rama `main` @ `a6a2a46`:
+El estado con cifras y fecha vigente está en docs/STATUS.md (TODO: enlazar en el Paso 4):
 
 1. **Cobertura Real por Zonas (`npx vitest run --coverage`):**
    - **Métricas Globales del Monorepo:** 43.95% de líneas (165 pruebas en 28 suites pasando al 100%).
@@ -241,9 +241,10 @@ A fecha de la última ejecución formal en la rama `main` @ `a6a2a46`:
      b) El backend define internamente el enum `UserRole` (`src/Pos.Domain/Enums/UserRole.cs:8-12`) con los nombres `SuperAdmin`, `TenantAdmin`, `Cajero` (en español), `InventoryManager` y `Supervisor`.
      c) El generador de tokens (`src/Pos.Infrastructure/Authentication/JwtTokenGenerator.cs:46, 51`) únicamente emite el claim `ClaimTypes.Role` (`"SuperAdmin"`) para el rol de plataforma `SuperAdminRoleId`; para los usuarios de tenant solo emite el claim de id `"roleId": user.RoleId.ToString()`.
    - **Consecuencia de Seguridad:** Al iniciar sesión cualquier usuario de tenant, `response.user?.role ?? response.role` evalúa como `undefined`, provocando que la asignación por defecto `role = 'SuperAdmin'` permanezca inalterada. Todo usuario queda mapeado inadvertidamente con privilegios de `SuperAdmin` en la sesión del frontend (comportamiento _fail-open_).
-   - **Acción Pendiente (Fase F1 / Sincronización Contractual):**
-     1. Acordar y alinear el contrato de backend para devolver el nombre de rol canónico o claim JWT estandarizado.
-     2. Modificar `UserSession.fromAuthResponse` para operar en modo **fail-closed**: si el rol no es reconocido o viene indefinido, la sesión debe invalidarse o rechazarse explícitamente lanzando error de autorización, impidiendo cualquier elevación no controlada de privilegios.
+   - **Acción Pendiente (PRIORITARIA, antes de empezar la lógica de negocio; independiente de la Fase F1 del refresh token):**
+     1. Contrato de backend con el nombre del rol para TODOS los roles (en `LoginResponse` y como claim de rol).
+     2. El frontend adopta los nombres del backend y falla cerrado si el rol falta o no se reconoce, con tests por caso.
+        _Nota de precedencia crítica:_ El **ORDEN estricto es primero backend y después frontend**, ya que si el frontend se modifica para fallar cerrado antes de que el backend envíe el nombre de rol, ningún usuario no administrador podrá iniciar sesión.
 
 ---
 
