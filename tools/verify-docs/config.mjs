@@ -64,4 +64,3 @@ export const VERIFY_DOCS_CONFIG = {
   // Exclusiones globales de directorios para búsqueda de archivos en el repositorio
   repoIgnoreDirs: ['.git', 'node_modules', 'dist', '.nx', '.angular', 'coverage'],
 };
-

@@ -99,8 +99,8 @@ Este documento refleja el estado real, empírico y verificable del frontend de N
 ### 7. RIESGO CRÍTICO DE ROLES (Prioridad Inmediata tras Cierre Documental)
 
 - **Diagnóstico del Riesgo:**
-  - Existe una discrepancia sustancial de nomenclatura entre los roles definidos en el backend (`NalunPos-Api`: `Cajero`, `InventoryManager`, `Supervisor` ausente en frontend) y los reconocidos en el frontend (`USER_ROLES = ['SuperAdmin', 'TenantAdmin', 'Cashier', 'Inventory']` en `libs/shared/auth/src/interfaces/auth.interfaces.ts`).
-  - El endpoint de autenticación backend (`LoginResponse`) retorna únicamente el `RoleId` numérico/Guid sin el nombre textual del rol, y el token JWT solo emite el claim `ClaimTypes.Role` para usuarios con rol `SuperAdmin`.
+  - Existe una discrepancia sustancial de nomenclatura entre los roles definidos en el backend (`NalunPos-Api`: `SuperAdmin`, `TenantAdmin`, `Supervisor`, `InventoryManager`, `Cajero`) y los reconocidos en el frontend (`USER_ROLES = ['SuperAdmin', 'TenantAdmin', 'Cashier', 'Inventory']` en `libs/shared/auth/src/interfaces/auth.interfaces.ts`).
+  - El endpoint de autenticación backend (`LoginResponse`) retorna únicamente el `RoleId` (Guid) sin el nombre textual del rol, y el token JWT solo emite el claim `ClaimTypes.Role` para usuarios con rol `SuperAdmin`.
   - Como mecanismo de tolerancia temporal ante la falta de nombres de roles en el backend, la línea 43 de `libs/shared/auth/src/models/user-session.model.ts` asigna:
     ```typescript
     let role: UserRole = 'SuperAdmin';
@@ -108,6 +108,6 @@ Este documento refleja el estado real, empírico y verificable del frontend de N
     lo que produce un comportamiento _fail-open_, donde cualquier usuario autenticado sin claim explícito recibe privilegios elevados en el cliente.
 - **Orden Estricto de Ejecución Registrado:**
   1. **Completar Pasos 3, 4 y 5 de Cierre Documental (`FRONT FASE 0.4`):** Asegurar el monorepo, auditorías y guías operativas.
-  2. **Actualización del Contrato de Roles en Backend (PRIMERO):** El backend debe emitir el nombre canónico del rol en `LoginResponse` y como claim tipado en el JWT para todos los roles del sistema (`SuperAdmin`, `TenantAdmin`, `Cashier`, `Inventory`, `Supervisor`).
+  2. **Actualización del Contrato de Roles en Backend (PRIMERO):** El backend debe emitir el nombre canónico del rol en `LoginResponse` y como claim tipado en el JWT para todos los roles del sistema (`SuperAdmin`, `TenantAdmin`, `Supervisor`, `InventoryManager`, `Cajero`).
   3. **Adopción en Frontend y Operación Fail-Closed (SEGUNDO):** Adoptar los nombres canónicos en el frontend, eliminar la asignación por defecto `'SuperAdmin'`, conmutar a una política estricta de denegación por defecto (_fail-closed_) y añadir cobertura de pruebas unitarias por cada caso de rol.
   4. **Inicio de Lógica de Negocio:** Comenzar la implementación de las pantallas operativas y flujos de negocio garantizando el control de acceso en cada vista.

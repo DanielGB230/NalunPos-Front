@@ -437,6 +437,26 @@ Cita sin disclaimer el ADR 0008 de base de datos.
         cleanupFixture(dir);
       }
     });
+
+    test('Negativo: detecta tag real asignado al proyecto equivocado', () => {
+      const dir = createValidFixture();
+      try {
+        fs.appendFileSync(
+          path.join(dir, 'README.md'),
+          '\n| Proyecto | Scope | Type |\n| `libs/shared/auth` | `scope:shared` | `type:ui` |\n',
+        );
+        const sources = loadRepoSources(dir);
+        const findings = nxTagsConsistencyRule.check(sources);
+        assert.ok(findings.length > 0);
+        assert.equal(findings[0].rule, nxTagsConsistencyRule.ID);
+        assert.match(
+          findings[0].message,
+          /Etiqueta errónea para shared-auth.*cita "type:ui".*declara "type:data-access"/i,
+        );
+      } finally {
+        cleanupFixture(dir);
+      }
+    });
   });
 
   // ── Verificación Integrada (Runner runVerifyDocs) ──────────────────────────

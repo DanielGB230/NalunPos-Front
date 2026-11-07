@@ -132,6 +132,7 @@ export function loadRepoSources(rootDir = process.cwd()) {
             };
             projectTags.set(projName, info);
             projectTags.set(e.name, info);
+            projectTags.set(info.relPath, info);
           } catch {}
         }
         scanProjects(full);

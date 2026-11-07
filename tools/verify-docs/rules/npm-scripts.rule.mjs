@@ -35,4 +35,3 @@ export function check(sources) {
 
   return findings;
 }
-
