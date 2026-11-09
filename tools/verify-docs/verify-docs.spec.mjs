@@ -60,6 +60,12 @@ function createValidFixture() {
   );
   fs.writeFileSync(path.join(tmpDir, 'apps', 'NalunPos-Web', 'main.ts'), 'console.log("init");');
 
+  fs.mkdirSync(path.join(tmpDir, 'apps', 'NalunPos-Admin-Web'), { recursive: true });
+  fs.writeFileSync(
+    path.join(tmpDir, 'apps', 'NalunPos-Admin-Web', 'project.json'),
+    JSON.stringify({ name: 'NalunPos-Admin-Web', tags: ['scope:admin', 'type:app'] }, null, 2),
+  );
+
   fs.mkdirSync(path.join(tmpDir, 'libs', 'shared', 'auth'), { recursive: true });
   fs.writeFileSync(
     path.join(tmpDir, 'libs', 'shared', 'auth', 'project.json'),
@@ -68,6 +74,18 @@ function createValidFixture() {
   fs.writeFileSync(
     path.join(tmpDir, 'libs', 'shared', 'auth', 'auth.service.ts'),
     'export class AuthService {}',
+  );
+
+  fs.mkdirSync(path.join(tmpDir, 'libs', 'shared', 'ui'), { recursive: true });
+  fs.writeFileSync(
+    path.join(tmpDir, 'libs', 'shared', 'ui', 'project.json'),
+    JSON.stringify({ name: 'shared-ui', tags: ['scope:shared', 'type:ui'] }, null, 2),
+  );
+
+  fs.mkdirSync(path.join(tmpDir, 'libs', 'shared', 'util'), { recursive: true });
+  fs.writeFileSync(
+    path.join(tmpDir, 'libs', 'shared', 'util', 'project.json'),
+    JSON.stringify({ name: 'shared-util', tags: ['scope:shared', 'type:util'] }, null, 2),
   );
 
   // tools
@@ -406,7 +424,8 @@ Cita sin disclaimer el ADR 0008 de base de datos.
 
   // ── Regla i): nx-tags-consistency ─────────────────────────────────────────
   describe('Regla i) nx-tags-consistency', () => {
-    test('Positivo: pasa cuando las etiquetas Nx son válidas y coherentes con project.json', () => {
+    // Casos Positivos
+    test('Positivo 1: pasa cuando las etiquetas Nx en tablas coinciden con project.json', () => {
       const dir = createValidFixture();
       try {
         fs.appendFileSync(
@@ -421,7 +440,38 @@ Cita sin disclaimer el ADR 0008 de base de datos.
       }
     });
 
-    test('Negativo: detecta etiqueta scope inventada no declarada en project.json ni eslint', () => {
+    test('Positivo 2: pasa con viñeta de nombre corto y Tagged con acento grave', () => {
+      const dir = createValidFixture();
+      try {
+        fs.appendFileSync(
+          path.join(dir, 'README.md'),
+          '\n   - `auth`: AuthService y control de sesiones. Tagged: `["scope:shared", "type:data-access"]`.\n',
+        );
+        const sources = loadRepoSources(dir);
+        const findings = nxTagsConsistencyRule.check(sources);
+        assert.equal(findings.length, 0);
+      } finally {
+        cleanupFixture(dir);
+      }
+    });
+
+    test('Positivo 3: no dispara falsos positivos en oraciones con paréntesis adyacentes y reglas de dependencia', () => {
+      const dir = createValidFixture();
+      try {
+        fs.appendFileSync(
+          path.join(dir, 'README.md'),
+          '\n"`libs/shared/ui` (`type:ui`) no puede depender de `libs/shared/auth` (`type:data-access`)."\n"`libs/shared/ui` solo puede depender de proyectos con `type:util`."\n',
+        );
+        const sources = loadRepoSources(dir);
+        const findings = nxTagsConsistencyRule.check(sources);
+        assert.equal(findings.length, 0);
+      } finally {
+        cleanupFixture(dir);
+      }
+    });
+
+    // Casos Negativos
+    test('Negativo a: detecta etiqueta scope inventada no declarada en project.json ni eslint', () => {
       const dir = createValidFixture();
       try {
         fs.appendFileSync(
@@ -438,7 +488,7 @@ Cita sin disclaimer el ADR 0008 de base de datos.
       }
     });
 
-    test('Negativo: detecta tag real asignado al proyecto equivocado', () => {
+    test('Negativo b: detecta tabla con tag real asignado al proyecto equivocado', () => {
       const dir = createValidFixture();
       try {
         fs.appendFileSync(
@@ -453,6 +503,93 @@ Cita sin disclaimer el ADR 0008 de base de datos.
           findings[0].message,
           /Etiqueta errónea para shared-auth.*cita "type:ui".*declara "type:data-access"/i,
         );
+      } finally {
+        cleanupFixture(dir);
+      }
+    });
+
+    test('Negativo c: detecta viñeta con nombre corto y Tagged con acento grave con tag erróneo', () => {
+      const dir = createValidFixture();
+      try {
+        fs.appendFileSync(
+          path.join(dir, 'README.md'),
+          '\n   - `auth`: AuthService y control de sesiones. Tagged: `["scope:shared", "type:ui"]`.\n',
+        );
+        const sources = loadRepoSources(dir);
+        const findings = nxTagsConsistencyRule.check(sources);
+        assert.ok(findings.length > 0);
+        assert.equal(findings[0].rule, nxTagsConsistencyRule.ID);
+        assert.match(
+          findings[0].message,
+          /Etiqueta errónea para shared-auth.*cita "type:ui".*declara "type:data-access"/i,
+        );
+      } finally {
+        cleanupFixture(dir);
+      }
+    });
+
+    test('Negativo d: detecta línea con Tagged y acento grave en app con tag erróneo', () => {
+      const dir = createValidFixture();
+      try {
+        fs.appendFileSync(
+          path.join(dir, 'README.md'),
+          '\n   - `NalunPos-Web`: Panel operativo comercial. Tagged: `["scope:admin", "type:app"]`.\n',
+        );
+        const sources = loadRepoSources(dir);
+        const findings = nxTagsConsistencyRule.check(sources);
+        assert.ok(findings.length > 0);
+        assert.equal(findings[0].rule, nxTagsConsistencyRule.ID);
+        assert.match(
+          findings[0].message,
+          /Etiqueta errónea para NalunPos-Web.*cita "scope:admin".*declara "scope:web"/i,
+        );
+      } finally {
+        cleanupFixture(dir);
+      }
+    });
+
+    test('Negativo e: detecta línea de AGENTS.md con ruta completa y negrita con tag erróneo', () => {
+      const dir = createValidFixture();
+      try {
+        fs.appendFileSync(
+          path.join(dir, 'README.md'),
+          '\n- **`apps/NalunPos-Admin-Web`**: Consola administrativa global. Tagged: `["scope:web", "type:app"]`.\n',
+        );
+        const sources = loadRepoSources(dir);
+        const findings = nxTagsConsistencyRule.check(sources);
+        assert.ok(findings.length > 0);
+        assert.equal(findings[0].rule, nxTagsConsistencyRule.ID);
+        assert.match(
+          findings[0].message,
+          /Etiqueta errónea para NalunPos-Admin-Web.*cita "scope:web".*declara "scope:admin"/i,
+        );
+      } finally {
+        cleanupFixture(dir);
+      }
+    });
+
+    test('Negativo f: detecta y advierte ambigüedad si dos proyectos colisionan en shortName', () => {
+      const dir = createValidFixture();
+      try {
+        // Crear un segundo proyecto con shortName 'auth' en otra ruta
+        fs.mkdirSync(path.join(dir, 'libs', 'other', 'auth'), { recursive: true });
+        fs.writeFileSync(
+          path.join(dir, 'libs', 'other', 'auth', 'project.json'),
+          JSON.stringify(
+            { name: 'other-auth', tags: ['scope:other', 'type:data-access'] },
+            null,
+            2,
+          ),
+        );
+        fs.appendFileSync(
+          path.join(dir, 'README.md'),
+          '\n- `auth`: Módulo ambiguo. Tagged: `["scope:shared", "type:data-access"]`.\n',
+        );
+        const sources = loadRepoSources(dir);
+        const findings = nxTagsConsistencyRule.check(sources);
+        assert.ok(findings.length > 0);
+        assert.equal(findings[0].rule, nxTagsConsistencyRule.ID);
+        assert.match(findings[0].message, /ambiguo y coincide con múltiples proyectos/i);
       } finally {
         cleanupFixture(dir);
       }

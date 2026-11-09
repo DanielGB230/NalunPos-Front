@@ -5,19 +5,64 @@
 export const ID = 'nx-tags-consistency';
 
 /**
+ * Valida que las etiquetas asignadas a un proyecto coincidan con las declaradas
+ * en su project.json en tiempo de ejecución. Detecta también nombres ambiguos.
+ */
+export function validateProjectTagsAssignment(proj, foundTags, file, line, findings) {
+  if (!proj) return;
+
+  if (proj.isAmbiguous) {
+    findings.push({
+      rule: ID,
+      file,
+      line,
+      message: `El identificador de proyecto "${proj.name}" es ambiguo y coincide con múltiples proyectos (${proj.candidates.join(', ')}). Especifique la ruta relativa o el nombre completo del proyecto.`,
+    });
+    return;
+  }
+
+  for (const tag of foundTags) {
+    if (tag.startsWith('scope:') && proj.scope && tag !== proj.scope) {
+      findings.push({
+        rule: ID,
+        file,
+        line,
+        message: `Etiqueta errónea para ${proj.name}: cita "${tag}", pero su project.json declara "${proj.scope}".`,
+      });
+    }
+    if (tag.startsWith('type:') && proj.type && tag !== proj.type) {
+      findings.push({
+        rule: ID,
+        file,
+        line,
+        message: `Etiqueta errónea para ${proj.name}: cita "${tag}", pero su project.json declara "${proj.type}".`,
+      });
+    }
+  }
+}
+
+/**
  * Valida que toda etiqueta Nx (scope:*, type:*) citada exista en el repositorio
- * y que las asignaciones a proyectos en tablas, listas y declaraciones coincidan
- * con las declaradas en sus respectivos project.json, resueltos dinámicamente.
+ * y que las asignaciones a proyectos en tablas, viñetas Tagged y paréntesis
+ * inline coincidan con las declaradas en sus respectivos project.json.
  */
 export function check(sources) {
   const findings = [];
   const tagRegex = /\b(scope:[a-z0-9-]+|type:[a-z0-9-]+)\b/g;
 
-  // Proyectos únicos descubiertos dinámicamente desde project.json (sin listas hardcodeadas)
-  const projects = Array.from(new Set(sources.projectTags?.values() || []));
+  // Resolución dinámica desde sources.resolveProject o mapa projectTags
+  const resolveProject =
+    sources.resolveProject ||
+    ((id) => {
+      if (!id || typeof id !== 'string') return null;
+      const clean = id.trim().replace(/^[`*]+|[`*]+$/g, '');
+      return sources.projectTags?.get(clean) || null;
+    });
 
   for (const doc of sources.markdownDocs) {
     doc.lines.forEach((lineText, idx) => {
+      const lineNum = idx + 1;
+
       // 1. Validar que cada etiqueta individual citada exista en el conjunto válido
       let match;
       while ((match = tagRegex.exec(lineText)) !== null) {
@@ -26,7 +71,7 @@ export function check(sources) {
           findings.push({
             rule: ID,
             file: doc.relPath,
-            line: idx + 1,
+            line: lineNum,
             message: `La etiqueta de Nx "${tag}" no existe en ningún project.json ni en eslint.config.js.`,
           });
         }
@@ -40,97 +85,75 @@ export function check(sources) {
           .map((c) => c.trim())
           .filter((c) => c.length > 0);
         if (cells.length >= 2) {
-          for (const proj of projects) {
-            const patterns = [proj.name, proj.relPath].filter(Boolean);
-            const hasProject = patterns.some(
-              (p) => cells[0].includes(p) || (cells[1] && cells[1].includes(p)),
-            );
-            if (hasProject) {
-              const rowTags = lineText.match(tagRegex) || [];
-              for (const rt of rowTags) {
-                if (rt.startsWith('scope:') && proj.scope && rt !== proj.scope) {
-                  findings.push({
-                    rule: ID,
-                    file: doc.relPath,
-                    line: idx + 1,
-                    message: `Etiqueta errónea para ${proj.name}: cita "${rt}", pero su project.json declara "${proj.scope}".`,
-                  });
-                }
-                if (rt.startsWith('type:') && proj.type && rt !== proj.type) {
-                  findings.push({
-                    rule: ID,
-                    file: doc.relPath,
-                    line: idx + 1,
-                    message: `Etiqueta errónea para ${proj.name}: cita "${rt}", pero su project.json declara "${proj.type}".`,
-                  });
-                }
-              }
-            }
+          let proj = null;
+          for (let c = 0; c < Math.min(2, cells.length); c++) {
+            const cell = cells[c];
+            const codeMatch = cell.match(/`([^`]+)`/);
+            const candidate = codeMatch
+              ? codeMatch[1].trim()
+              : cell.replace(/^[*_]+|[*_]+$/g, '').trim();
+            proj = resolveProject(candidate);
+            if (proj) break;
+          }
+          if (proj) {
+            const rowTags = lineText.match(tagRegex) || [];
+            validateProjectTagsAssignment(proj, rowTags, doc.relPath, lineNum, findings);
           }
         }
       }
 
-      // 3. Validar listas directas o declaraciones en prosa con paréntesis o Tagged:
+      // 3. Validar líneas con formato "Tagged: `[...]`" o "Tagged: [...]"
+      // Tolera acentos graves y comillas opcionales
       // Ejemplos:
-      // - `libs/shared/auth` (`type:data-access`)
-      // - NalunPos-Web. Tagged: `["scope:web", "type:app"]`
-      for (const proj of projects) {
-        const patterns = [proj.name, proj.relPath].filter(Boolean);
-        for (const p of patterns) {
-          const escapedPattern = p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      // - `auth`: ... Tagged: `["scope:shared", "type:data-access"]`.
+      // - **`apps/NalunPos-Admin-Web`**: ... Tagged: `["scope:admin", "type:app"]`.
+      const taggedRegex = /Tagged:\s*`?\[([^\]]+)\]`?/gi;
+      let tMatch;
+      while ((tMatch = taggedRegex.exec(lineText)) !== null) {
+        const tagList = tMatch[1].match(tagRegex) || [];
+        if (tagList.length > 0) {
+          const prefix = lineText.substring(0, tMatch.index);
+          let proj = null;
 
-          // Coincidencia con paréntesis inmediatamente contiguo: proyecto (scope:... o type:...)
-          const parenRegex = new RegExp(
-            `(?:^|\\s|\`|\\*\\*)${escapedPattern}(?:\`|\\*\\*)?\\s*\\((?:[^)]*?)?(scope:[a-z0-9-]+|type:[a-z0-9-]+)`,
-            'g',
+          // Intentar resolver desde el identificador al inicio de la viñeta
+          const bulletMatch = prefix.match(
+            /^\s*(?:[-*]\s+)?(?:\*\*)?`?([a-zA-Z0-9_\-\.\/]+)`?(?:\*\*)?:?/,
           );
-          let pMatch;
-          while ((pMatch = parenRegex.exec(lineText)) !== null) {
-            const foundTag = pMatch[1];
-            if (foundTag.startsWith('scope:') && proj.scope && foundTag !== proj.scope) {
-              findings.push({
-                rule: ID,
-                file: doc.relPath,
-                line: idx + 1,
-                message: `Etiqueta errónea para ${proj.name}: cita "${foundTag}", pero su project.json declara "${proj.scope}".`,
-              });
-            }
-            if (foundTag.startsWith('type:') && proj.type && foundTag !== proj.type) {
-              findings.push({
-                rule: ID,
-                file: doc.relPath,
-                line: idx + 1,
-                message: `Etiqueta errónea para ${proj.name}: cita "${foundTag}", pero su project.json declara "${proj.type}".`,
-              });
+          if (bulletMatch) {
+            proj = resolveProject(bulletMatch[1]);
+          }
+
+          // Si no resolvió, buscar tokens entre backticks en el prefijo
+          if (!proj) {
+            const codeMatches = Array.from(prefix.matchAll(/`([^`]+)`/g));
+            for (const cm of codeMatches) {
+              const candidate = resolveProject(cm[1]);
+              if (candidate) {
+                proj = candidate;
+                break;
+              }
             }
           }
 
-          // Coincidencia con sintaxis Tagged: ["...", "..."]
-          const taggedRegex = new RegExp(
-            `(?:^|\\s|\`|\\*\\*)${escapedPattern}(?:\`|\\*\\*)?[^\\n|]*?Tagged:\\s*\\[([^\\]]+)\\]`,
-            'g',
-          );
-          let tMatch;
-          while ((tMatch = taggedRegex.exec(lineText)) !== null) {
-            const tagList = tMatch[1].match(tagRegex) || [];
-            for (const t of tagList) {
-              if (t.startsWith('scope:') && proj.scope && t !== proj.scope) {
-                findings.push({
-                  rule: ID,
-                  file: doc.relPath,
-                  line: idx + 1,
-                  message: `Etiqueta errónea para ${proj.name}: cita "${t}", pero su project.json declara "${proj.scope}".`,
-                });
-              }
-              if (t.startsWith('type:') && proj.type && t !== proj.type) {
-                findings.push({
-                  rule: ID,
-                  file: doc.relPath,
-                  line: idx + 1,
-                  message: `Etiqueta errónea para ${proj.name}: cita "${t}", pero su project.json declara "${proj.type}".`,
-                });
-              }
-            }
+          if (proj) {
+            validateProjectTagsAssignment(proj, tagList, doc.relPath, lineNum, findings);
+          }
+        }
+      }
+
+      // 4. Validar menciones inline con paréntesis inmediatamente adyacente:
+      // Formato: `proyecto` (tag) o **proyecto** (tag)
+      // Ejemplo: `libs/shared/ui` (`type:ui`) no puede depender de `libs/shared/auth` (`type:data-access`).
+      const parenRegex = /(?:`|\*\*)([^`*]+)(?:`|\*\*)\s*\(([^)]+)\)/g;
+      let pMatch;
+      while ((pMatch = parenRegex.exec(lineText)) !== null) {
+        const candidateId = pMatch[1].trim();
+        const parenContent = pMatch[2];
+        const tagsInParen = parenContent.match(tagRegex) || [];
+        if (tagsInParen.length > 0) {
+          const proj = resolveProject(candidateId);
+          if (proj) {
+            validateProjectTagsAssignment(proj, tagsInParen, doc.relPath, lineNum, findings);
           }
         }
       }

@@ -104,6 +104,7 @@ export function loadRepoSources(rootDir = process.cwd()) {
   // 5. Todos los project.json en apps/ y libs/ (Etiquetas reales)
   const projectTags = new Map();
   const validNxTags = new Set();
+  const rawProjects = [];
 
   function scanProjects(dir) {
     if (!fs.existsSync(dir)) return;
@@ -119,20 +120,21 @@ export function loadRepoSources(rootDir = process.cwd()) {
             const projName = pj.name || e.name;
             const scope = tags.find((t) => t.startsWith('scope:'));
             const type = tags.find((t) => t.startsWith('type:'));
+            const relPath = normalizePath(path.relative(normRoot, full));
+            const shortName = path.basename(relPath);
 
             for (const t of tags) validNxTags.add(t);
 
             const info = {
               name: projName,
+              shortName,
               folderName: e.name,
               tags,
               scope,
               type,
-              relPath: normalizePath(path.relative(normRoot, full)),
+              relPath,
             };
-            projectTags.set(projName, info);
-            projectTags.set(e.name, info);
-            projectTags.set(info.relPath, info);
+            rawProjects.push(info);
           } catch {}
         }
         scanProjects(full);
@@ -141,6 +143,63 @@ export function loadRepoSources(rootDir = process.cwd()) {
   }
   scanProjects(path.join(normRoot, 'apps'));
   scanProjects(path.join(normRoot, 'libs'));
+
+  // Detección de ambigüedad de nombres cortos (shortName)
+  const shortNameCounts = new Map();
+  for (const p of rawProjects) {
+    shortNameCounts.set(p.shortName, (shortNameCounts.get(p.shortName) || 0) + 1);
+  }
+
+  const ambiguousShortNames = new Map();
+  for (const p of rawProjects) {
+    if (shortNameCounts.get(p.shortName) > 1) {
+      if (!ambiguousShortNames.has(p.shortName)) {
+        ambiguousShortNames.set(p.shortName, []);
+      }
+      ambiguousShortNames.get(p.shortName).push(p.name);
+    }
+  }
+
+  // Mapear por nombre completo y por ruta relativa
+  for (const p of rawProjects) {
+    projectTags.set(p.name, p);
+    projectTags.set(p.relPath, p);
+    if (!ambiguousShortNames.has(p.shortName)) {
+      projectTags.set(p.shortName, p);
+    }
+  }
+
+  // Registrar entradas explícitas de ambigüedad
+  for (const [shortName, candidates] of ambiguousShortNames.entries()) {
+    projectTags.set(shortName, {
+      isAmbiguous: true,
+      name: shortName,
+      candidates,
+    });
+  }
+
+  /**
+   * Resuelve dinámicamente un identificador a su proyecto correspondiente
+   * considerando ruta relativa, nombre completo o nombre corto.
+   */
+  function resolveProject(identifier) {
+    if (!identifier || typeof identifier !== 'string') return null;
+    const clean = identifier.trim().replace(/^[`*]+|[`*]+$/g, '');
+    if (!clean) return null;
+
+    const normalized = normalizePath(clean);
+    if (projectTags.has(normalized)) {
+      return projectTags.get(normalized);
+    }
+    if (projectTags.has(clean)) {
+      return projectTags.get(clean);
+    }
+    const base = path.basename(normalized);
+    if (projectTags.has(base)) {
+      return projectTags.get(base);
+    }
+    return null;
+  }
 
   // Tags válidos desde eslint.config.js
   const eslintPath = path.join(normRoot, 'eslint.config.js');
@@ -220,7 +279,10 @@ export function loadRepoSources(rootDir = process.cwd()) {
     repoFiles,
     adrFiles,
     skills,
+    projects: rawProjects,
     projectTags,
+    ambiguousShortNames,
+    resolveProject,
     validNxTags,
     markdownDocs,
   };
