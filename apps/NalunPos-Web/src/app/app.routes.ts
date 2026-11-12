@@ -4,7 +4,7 @@
 // =============================================================================
 
 import type { Routes } from '@angular/router';
-import { authGuard } from '@nalunpos/shared/auth';
+import { TENANT_ROLES, authGuard, roleGuard } from '@nalunpos/shared/auth';
 
 export const appRoutes: Routes = [
   // ─── Ruta raíz: redirige según autenticación ─────────────────────────────
@@ -25,7 +25,7 @@ export const appRoutes: Routes = [
   {
     path: '',
     loadComponent: () => import('@nalunpos/shared/ui').then((m) => m.AppShellComponent),
-    canActivate: [authGuard],
+    canActivate: [authGuard, roleGuard(TENANT_ROLES)],
     children: [
       {
         path: 'dashboard',

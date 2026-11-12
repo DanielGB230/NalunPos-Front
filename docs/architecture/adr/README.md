@@ -22,6 +22,7 @@ Este directorio documenta todas las decisiones arquitectónicas fundamentales ad
 | [0012](./0012-in-memory-token-storage-and-httponly-refresh-cookie.md) | **In-Memory Access Token Storage con HttpOnly SameSite=Strict Refresh Cookie** | **Propuesto — Dependiente de Fase F1 Backend** | 2026-10-28 | Seguridad Zero-Trust / Auth |
 |  [0013](./0013-canonical-data-access-and-ui-tokens-deduplication.md)  | **Ubicación Canónica Única para Servicios de Acceso a Datos y Tokens UI**      |                    Aprobado                    | 2026-10-30 | Deduplicación / DRY / Datos |
 |            [0014](./0014-canonical-api-origin-and-csp.md)             | **Origen Canónico de API y Content Security Policy (CSP) Fija en Producción**  |                    Aceptado                    | 2026-11-03 | Seguridad / CSP / Runtime   |
+|          [0015](./0015-fail-closed-session-role-contract.md)          | **Contrato Canónico de Roles, Sesión Fail-Closed y Separación por Aplicación** |                    Aceptado                    | 2026-11-12 | Auth / Roles / Multi-Tenant |
 
 ---
 

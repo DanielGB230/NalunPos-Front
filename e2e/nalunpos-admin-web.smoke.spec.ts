@@ -96,5 +96,34 @@ test.describe('NalunPos-Admin-Web Smoke Suite', () => {
     await page.click('button[type="submit"]');
 
     await expect(page).not.toHaveURL(/\/login/);
+    await expect(page).toHaveURL(/\/dashboard/);
+  });
+
+  test('debe redirigir a /forbidden cuando un rol de tenant intenta acceder al layout protegido de NalunPos-Admin-Web', async ({
+    page,
+  }) => {
+    await page.route('**/api/v1/auth/login', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          token: 'jwt-e2e-tenantadmin-token',
+          userId: '01950000-0000-7000-8000-000000000015',
+          roleId: '01950000-0000-7000-8000-000000000020',
+          role: 'TenantAdmin',
+          email: 'tenantadmin@nalunpos.com',
+          fullName: 'Administrador Tenant E2E',
+          tenantId: '01950000-0000-7000-8000-000000000010',
+          expiresAtUtc: new Date(Date.now() + 3600 * 1000).toISOString(),
+        }),
+      });
+    });
+
+    await page.goto('/login');
+    await page.fill('#email-input', 'tenantadmin@nalunpos.com');
+    await page.fill('#password-input', 'SuperPassword123!');
+    await page.click('button[type="submit"]');
+
+    await expect(page).toHaveURL(/\/forbidden/);
   });
 });

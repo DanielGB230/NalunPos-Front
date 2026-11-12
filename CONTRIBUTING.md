@@ -119,6 +119,6 @@ Todos los comandos se ejecutan desde la raíz del monorepo y se encuentran decla
 
 - [**`AGENTS.md`**](./AGENTS.md): Reglas de ingeniería no negociables, fronteras de Nx, interceptores bidireccionales y deuda técnica conocida.
 - [**`docs/architecture/architecture.md`**](./docs/architecture/architecture.md): Documento integral de diseño y arquitectura de NalunPos Frontend.
-- [**`docs/architecture/adr/`**](./docs/architecture/adr/): Repositorio central de Architectural Decision Records (ADRs 0001–0014).
+- [**`docs/architecture/adr/`**](./docs/architecture/adr/): Repositorio central de Architectural Decision Records (ADRs 0001–0015).
 - [**`docs/security/headers-and-csp.md`**](./docs/security/headers-and-csp.md): Guía de seguridad sobre cabeceras HTTP y Content Security Policy.
 - [**`SECURITY.md`**](./SECURITY.md): Política de seguridad y proceso para reporte responsable de vulnerabilidades.

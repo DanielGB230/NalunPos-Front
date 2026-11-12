@@ -134,15 +134,15 @@ Las aplicaciones no contienen URLs de backend hardcodeadas (ADR 0009 y ADR 0014)
 
 1. **Pruebas Unitarias Rápidas con Vitest**:
    - Ejecutadas en entorno `jsdom` con inicialización JIT nativa de Angular 22 (`@angular/compiler` + `@angular/platform-browser/testing`).
-   - Cobertura de código monitoreada con `@vitest/coverage-v8`: 165 tests unitarios en 28 suites pasando al 100%, con cobertura global de 43.95% de líneas en el monorepo y cobertura real por librería:
+   - Cobertura de código monitoreada con `@vitest/coverage-v8`: 246 tests unitarios en 29 suites pasando al 100%, con cobertura global de 45.76% de líneas (45.83% stmts, 45.23% branches, 41.56% funciones) en el monorepo y cobertura real por librería (`libs/shared/*`: 95.51% líneas):
      - **`libs/shared/util`**: 100.00% líneas (100% stmts, 100% branches, 100% funciones).
-     - **`libs/shared/auth`**: 98.13% líneas (98.21% stmts, 86.96% branches, 100% funciones).
-     - **`libs/shared/data-access`**: 98.13% líneas (98.21% stmts, 93.06% branches, 100% funciones).
-     - **`libs/shared/ui`**: 91.16% líneas (92.31% stmts, 63.96% branches, 95.38% funciones).
+     - **`libs/shared/auth`**: 100.00% líneas (100% stmts, 94.82% branches, 100% funciones; 100% en `user-role.model.ts`, `user-session.model.ts`, `auth.service.ts` y `auth.guards.ts`).
+     - **`libs/shared/data-access`**: 98.13% líneas (98.21% stmts, 93.05% branches, 100% funciones).
+     - **`libs/shared/ui`**: 91.16% líneas (92.30% stmts, 63.96% branches, 95.38% funciones).
 2. **Verificación Automatizada de Seguridad de Artefactos y CSP (`verify:csp`)**:
    - Herramienta nativa [`tools/verify-csp.mjs`](../../tools/verify-csp.mjs) ejecutada en CI tras el build de producción para validar la integridad de directivas CSP, hashes SHA-256 de scripts inline, ausencia total de `config.json` y de `localhost` en artefactos compilados.
 3. **Pruebas E2E Smoke con Playwright**:
-   - Pruebas end-to-end automatizadas en Chromium headless con interceptación de red vía `page.route()`, incluyendo intercepción de `/config.json` y monitoreo de eventos DOM `securitypolicyviolation`.
+   - 11 pruebas end-to-end automatizadas en Chromium headless (`6` en `NalunPos-Web` y `5` en `NalunPos-Admin-Web`) con interceptación de red vía `page.route()`, incluyendo intercepción de `/config.json`, monitoreo de eventos DOM `securitypolicyviolation`, rechazo _fail-closed_ de roles no canónicos y separación de acceso `/forbidden` entre plataforma y tenant.
 
 ---
 
@@ -157,6 +157,7 @@ Las aplicaciones no contienen URLs de backend hardcodeadas (ADR 0009 y ADR 0014)
 
 ## 8. Registro de Decisiones de Arquitectura (ADRs) y Registros Históricos
 
-- **Índice Maestro de ADRs**: El registro maestro de decisiones se encuentra en [`docs/architecture/adr/README.md`](./adr/README.md), abarcando desde **ADR 0001** hasta **ADR 0014**.
+- **Contrato Canónico de Roles y Sesión Fail-Closed ([ADR 0015](./adr/0015-fail-closed-session-role-contract.md))**: Partición estricta de `PLATFORM_ROLES` (`SuperAdmin` ⇔ `tenantId === null`) y `TENANT_ROLES` (`TenantAdmin`, `Supervisor`, `InventoryManager`, `Cajero` ⇔ `tenantId` válido distinto de `EMPTY_GUID`), construcción única _fail-closed_ mediante `UserSession` con constructor privado y separación de acceso por layout raíz en `NalunPos-Admin-Web` y `NalunPos-Web`.
+- **Índice Maestro de ADRs**: El registro maestro de decisiones se encuentra en [`docs/architecture/adr/README.md`](./adr/README.md), abarcando desde **ADR 0001** hasta **ADR 0015**.
 - **Registros Históricos de Refactorización**:
   - [Refactor F0-4: Eliminación de Duplicación entre Apps y Extracción a Shared-UI](./history/refactor-f0-4-duplication-elimination.md).

@@ -3,7 +3,7 @@
 // =============================================================================
 
 import type { Routes } from '@angular/router';
-import { authGuard, roleGuard } from '@nalunpos/shared/auth';
+import { PLATFORM_ROLES, authGuard, roleGuard } from '@nalunpos/shared/auth';
 
 export const appRoutes: Routes = [
   {
@@ -23,7 +23,7 @@ export const appRoutes: Routes = [
   {
     path: '',
     loadComponent: () => import('@nalunpos/shared/ui').then((m) => m.AppShellComponent),
-    canActivate: [authGuard],
+    canActivate: [authGuard, roleGuard(PLATFORM_ROLES)],
     children: [
       {
         path: 'dashboard',
@@ -33,27 +33,23 @@ export const appRoutes: Routes = [
       },
       {
         path: 'tenants',
-        canActivate: [roleGuard(['SuperAdmin'])],
         loadChildren: () =>
           import('./features/tenants/tenants.routes').then((m) => m.tenantsRoutes),
         title: 'Tenants — NalunPos Admin',
       },
       {
         path: 'planes',
-        canActivate: [roleGuard(['SuperAdmin'])],
         loadChildren: () => import('./features/planes/planes.routes').then((m) => m.planesRoutes),
         title: 'Planes — NalunPos Admin',
       },
       {
         path: 'plataforma',
-        canActivate: [roleGuard(['SuperAdmin'])],
         loadChildren: () =>
           import('./features/plataforma/plataforma.routes').then((m) => m.plataformaRoutes),
         title: 'Plataforma — NalunPos Admin',
       },
       {
         path: 'usuarios-admin',
-        canActivate: [roleGuard(['SuperAdmin'])],
         loadChildren: () =>
           import('./features/usuarios-admin/usuarios-admin.routes').then(
             (m) => m.usuariosAdminRoutes,

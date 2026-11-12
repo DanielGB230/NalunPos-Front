@@ -95,7 +95,74 @@ test.describe('NalunPos-Web Smoke Suite', () => {
     await page.fill('#password-input', 'Password123!');
     await page.click('button[type="submit"]');
 
-    // Debe redirigir fuera de /login
+    // Debe redirigir fuera de /login hacia /dashboard
     await expect(page).not.toHaveURL(/\/login/);
+    await expect(page).toHaveURL(/\/dashboard/);
+  });
+
+  test('debe fallar cerrado en /login ante un rol no canónico sin crear sesión en sessionStorage', async ({
+    page,
+  }) => {
+    await page.route('**/api/v1/auth/login', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          token: 'jwt-e2e-custom-role-token',
+          userId: '01950000-0000-7000-8000-000000000099',
+          roleId: '01950000-0000-7000-8000-000000000088',
+          role: 'RolPersonalizado',
+          email: 'custom@nalunpos.com',
+          fullName: 'Usuario Rol Personalizado',
+          tenantId: '01950000-0000-7000-8000-000000000010',
+          expiresAtUtc: new Date(Date.now() + 3600 * 1000).toISOString(),
+        }),
+      });
+    });
+
+    await page.goto('/login');
+    await page.fill('#email-input', 'custom@nalunpos.com');
+    await page.fill('#password-input', 'Password123!');
+    await page.click('button[type="submit"]');
+
+    await expect(page).toHaveURL(/\/login/);
+    await expect(
+      page.locator(
+        'text=No fue posible iniciar sesión. Verifica tus credenciales e intenta de nuevo.',
+      ),
+    ).toBeVisible();
+
+    const storedSession = await page.evaluate(() =>
+      globalThis['sessionStorage'].getItem('nalunpos_auth_session'),
+    );
+    expect(storedSession).toBeNull();
+  });
+
+  test('debe redirigir a /forbidden cuando SuperAdmin intenta acceder al layout protegido de NalunPos-Web', async ({
+    page,
+  }) => {
+    await page.route('**/api/v1/auth/login', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          token: 'jwt-e2e-superadmin-token',
+          userId: '01950000-0000-7000-8000-000000000001',
+          roleId: '00000000-0000-0000-0000-000000000001',
+          role: 'SuperAdmin',
+          email: 'superadmin@nalunpos.com',
+          fullName: 'Super Administrador Plataforma',
+          tenantId: null,
+          expiresAtUtc: new Date(Date.now() + 3600 * 1000).toISOString(),
+        }),
+      });
+    });
+
+    await page.goto('/login');
+    await page.fill('#email-input', 'superadmin@nalunpos.com');
+    await page.fill('#password-input', 'Password123!');
+    await page.click('button[type="submit"]');
+
+    await expect(page).toHaveURL(/\/forbidden/);
   });
 });

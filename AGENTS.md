@@ -216,13 +216,13 @@ Cualquier cambio estructural, introducción de una nueva librería, alteración 
 El estado con cifras y fecha vigente está detallado en [`docs/STATUS.md`](./docs/STATUS.md):
 
 1. **Cobertura Real por Zonas (`npx vitest run --coverage`):**
-   - **Métricas Globales del Monorepo:** 43.95% de líneas (165 pruebas en 28 suites pasando al 100%).
-   - **Zona de Librerías Core (`libs/shared/*`):** **94.75% de líneas** (469/495 líneas cubiertas):
+   - **Métricas Globales del Monorepo:** 45.76% de líneas (246 pruebas en 29 suites pasando al 100%).
+   - **Zona de Librerías Core (`libs/shared/*`):** **95.51% de líneas** (511/535 líneas cubiertas):
      - `libs/shared/util`: **100.00% líneas** (32/32 líneas, 39/39 stmts, 3/3 funciones).
-     - `libs/shared/auth`: **98.13% líneas** (105/107 líneas, 110/112 stmts, 20/20 funciones).
+     - `libs/shared/auth`: **100.00% líneas** (147/147 líneas, 153/153 stmts, 31/31 funciones; 100% en `user-role.model.ts`, `user-session.model.ts`, `auth.service.ts` y `auth.guards.ts`).
      - `libs/shared/data-access`: **98.13% líneas** (105/107 líneas, 110/112 stmts, 31/31 funciones).
      - `libs/shared/ui`: **91.16% líneas** (227/249 líneas, 264/286 stmts, 62/65 funciones).
-   - **Zona de Aplicaciones (`apps/*`):** **12.95% de líneas** (105/811 líneas cubiertas):
+   - **Zona de Aplicaciones (`apps/*`):** **12.94% de líneas** (105/811 líneas cubiertas):
      - La mayor parte de vistas operativas y componentes en `apps/NalunPos-Web` y `apps/NalunPos-Admin-Web` carecen de tests unitarios de componente, lo que constituye la deuda prioritaria a saldar en la **Fase 1** del frontend.
 2. **Deuda F1 Backend — Autenticación Zero-Trust (ADR 0012):**
    - La arquitectura actual mantiene el token en `sessionStorage` (ADR 0003 vigente). La migración a in-memory access token y cookie `HttpOnly` para refresh token está diseñada pero pendiente de la implementación del endpoint `/api/v1/auth/refresh` en el backend.
@@ -233,18 +233,18 @@ El estado con cifras y fecha vigente está detallado en [`docs/STATUS.md`](./doc
 5. **Endpoints de Almacenes Pendientes en Backend:**
    - En `WarehouseApiService`, los métodos de modificación (`PUT`, `PATCH status`, `PATCH default`) lanzan errores descriptivos en espera de disponibilidad de endpoints en la API.
 6. **Normalización de Encabezados en ADRs Históricos:**
-   - De los 14 ADRs existentes (`0001` a `0014`), únicamente **4 ADRs** (`0003`, `0004`, `0009` y `0012`) cumplen explícitamente con los tres encabezados mínimos (`Contexto`, `Decisión`, `Consecuencias`). Los **10 ADRs restantes** (`0001`, `0002`, `0005`, `0006`, `0007`, `0008`, `0010`, `0011`, `0013` y `0014`) no cuentan con la terna completa (los ADRs `0001`, `0002`, `0006`, `0007`, `0008`, `0010`, `0011`, `0013` y `0014` carecen de `## Contexto` explícito al residir en el párrafo introductorio o en razones, y el ADR `0005` carece de `## Consecuencias`), quedando catalogados para normalización en una tarea futura de limpieza documental sin alterar sus decisiones.
-7. **CRÍTICO — Mapeo de rol de la sesión y elevación implícita de privilegios (Falla Fail-Open):**
-   - **Evidencia en Frontend:** En [`libs/shared/auth/src/models/user-session.model.ts:43`](./libs/shared/auth/src/models/user-session.model.ts#L43), el método `UserSession.fromAuthResponse` asigna por defecto `let role: UserRole = 'SuperAdmin';`. Las ramas condicionales posteriores ([L45–L48](./libs/shared/auth/src/models/user-session.model.ts#L45-L48)) únicamente reconocen valores para `'SuperAdmin'` (0), `'TenantAdmin'` (1), `'Cashier'` (2) e `'Inventory'` (3).
-   - **Evidencia en Backend:** La auditoría del repositorio `NalunPos-Api` confirma en sus fuentes oficiales (`src/Pos.Domain/Enums/UserRole.cs:6-13` y `src/Pos.Infrastructure/Persistence/Seed/DefaultRoleSeeder.cs:24-95`) que:
-     a) `LoginResponse` (`src/Pos.Application/Authentication/Commands/Login/LoginCommandHandler.cs:61`) devuelve `RoleId` (Guid) y no un campo de rol por nombre ni número.
-     b) El backend define internamente el enum `UserRole` (`src/Pos.Domain/Enums/UserRole.cs:6-13`) y los roles sembrados en `DefaultRoleSeeder.cs:24-95` con los nombres canónicos: `SuperAdmin`, `TenantAdmin`, `Supervisor`, `InventoryManager` y `Cajero`.
-     c) El generador de tokens (`src/Pos.Infrastructure/Authentication/JwtTokenGenerator.cs:46, 51`) únicamente emite el claim `ClaimTypes.Role` (`"SuperAdmin"`) para el rol de plataforma `SuperAdminRoleId`; para los usuarios de tenant solo emite el claim de id `"roleId": user.RoleId.ToString()`.
-   - **Consecuencia de Seguridad:** Al iniciar sesión cualquier usuario de tenant, `response.user?.role ?? response.role` evalúa como `undefined`, provocando que la asignación por defecto `role = 'SuperAdmin'` permanezca inalterada. Todo usuario queda mapeado inadvertidamente con privilegios de `SuperAdmin` en la sesión del frontend (comportamiento _fail-open_).
-   - **Acción Pendiente (PRIORITARIA, antes de empezar la lógica de negocio; independiente de la Fase F1 del refresh token):**
-     1. Contrato de backend con el nombre del rol para TODOS los roles (`SuperAdmin`, `TenantAdmin`, `Supervisor`, `InventoryManager`, `Cajero`) en `LoginResponse` y como claim de rol.
-     2. El frontend adopta los nombres canónicos del backend (`SuperAdmin`, `TenantAdmin`, `Supervisor`, `InventoryManager`, `Cajero`) y falla cerrado si el rol falta o no se reconoce, con tests por caso.
-        _Nota de precedencia crítica:_ El **ORDEN estricto es primero backend y después frontend**, ya que si el frontend se modifica para fallar cerrado antes de que el backend envíe el nombre de rol, ningún usuario no administrador podrá iniciar sesión.
+   - De los 15 ADRs existentes (`0001` a `0015`), **5 ADRs** (`0003`, `0004`, `0009`, `0012` y `0015`) cumplen explícitamente con los tres encabezados mínimos (`Contexto`, `Decisión`, `Consecuencias`). Los **10 ADRs restantes** (`0001`, `0002`, `0005`, `0006`, `0007`, `0008`, `0010`, `0011`, `0013` y `0014`) no cuentan con la terna completa (los ADRs `0001`, `0002`, `0006`, `0007`, `0008`, `0010`, `0011`, `0013` y `0014` carecen de `## Contexto` explícito al residir en el párrafo introductorio o en razones, y el ADR `0005` carece de `## Consecuencias`), quedando catalogados para normalización en una tarea futura de limpieza documental sin alterar sus decisiones.
+7. **Mapeo de rol de la sesión, contrato canónico y separación por app — RESUELTO (100% Cerrado — 2026-11-12):**
+   - **Evidencia en Backend (`NalunPos-Api` commit `6bc7cb0`, `ADR 0023`):**
+     - `docs/architecture/adr/0023-contrato-de-roles-y-sesion-de-autenticacion.md:1-99`: Formaliza los 5 roles canónicos (`PlatformRoles.SuperAdmin`, `TenantRoles`), resolución fail-closed bajo RLS y contrato estable HTTP/JWT.
+     - `src/Pos.Application/Authentication/Commands/Login/LoginResponse.cs:6-15` y `LoginCommandHandler.cs:49-69`: Emiten el contrato plano con `Role` textual canónico, `RoleId`, `UserId`, `TenantId`, `Token`, `Email`, `FullName` y `ExpiresAtUtc`.
+     - `src/Pos.Infrastructure/Authentication/AuthUserLookup.cs:58-83` y `JwtTokenGenerator.cs:27-91`: Exigen `(SuperAdminRoleId, TenantId == null)` para plataforma y fallan cerrado ante cualquier inconsistencia o colisión de nombres reservados.
+   - **Evidencia en Frontend (`NalunPos-Front`, [`ADR 0015`](./docs/architecture/adr/0015-fail-closed-session-role-contract.md)):**
+     - [`libs/shared/auth/src/models/user-role.model.ts:6-43`](./libs/shared/auth/src/models/user-role.model.ts#L6-L43): Define `EMPTY_GUID`, `PLATFORM_ROLES`, `TENANT_ROLES`, `USER_ROLES`, `isNonEmptyIdentifier`, `isUserRole` e `isRoleTenantCoherent`.
+     - [`libs/shared/auth/src/models/user-session.model.ts:16-145`](./libs/shared/auth/src/models/user-session.model.ts#L16-L145): Constructor `private` (`L17-25`), `isSuperAdmin` (`L31-33`) y pipeline único fail-closed (`fromAuthResponse`, `fromStoredSession`, `validateAndCreate`) sin fallback a `'SuperAdmin'` ni roles legacy.
+     - [`libs/shared/auth/src/services/auth.service.ts:57-74`](./libs/shared/auth/src/services/auth.service.ts#L57-L74): Rechaza respuestas inválidas con `AUTH_INVALID_SESSION` (401) sin persistir sesión, y `restoreSessionFromStorage` (`L90-109`) purga registros inválidos.
+     - [`libs/shared/auth/src/guards/auth.guards.ts:35-57`](./libs/shared/auth/src/guards/auth.guards.ts#L35-L57): `roleGuard` valida `isUserRole` e `isRoleTenantCoherent` (defensa en profundidad) redirigiendo a `/forbidden`.
+     - [`apps/NalunPos-Admin-Web/src/app/app.routes.ts:23-60`](./apps/NalunPos-Admin-Web/src/app/app.routes.ts#L23-L60) y [`apps/NalunPos-Web/src/app/app.routes.ts:25-90`](./apps/NalunPos-Web/src/app/app.routes.ts#L25-L90): Aplican `canActivate: [authGuard, roleGuard(PLATFORM_ROLES)]` y `canActivate: [authGuard, roleGuard(TENANT_ROLES)]` en los layouts protegidos, verificados por E2E en [`e2e/nalunpos-web.smoke.spec.ts`](./e2e/nalunpos-web.smoke.spec.ts) y [`e2e/nalunpos-admin-web.smoke.spec.ts`](./e2e/nalunpos-admin-web.smoke.spec.ts).
 
 ---
 
@@ -271,5 +271,5 @@ El repositorio cuenta con skills de agentes estructurados en `.agents/skills/` q
 - **Guía de Contribución y DoD:** [`CONTRIBUTING.md`](./CONTRIBUTING.md)
 - **Política de Seguridad:** [`SECURITY.md`](./SECURITY.md)
 - **Arquitectura Frontend:** [`docs/architecture/architecture.md`](./docs/architecture/architecture.md)
-- **Registro de ADRs (0001 a 0014):** [`docs/architecture/adr/README.md`](./docs/architecture/adr/README.md)
+- **Registro de ADRs (0001 a 0015):** [`docs/architecture/adr/README.md`](./docs/architecture/adr/README.md)
 - **Cabeceras HTTP y Content Security Policy:** [`docs/security/headers-and-csp.md`](./docs/security/headers-and-csp.md)

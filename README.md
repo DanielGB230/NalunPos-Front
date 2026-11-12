@@ -40,10 +40,10 @@ npm run format:fix
 ### 4. Pruebas Unitarias y Cobertura (Vitest)
 
 ```bash
-# Ejecutar suite completa de pruebas unitarias (165 tests en 28 suites)
+# Ejecutar suite completa de pruebas unitarias (246 tests en 29 suites)
 npx vitest run
 
-# Ejecutar pruebas unitarias con reporte de cobertura de código v8 (43.95% líneas global; por librería: util 100%, auth 98.13%, data-access 98.13%, ui 91.16%)
+# Ejecutar pruebas unitarias con reporte de cobertura de código v8 (45.76% líneas global; por librería: util 100%, auth 100%, data-access 98.13%, ui 91.16%)
 npx vitest run --coverage
 ```
 
@@ -105,7 +105,7 @@ NalunPos-Front/
 │   ├── architecture/
 │   │   ├── architecture.md     # Documento maestro de arquitectura frontend
 │   │   ├── history/            # Registros históricos de refactorizaciones de hitos
-│   │   └── adr/                # Registro de Decisiones de Arquitectura (ADR 0001 - 0014)
+│   │   └── adr/                # Registro de Decisiones de Arquitectura (ADR 0001 - 0015)
 │   ├── guides/
 │   │   └── new-feature.md      # Guía estándar para creación de nuevas features
 │   ├── security/
@@ -133,7 +133,7 @@ NalunPos-Front/
 - **Guía de Despliegue en Producción:** [`docs/deployment.md`](./docs/deployment.md)
 - **Guía para Creación de Nuevas Features:** [`docs/guides/new-feature.md`](./docs/guides/new-feature.md)
 - **Arquitectura del Sistema Frontend:** [`docs/architecture/architecture.md`](./docs/architecture/architecture.md)
-- **Registro de Decisiones de Arquitectura (ADR 0001 - 0014):** [`docs/architecture/adr/README.md`](./docs/architecture/adr/README.md)
+- **Registro de Decisiones de Arquitectura (ADR 0001 - 0015):** [`docs/architecture/adr/README.md`](./docs/architecture/adr/README.md)
 - **Directrices de Seguridad HTTP y CSP:** [`docs/security/headers-and-csp.md`](./docs/security/headers-and-csp.md)
 
 ---
@@ -147,5 +147,5 @@ NalunPos-Front/
 - **Estilos**: Tailwind CSS v4 + Angular Material M3 unificados mediante `libs/shared/design-tokens/src/theme.css` — Cero `!important`.
 - **Tipografías**: 100% auto-alojadas con `@fontsource` (Plus Jakarta Sans, Inter, JetBrains Mono, Material Symbols) — Cero peticiones externas a CDNs.
 - **Configuración de Runtime**: 12-factor compliant inyectada vía token `APP_CONFIG`. En producción, `/config.json` es suministrado externamente por el hosting conforme al [ADR 0014](./docs/architecture/adr/0014-canonical-api-origin-and-csp.md).
-- **Seguridad**: 0 usos de `innerHTML` o `bypassSecurityTrust*`. CSP estricta en producción: sin `'unsafe-inline'` en `script-src` (hashes SHA-256 para scripts inline); `style-src` permite `'unsafe-inline'` por requerimiento de Tailwind CSS v4 y Angular Material ([ADR 0014](./docs/architecture/adr/0014-canonical-api-origin-and-csp.md)). Registro propuesto de in-memory auth con HttpOnly cookie ([ADR 0012](./docs/architecture/adr/0012-in-memory-token-storage-and-httponly-refresh-cookie.md)). Deduplicación canónica de datos y tokens ([ADR 0013](./docs/architecture/adr/0013-canonical-data-access-and-ui-tokens-deduplication.md)).
-- **Documentación de Decisiones**: Ver índice completo en [ADR README](./docs/architecture/adr/README.md) (ADR 0001 a 0014) y [Arquitectura](./docs/architecture/architecture.md).
+- **Seguridad**: 0 usos de `innerHTML` o `bypassSecurityTrust*`. CSP estricta en producción: sin `'unsafe-inline'` en `script-src` (hashes SHA-256 para scripts inline); `style-src` permite `'unsafe-inline'` por requerimiento de Tailwind CSS v4 y Angular Material ([ADR 0014](./docs/architecture/adr/0014-canonical-api-origin-and-csp.md)). Contrato canónico de roles y sesión _fail-closed_ ([ADR 0015](./docs/architecture/adr/0015-fail-closed-session-role-contract.md)). Registro propuesto de in-memory auth con HttpOnly cookie ([ADR 0012](./docs/architecture/adr/0012-in-memory-token-storage-and-httponly-refresh-cookie.md)). Deduplicación canónica de datos y tokens ([ADR 0013](./docs/architecture/adr/0013-canonical-data-access-and-ui-tokens-deduplication.md)).
+- **Documentación de Decisiones**: Ver índice completo en [ADR README](./docs/architecture/adr/README.md) (ADR 0001 a 0015) y [Arquitectura](./docs/architecture/architecture.md).
