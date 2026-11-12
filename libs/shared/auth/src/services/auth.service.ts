@@ -9,25 +9,12 @@
 import { Injectable, computed, inject, signal, type Signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import type { AppError } from '@nalunpos/shared/data-access';
 import type { Observable } from 'rxjs';
-import { tap } from 'rxjs';
-import {
-  USER_ROLES,
-  type AuthResponse,
-  type LoginRequest,
-  type UserRole,
-} from '../interfaces/auth.interfaces';
+import { of, switchMap, throwError } from 'rxjs';
+import type { AuthResponse, LoginRequest } from '../interfaces/auth.interfaces';
+import type { UserRole } from '../models/user-role.model';
 import { UserSession } from '../models/user-session.model';
-
-interface StoredAuthSession {
-  id: string;
-  name: string;
-  email: string;
-  role: UserRole;
-  tenantId: string | null;
-  token: string;
-  expiresAt: string;
-}
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -69,8 +56,19 @@ export class AuthService {
   // ─── Login ─────────────────────────────────────────────────────────────────
   login(credentials: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/api/v1/auth/login`, credentials).pipe(
-      tap((response) => {
-        this.persistSession(response, credentials.email);
+      switchMap((response) => {
+        const session = UserSession.fromAuthResponse(response);
+        if (!session) {
+          const invalidSessionError: AppError = {
+            code: 'AUTH_INVALID_SESSION',
+            message: 'No fue posible iniciar sesión. Verifica tus credenciales e intenta de nuevo.',
+            status: 401,
+          };
+          return throwError(() => invalidSessionError);
+        }
+
+        this.persistSession(session);
+        return of(response);
       }),
     );
   }
@@ -84,21 +82,9 @@ export class AuthService {
 
   // ─── Privados ──────────────────────────────────────────────────────────────
 
-  private persistSession(response: AuthResponse, fallbackEmail: string): void {
-    const session = UserSession.fromAuthResponse(response, fallbackEmail);
+  private persistSession(session: UserSession): void {
     this._currentUser.set(session);
-
-    const storedData: StoredAuthSession = {
-      id: session.id,
-      name: session.name,
-      email: session.email,
-      role: session.role,
-      tenantId: session.tenantId,
-      token: session.token,
-      expiresAt: session.expiresAt.toISOString(),
-    };
-
-    sessionStorage.setItem(this.STORAGE_KEY, JSON.stringify(storedData));
+    sessionStorage.setItem(this.STORAGE_KEY, JSON.stringify(session.toStoredSession()));
   }
 
   private restoreSessionFromStorage(): UserSession | null {
@@ -109,48 +95,8 @@ export class AuthService {
       }
 
       const parsed: unknown = JSON.parse(raw);
-
-      if (
-        !parsed ||
-        typeof parsed !== 'object' ||
-        !('token' in parsed) ||
-        typeof parsed.token !== 'string' ||
-        parsed.token.trim() === '' ||
-        !('id' in parsed) ||
-        typeof parsed.id !== 'string' ||
-        parsed.id.trim() === '' ||
-        !('email' in parsed) ||
-        typeof parsed.email !== 'string' ||
-        parsed.email.trim() === '' ||
-        !('role' in parsed) ||
-        typeof parsed.role !== 'string' ||
-        !(USER_ROLES as readonly string[]).includes(parsed.role) ||
-        !('expiresAt' in parsed) ||
-        typeof parsed.expiresAt !== 'string'
-      ) {
-        sessionStorage.removeItem(this.STORAGE_KEY);
-        return null;
-      }
-
-      const data = parsed as StoredAuthSession;
-      const expiresAt = new Date(data.expiresAt);
-
-      if (isNaN(expiresAt.getTime())) {
-        sessionStorage.removeItem(this.STORAGE_KEY);
-        return null;
-      }
-
-      const session = new UserSession(
-        data.id,
-        data.name ?? (data.role === 'SuperAdmin' ? 'SuperAdmin' : 'Usuario'),
-        data.email,
-        data.role,
-        data.tenantId ?? null,
-        data.token,
-        expiresAt,
-      );
-
-      if (session.isExpired) {
+      const session = UserSession.fromStoredSession(parsed);
+      if (!session) {
         sessionStorage.removeItem(this.STORAGE_KEY);
         return null;
       }

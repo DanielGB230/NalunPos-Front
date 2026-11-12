@@ -79,16 +79,13 @@ test.describe('NalunPos-Web Smoke Suite', () => {
         contentType: 'application/json',
         body: JSON.stringify({
           token: 'jwt-e2e-valid-token-mock',
-          refreshToken: 'refresh-e2e-mock',
-          expiresIn: 3600,
-          user: {
-            id: 'usr-e2e-1',
-            email: 'cajero@nalunpos.com',
-            fullName: 'Cajero Operador E2E',
-            role: 'Cajero',
-            tenantId: 'tenant-retail-01',
-            permissions: ['POS_SALES'],
-          },
+          userId: 'usr-e2e-1',
+          roleId: 'role-e2e-cajero-01',
+          role: 'Cajero',
+          email: 'cajero@nalunpos.com',
+          fullName: 'Cajero Operador E2E',
+          tenantId: 'tenant-retail-01',
+          expiresAtUtc: new Date(Date.now() + 3600 * 1000).toISOString(),
         }),
       });
     });

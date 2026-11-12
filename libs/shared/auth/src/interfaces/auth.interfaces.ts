@@ -1,6 +1,6 @@
 // =============================================================================
 // DTOs de Autenticación — Contratos con el Backend NalunPos-Api
-// Fuente: POST /api/v1/auth/login
+// Fuente: POST /api/v1/auth/login (LoginResponse)
 // =============================================================================
 
 export interface LoginRequest {
@@ -10,21 +10,11 @@ export interface LoginRequest {
 
 export interface AuthResponse {
   readonly token: string;
-  readonly expiresAtUtc?: string;
-  readonly expiresIn?: number;
-  readonly userId?: string;
-  readonly role?: number | UserRole;
-  readonly tenantId?: string | null;
-  readonly user?: AuthUserDto;
-}
-
-export interface AuthUserDto {
-  readonly id: string;
-  readonly name: string;
+  readonly userId: string;
+  readonly roleId: string;
+  readonly role: string;
   readonly email: string;
-  readonly role: UserRole;
+  readonly fullName: string;
   readonly tenantId: string | null;
+  readonly expiresAtUtc: string;
 }
-
-export const USER_ROLES = ['SuperAdmin', 'TenantAdmin', 'Cashier', 'Inventory'] as const;
-export type UserRole = (typeof USER_ROLES)[number];

@@ -1,11 +1,12 @@
 import '@angular/compiler';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { AuthService } from './auth.service';
+import { TestBed } from '@angular/core/testing';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import type { AppError } from '@nalunpos/shared/data-access';
 import { of, throwError } from 'rxjs';
 import type { AuthResponse, LoginRequest } from '../interfaces/auth.interfaces';
-import { TestBed } from '@angular/core/testing';
+import { AuthService } from './auth.service';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -14,18 +15,26 @@ describe('AuthService', () => {
 
   const STORAGE_KEY = 'nalunpos_auth_session';
 
-  const mockAuthResponse: AuthResponse = {
+  const mockSuperAdminResponse: AuthResponse = {
     token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.test-jwt-token',
-    refreshToken: 'refresh-token-uuid-1234',
-    expiresIn: 3600,
-    user: {
-      id: 'usr-001',
-      email: 'admin@nalunpos.com',
-      fullName: 'Administrador Nalun',
-      role: 'SuperAdmin',
-      tenantId: 'tenant-enterprise-01',
-      permissions: ['ALL'],
-    },
+    userId: 'usr-001',
+    roleId: '00000000-0000-0000-0000-000000000001',
+    role: 'SuperAdmin',
+    email: 'admin@nalunpos.com',
+    fullName: 'Administrador Nalun',
+    tenantId: null,
+    expiresAtUtc: new Date(Date.now() + 3600 * 1000).toISOString(),
+  };
+
+  const mockTenantCajeroResponse: AuthResponse = {
+    token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.tenant-cajero-jwt',
+    userId: 'usr-002',
+    roleId: 'role-cajero-001',
+    role: 'Cajero',
+    email: 'cajero@empresa.com',
+    fullName: 'Carlos Cajero',
+    tenantId: 'tenant-enterprise-01',
+    expiresAtUtc: new Date(Date.now() + 3600 * 1000).toISOString(),
   };
 
   beforeEach(() => {
@@ -65,8 +74,8 @@ describe('AuthService', () => {
     expect(sessionStorage.length).toBe(0);
   });
 
-  it('debe autenticar al usuario, actualizar signals y persistir exactamente 1 clave unificada en sessionStorage', () => {
-    httpMock.post.mockReturnValue(of(mockAuthResponse));
+  it('debe autenticar SuperAdmin válido, actualizar signals y persistir exactamente 1 clave unificada en sessionStorage', () => {
+    httpMock.post.mockReturnValue(of(mockSuperAdminResponse));
 
     const credentials: LoginRequest = {
       email: 'admin@nalunpos.com',
@@ -78,13 +87,13 @@ describe('AuthService', () => {
       result = res;
     });
 
-    expect(result).toEqual(mockAuthResponse);
+    expect(result).toEqual(mockSuperAdminResponse);
     expect(service.isAuthenticated()).toBe(true);
     expect(service.currentUser()?.email).toBe('admin@nalunpos.com');
     expect(service.userRole()).toBe('SuperAdmin');
-    expect(service.tenantId()).toBe('tenant-enterprise-01');
-    expect(service.getToken()).toBe(mockAuthResponse.token);
-    expect(service.token()).toBe(mockAuthResponse.token);
+    expect(service.tenantId()).toBeNull();
+    expect(service.getToken()).toBe(mockSuperAdminResponse.token);
+    expect(service.token()).toBe(mockSuperAdminResponse.token);
 
     // Verificación estricta: exactamente 1 clave en sessionStorage
     expect(sessionStorage.length).toBe(1);
@@ -94,10 +103,23 @@ describe('AuthService', () => {
     const raw = sessionStorage.getItem(STORAGE_KEY);
     expect(raw).not.toBeNull();
     const stored = JSON.parse(raw!);
-    expect(stored.token).toBe(mockAuthResponse.token);
+    expect(stored.token).toBe(mockSuperAdminResponse.token);
     expect(stored.email).toBe('admin@nalunpos.com');
     expect(stored.role).toBe('SuperAdmin');
+    expect(stored.tenantId).toBeNull();
     expect(stored.id).toBe('usr-001');
+  });
+
+  it('debe autenticar usuario de tenant Cajero con tenantId y actualizar signals correctamente', () => {
+    httpMock.post.mockReturnValue(of(mockTenantCajeroResponse));
+
+    service.login({ email: 'cajero@empresa.com', password: 'Password123!' }).subscribe();
+
+    expect(service.isAuthenticated()).toBe(true);
+    expect(service.userRole()).toBe('Cajero');
+    expect(service.tenantId()).toBe('tenant-enterprise-01');
+    expect(service.currentUser()?.isSuperAdmin).toBe(false);
+    expect(sessionStorage.length).toBe(1);
   });
 
   it('no debe actualizar estado ni persistir en storage si el login falla con error HTTP', () => {
@@ -123,8 +145,74 @@ describe('AuthService', () => {
     expect(sessionStorage.length).toBe(0);
   });
 
+  it('debe fallar cerrado con error genérico si el backend responde con rol desconocido sin persistir ni autenticar', () => {
+    const legacyRoleResponse: AuthResponse = {
+      ...mockTenantCajeroResponse,
+      role: 'Cashier',
+    };
+    httpMock.post.mockReturnValue(of(legacyRoleResponse));
+
+    let capturedError: AppError | undefined;
+    service.login({ email: 'cajero@empresa.com', password: 'Password123!' }).subscribe({
+      next: () => expect.fail('No debio aceptar rol no canónico'),
+      error: (err: AppError) => {
+        capturedError = err;
+      },
+    });
+
+    expect(capturedError?.code).toBe('AUTH_INVALID_SESSION');
+    expect(capturedError?.message).toBe(
+      'No fue posible iniciar sesión. Verifica tus credenciales e intenta de nuevo.',
+    );
+    expect(capturedError?.message).not.toContain('role');
+    expect(capturedError?.message).not.toContain('Cashier');
+    expect(service.currentUser()).toBeNull();
+    expect(service.isAuthenticated()).toBe(false);
+    expect(sessionStorage.length).toBe(0);
+  });
+
+  it('debe fallar cerrado en login cuando hay incoherencia entre rol SuperAdmin y tenantId no nulo', () => {
+    const incoherentResponse: AuthResponse = {
+      ...mockSuperAdminResponse,
+      tenantId: 'tenant-invalido-para-superadmin',
+    };
+    httpMock.post.mockReturnValue(of(incoherentResponse));
+
+    let capturedError: AppError | undefined;
+    service.login({ email: 'admin@nalunpos.com', password: 'Password123!' }).subscribe({
+      next: () => expect.fail('No debio aceptar SuperAdmin con tenantId'),
+      error: (err: AppError) => {
+        capturedError = err;
+      },
+    });
+
+    expect(capturedError?.code).toBe('AUTH_INVALID_SESSION');
+    expect(service.currentUser()).toBeNull();
+    expect(sessionStorage.length).toBe(0);
+  });
+
+  it('debe fallar cerrado en login cuando un rol de tenant viene con tenantId null', () => {
+    const incoherentTenantResponse: AuthResponse = {
+      ...mockTenantCajeroResponse,
+      tenantId: null,
+    };
+    httpMock.post.mockReturnValue(of(incoherentTenantResponse));
+
+    let capturedError: AppError | undefined;
+    service.login({ email: 'cajero@empresa.com', password: 'Password123!' }).subscribe({
+      next: () => expect.fail('No debio aceptar Cajero sin tenantId'),
+      error: (err: AppError) => {
+        capturedError = err;
+      },
+    });
+
+    expect(capturedError?.code).toBe('AUTH_INVALID_SESSION');
+    expect(service.currentUser()).toBeNull();
+    expect(sessionStorage.length).toBe(0);
+  });
+
   it('debe limpiar la sesion, dejar sessionStorage.length en 0 y navegar a /login al ejecutar logout', () => {
-    httpMock.post.mockReturnValue(of(mockAuthResponse));
+    httpMock.post.mockReturnValue(of(mockSuperAdminResponse));
     service.login({ email: 'admin@nalunpos.com', password: 'pwd' }).subscribe();
     expect(service.isAuthenticated()).toBe(true);
     expect(sessionStorage.length).toBe(1);
@@ -147,7 +235,7 @@ describe('AuthService', () => {
       name: 'Usuario Restaurado',
       email: 'restore@nalunpos.com',
       role: 'SuperAdmin',
-      tenantId: 'tenant-1',
+      tenantId: null,
       token: 'valid-restored-jwt',
       expiresAt: futureDate,
     };
@@ -168,6 +256,7 @@ describe('AuthService', () => {
     expect(restoredService.currentUser()?.email).toBe('restore@nalunpos.com');
     expect(restoredService.getToken()).toBe('valid-restored-jwt');
     expect(restoredService.userRole()).toBe('SuperAdmin');
+    expect(restoredService.tenantId()).toBeNull();
     expect(sessionStorage.length).toBe(1);
   });
 
@@ -178,7 +267,7 @@ describe('AuthService', () => {
       name: 'Usuario Expirado',
       email: 'expired@nalunpos.com',
       role: 'SuperAdmin',
-      tenantId: 'tenant-1',
+      tenantId: null,
       token: 'expired-token',
       expiresAt: pastDate,
     };
@@ -224,6 +313,7 @@ describe('AuthService', () => {
       id: 'usr-bad',
       email: 'bad@nalunpos.com',
       role: 'SuperAdmin',
+      tenantId: null,
       token: '   ',
       expiresAt: new Date(Date.now() + 3600000).toISOString(),
     };
@@ -241,6 +331,90 @@ describe('AuthService', () => {
 
     expect(restoredService.isAuthenticated()).toBe(false);
     expect(restoredService.getToken()).toBeNull();
+    expect(sessionStorage.length).toBe(0);
+  });
+
+  it.each(['Cashier', 'Inventory'])(
+    'debe limpiar sessionStorage y retornar currentUser null si la sesión almacenada tiene rol legacy "%s"',
+    (legacyRole) => {
+      const legacySession = {
+        id: 'usr-legacy',
+        name: 'Usuario Legacy',
+        email: 'legacy@nalunpos.com',
+        role: legacyRole,
+        tenantId: 'tenant-1',
+        token: 'legacy-token',
+        expiresAt: new Date(Date.now() + 3600000).toISOString(),
+      };
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(legacySession));
+
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [
+          AuthService,
+          { provide: HttpClient, useValue: httpMock },
+          { provide: Router, useValue: routerMock },
+        ],
+      });
+      const restoredService = TestBed.inject(AuthService);
+
+      expect(restoredService.currentUser()).toBeNull();
+      expect(restoredService.isAuthenticated()).toBe(false);
+      expect(sessionStorage.length).toBe(0);
+    },
+  );
+
+  it('debe limpiar sessionStorage y retornar currentUser null si la sesión almacenada tiene SuperAdmin con tenantId no nulo', () => {
+    const incoherentSession = {
+      id: 'usr-incoherent',
+      name: 'Incoherente',
+      email: 'admin@nalunpos.com',
+      role: 'SuperAdmin',
+      tenantId: 'tenant-1',
+      token: 'valid-token',
+      expiresAt: new Date(Date.now() + 3600000).toISOString(),
+    };
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(incoherentSession));
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        AuthService,
+        { provide: HttpClient, useValue: httpMock },
+        { provide: Router, useValue: routerMock },
+      ],
+    });
+    const restoredService = TestBed.inject(AuthService);
+
+    expect(restoredService.currentUser()).toBeNull();
+    expect(restoredService.isAuthenticated()).toBe(false);
+    expect(sessionStorage.length).toBe(0);
+  });
+
+  it('debe limpiar sessionStorage y retornar currentUser null si la sesión almacenada tiene rol de tenant con tenantId null', () => {
+    const incoherentTenantSession = {
+      id: 'usr-incoherent-tenant',
+      name: 'Incoherente Tenant',
+      email: 'cajero@nalunpos.com',
+      role: 'Cajero',
+      tenantId: null,
+      token: 'valid-token',
+      expiresAt: new Date(Date.now() + 3600000).toISOString(),
+    };
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(incoherentTenantSession));
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        AuthService,
+        { provide: HttpClient, useValue: httpMock },
+        { provide: Router, useValue: routerMock },
+      ],
+    });
+    const restoredService = TestBed.inject(AuthService);
+
+    expect(restoredService.currentUser()).toBeNull();
+    expect(restoredService.isAuthenticated()).toBe(false);
     expect(sessionStorage.length).toBe(0);
   });
 });

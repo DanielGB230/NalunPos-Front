@@ -79,16 +79,13 @@ test.describe('NalunPos-Admin-Web Smoke Suite', () => {
         contentType: 'application/json',
         body: JSON.stringify({
           token: 'jwt-admin-e2e-valid-mock',
-          refreshToken: 'refresh-admin-e2e-mock',
-          expiresIn: 3600,
-          user: {
-            id: 'admin-e2e-01',
-            email: 'admin@nalunpos.com',
-            fullName: 'Super Administrador E2E',
-            role: 'SuperAdmin',
-            tenantId: 'tenant-global-01',
-            permissions: ['ADMIN_ALL'],
-          },
+          userId: 'admin-e2e-01',
+          roleId: '00000000-0000-0000-0000-000000000001',
+          role: 'SuperAdmin',
+          email: 'admin@nalunpos.com',
+          fullName: 'Super Administrador E2E',
+          tenantId: null,
+          expiresAtUtc: new Date(Date.now() + 3600 * 1000).toISOString(),
         }),
       });
     });

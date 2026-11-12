@@ -2,9 +2,10 @@ import '@angular/compiler';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { authGuard, roleGuard } from './auth.guards';
-import { AuthService } from '../services/auth.service';
 import type { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
+import { TENANT_ROLES, USER_ROLES, type UserRole } from '../models/user-role.model';
+import { AuthService } from '../services/auth.service';
+import { authGuard, roleGuard } from './auth.guards';
 
 describe('Auth Guards', () => {
   let authServiceMock: {
@@ -76,11 +77,56 @@ describe('Auth Guards', () => {
       expect(result).toBe(true);
     });
 
+    it('debe aceptar listas readonly UserRole[] como TENANT_ROLES o USER_ROLES', () => {
+      authServiceMock.isAuthenticated.mockReturnValue(true);
+      authServiceMock.userRole.mockReturnValue('InventoryManager');
+
+      const guard = roleGuard(TENANT_ROLES);
+      const result = TestBed.runInInjectionContext(() => guard(dummyRoute, dummyState));
+
+      expect(result).toBe(true);
+    });
+
+    it.each<UserRole>(USER_ROLES)(
+      'debe permitir el acceso para el rol canónico "%s" cuando está incluido en allowedRoles',
+      (canonicalRole) => {
+        authServiceMock.isAuthenticated.mockReturnValue(true);
+        authServiceMock.userRole.mockReturnValue(canonicalRole);
+
+        const guard = roleGuard([canonicalRole]);
+        const result = TestBed.runInInjectionContext(() => guard(dummyRoute, dummyState));
+
+        expect(result).toBe(true);
+      },
+    );
+
     it('debe redirigir a /forbidden si el rol del usuario no tiene permisos', () => {
       authServiceMock.isAuthenticated.mockReturnValue(true);
       authServiceMock.userRole.mockReturnValue('Cajero');
 
       const guard = roleGuard(['SuperAdmin', 'TenantAdmin']);
+      const result = TestBed.runInInjectionContext(() => guard(dummyRoute, dummyState));
+
+      expect(result).toHaveProperty('toString');
+      expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/forbidden']);
+    });
+
+    it('debe redirigir a /forbidden (fail-closed) cuando el usuario autenticado carece de rol (null)', () => {
+      authServiceMock.isAuthenticated.mockReturnValue(true);
+      authServiceMock.userRole.mockReturnValue(null);
+
+      const guard = roleGuard(USER_ROLES);
+      const result = TestBed.runInInjectionContext(() => guard(dummyRoute, dummyState));
+
+      expect(result).toHaveProperty('toString');
+      expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/forbidden']);
+    });
+
+    it('debe redirigir a /forbidden (fail-closed) cuando el rol en sesión no es canónico (ej. legacy)', () => {
+      authServiceMock.isAuthenticated.mockReturnValue(true);
+      authServiceMock.userRole.mockReturnValue('Cashier');
+
+      const guard = roleGuard(USER_ROLES);
       const result = TestBed.runInInjectionContext(() => guard(dummyRoute, dummyState));
 
       expect(result).toHaveProperty('toString');
