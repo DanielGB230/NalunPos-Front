@@ -2,8 +2,10 @@ import '@angular/compiler';
 import { describe, it, expect, afterEach, vi } from 'vitest';
 import type { AuthResponse } from '../interfaces/auth.interfaces';
 import {
+  EMPTY_GUID,
   TENANT_ROLES,
   USER_ROLES,
+  isNonEmptyIdentifier,
   isRoleTenantCoherent,
   isUserRole,
   type UserRole,
@@ -52,21 +54,33 @@ describe('user-role.model', () => {
     expect(isUserRole(undefined)).toBe(false);
   });
 
-  it('debe validar coherencia plataforma/tenant con isRoleTenantCoherent', () => {
+  it('debe rechazar en isNonEmptyIdentifier valores no string, vacíos y Guid.Empty', () => {
+    expect(isNonEmptyIdentifier('01950000-0000-7000-8000-000000000001')).toBe(true);
+    expect(isNonEmptyIdentifier(EMPTY_GUID)).toBe(false);
+    expect(isNonEmptyIdentifier(`  ${EMPTY_GUID.toUpperCase()}  `)).toBe(false);
+    expect(isNonEmptyIdentifier('')).toBe(false);
+    expect(isNonEmptyIdentifier('   ')).toBe(false);
+    expect(isNonEmptyIdentifier(null)).toBe(false);
+    expect(isNonEmptyIdentifier(123)).toBe(false);
+  });
+
+  it('debe validar coherencia plataforma/tenant y rechazo de Guid.Empty con isRoleTenantCoherent', () => {
     expect(isRoleTenantCoherent('SuperAdmin', null)).toBe(true);
     expect(isRoleTenantCoherent('SuperAdmin', 'tenant-01')).toBe(false);
     expect(isRoleTenantCoherent('SuperAdmin', '')).toBe(false);
+    expect(isRoleTenantCoherent('SuperAdmin', EMPTY_GUID)).toBe(false);
 
     for (const role of TENANT_ROLES) {
       expect(isRoleTenantCoherent(role, 'tenant-01')).toBe(true);
       expect(isRoleTenantCoherent(role, null)).toBe(false);
       expect(isRoleTenantCoherent(role, '')).toBe(false);
       expect(isRoleTenantCoherent(role, '   ')).toBe(false);
+      expect(isRoleTenantCoherent(role, EMPTY_GUID)).toBe(false);
     }
   });
 });
 
-describe('UserSession.fromAuthResponse (política fail-closed)', () => {
+describe('UserSession.fromAuthResponse y fromStoredSession (política fail-closed)', () => {
   afterEach(() => {
     vi.useRealTimers();
   });
@@ -87,6 +101,7 @@ describe('UserSession.fromAuthResponse (política fail-closed)', () => {
     expect(session?.role).toBe('SuperAdmin');
     expect(session?.tenantId).toBeNull();
     expect(session?.isSuperAdmin).toBe(true);
+    expect(session?.isExpired).toBe(false);
     expect(session?.id).toBe(response.userId);
     expect(session?.email).toBe('super@nalunpos.com');
     expect(session?.name).toBe('Super Administrador');
@@ -130,6 +145,29 @@ describe('UserSession.fromAuthResponse (política fail-closed)', () => {
     },
   );
 
+  // ─── Expiración dinámica en memoria y entradas no-objeto ──────────────────
+
+  it('debe evaluar isExpired como true cuando el reloj alcanza expiresAt', () => {
+    const start = new Date('2026-11-12T10:00:00.000Z');
+    vi.useFakeTimers();
+    vi.setSystemTime(start);
+
+    const session = UserSession.fromAuthResponse(
+      createValidResponse({ expiresAtUtc: '2026-11-12T11:00:00.000Z' }),
+    );
+    expect(session?.isExpired).toBe(false);
+
+    vi.setSystemTime(new Date('2026-11-12T11:00:00.000Z'));
+    expect(session?.isExpired).toBe(true);
+  });
+
+  it('debe retornar null en fromAuthResponse y fromStoredSession cuando la entrada es nula o no es un objeto', () => {
+    expect(UserSession.fromAuthResponse(null as unknown as AuthResponse)).toBeNull();
+    expect(UserSession.fromAuthResponse('invalid' as unknown as AuthResponse)).toBeNull();
+    expect(UserSession.fromStoredSession(null)).toBeNull();
+    expect(UserSession.fromStoredSession('invalid')).toBeNull();
+  });
+
   // ─── Rechazos por rol inválido / desconocido / numérico / ausente ─────────
 
   it.each<unknown>([
@@ -151,7 +189,7 @@ describe('UserSession.fromAuthResponse (política fail-closed)', () => {
     expect(UserSession.fromAuthResponse(response)).toBeNull();
   });
 
-  // ─── Rechazos por incoherencia rol / tenantId ─────────────────────────────
+  // ─── Rechazos por incoherencia rol / tenantId y Guid.Empty ────────────────
 
   it('debe retornar null cuando SuperAdmin viene con tenantId no nulo', () => {
     const response = createValidResponse({
@@ -162,7 +200,7 @@ describe('UserSession.fromAuthResponse (política fail-closed)', () => {
     expect(UserSession.fromAuthResponse(response)).toBeNull();
   });
 
-  it.each<unknown>(['', '   ', undefined])(
+  it.each<unknown>(['', '   ', EMPTY_GUID, undefined, 123])(
     'debe retornar null cuando SuperAdmin viene con tenantId "%s" en vez de null',
     (invalidPlatformTenantId) => {
       const response = createValidResponse({
@@ -175,25 +213,35 @@ describe('UserSession.fromAuthResponse (política fail-closed)', () => {
   );
 
   it.each<UserRole>(['TenantAdmin', 'Supervisor', 'InventoryManager', 'Cajero'])(
-    'debe retornar null cuando el rol de tenant "%s" viene con tenantId null',
+    'debe retornar null cuando el rol de tenant "%s" viene con tenantId null o no string',
     (tenantRole) => {
-      const response = createValidResponse({
-        role: tenantRole,
-        tenantId: null,
-      });
-
-      expect(UserSession.fromAuthResponse(response)).toBeNull();
+      expect(
+        UserSession.fromAuthResponse(createValidResponse({ role: tenantRole, tenantId: null })),
+      ).toBeNull();
+      expect(
+        UserSession.fromAuthResponse(createValidResponse({ role: tenantRole, tenantId: 123 })),
+      ).toBeNull();
     },
   );
 
   it.each<UserRole>(['TenantAdmin', 'Supervisor', 'InventoryManager', 'Cajero'])(
-    'debe retornar null cuando el rol de tenant "%s" viene con tenantId vacío o en blanco',
+    'debe retornar null cuando el rol de tenant "%s" viene con tenantId vacío, espacios o Guid.Empty',
     (tenantRole) => {
       expect(
         UserSession.fromAuthResponse(createValidResponse({ role: tenantRole, tenantId: '' })),
       ).toBeNull();
       expect(
         UserSession.fromAuthResponse(createValidResponse({ role: tenantRole, tenantId: '   ' })),
+      ).toBeNull();
+      expect(
+        UserSession.fromAuthResponse(
+          createValidResponse({ role: tenantRole, tenantId: EMPTY_GUID }),
+        ),
+      ).toBeNull();
+      expect(
+        UserSession.fromAuthResponse(
+          createValidResponse({ role: tenantRole, tenantId: `  ${EMPTY_GUID}  ` }),
+        ),
       ).toBeNull();
     },
   );
@@ -224,7 +272,7 @@ describe('UserSession.fromAuthResponse (política fail-closed)', () => {
     expect(UserSession.fromAuthResponse(response)).toBeNull();
   });
 
-  // ─── Rechazos por campos obligatorios faltantes o vacíos ──────────────────
+  // ─── Rechazos por campos obligatorios faltantes, vacíos o Guid.Empty ───────
 
   it.each<unknown>([undefined, null, '', '   '])(
     'debe retornar null cuando token es "%s"',
@@ -234,7 +282,7 @@ describe('UserSession.fromAuthResponse (política fail-closed)', () => {
     },
   );
 
-  it.each<unknown>([undefined, null, '', '   '])(
+  it.each<unknown>([undefined, null, '', '   ', EMPTY_GUID, `  ${EMPTY_GUID}  `])(
     'debe retornar null cuando userId es "%s"',
     (badUserId) => {
       const response = createValidResponse({ userId: badUserId });

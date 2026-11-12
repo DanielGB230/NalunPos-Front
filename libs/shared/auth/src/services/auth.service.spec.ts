@@ -61,6 +61,7 @@ describe('AuthService', () => {
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     sessionStorage.clear();
     vi.restoreAllMocks();
   });
@@ -71,7 +72,26 @@ describe('AuthService', () => {
     expect(service.userRole()).toBeNull();
     expect(service.tenantId()).toBeNull();
     expect(service.getToken()).toBeNull();
+    expect(service.token()).toBeNull();
     expect(sessionStorage.length).toBe(0);
+  });
+
+  it('debe cambiar isAuthenticated a false cuando la sesión activa en memoria expira', () => {
+    const start = new Date('2026-11-12T10:00:00.000Z');
+    vi.useFakeTimers();
+    vi.setSystemTime(start);
+
+    const timedResponse: AuthResponse = {
+      ...mockSuperAdminResponse,
+      expiresAtUtc: '2026-11-12T11:00:00.000Z',
+    };
+    httpMock.post.mockReturnValue(of(timedResponse));
+
+    service.login({ email: 'admin@nalunpos.com', password: 'StrongPassword123!' }).subscribe();
+    expect(service.currentUser()).not.toBeNull();
+
+    vi.setSystemTime(new Date('2026-11-12T11:00:00.000Z'));
+    expect(service.isAuthenticated()).toBe(false);
   });
 
   it('debe autenticar SuperAdmin válido, actualizar signals y persistir exactamente 1 clave unificada en sessionStorage', () => {

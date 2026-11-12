@@ -5,9 +5,11 @@
 
 // Roles canónicos y validadores de identidad
 export {
+  EMPTY_GUID,
   USER_ROLES,
   PLATFORM_ROLES,
   TENANT_ROLES,
+  isNonEmptyIdentifier,
   isUserRole,
   isRoleTenantCoherent,
 } from './models/user-role.model';
@@ -18,7 +20,6 @@ export type { LoginRequest, AuthResponse } from './interfaces/auth.interfaces';
 
 // Modelos de dominio de sesión
 export { UserSession } from './models/user-session.model';
-export type { StoredAuthSession } from './models/user-session.model';
 
 // Servicio de autenticación
 export { AuthService } from './services/auth.service';

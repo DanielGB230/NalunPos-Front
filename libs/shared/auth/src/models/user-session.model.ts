@@ -5,31 +5,16 @@
 // expirado, con rol no canónico o con incoherencia rol/tenantId retorna null.
 // =============================================================================
 
-import type { AuthResponse } from '../interfaces/auth.interfaces';
-import { isRoleTenantCoherent, isUserRole, type UserRole } from './user-role.model';
-
-export interface StoredAuthSession {
-  readonly id: string;
-  readonly name: string;
-  readonly email: string;
-  readonly role: UserRole;
-  readonly tenantId: string | null;
-  readonly token: string;
-  readonly expiresAt: string;
-}
-
-interface RawSessionCandidate {
-  readonly token: unknown;
-  readonly id: unknown;
-  readonly email: unknown;
-  readonly role: unknown;
-  readonly tenantId: unknown;
-  readonly expiresAt: unknown;
-  readonly name: unknown;
-}
+import type { AuthResponse, StoredAuthSession } from '../interfaces/auth.interfaces';
+import {
+  isNonEmptyIdentifier,
+  isRoleTenantCoherent,
+  isUserRole,
+  type UserRole,
+} from './user-role.model';
 
 export class UserSession {
-  constructor(
+  private constructor(
     public readonly id: string,
     public readonly name: string,
     public readonly email: string,
@@ -44,7 +29,7 @@ export class UserSession {
   }
 
   get isSuperAdmin(): boolean {
-    return this.role === 'SuperAdmin';
+    return this.role === 'SuperAdmin' && this.tenantId === null;
   }
 
   toStoredSession(): StoredAuthSession {
@@ -62,7 +47,7 @@ export class UserSession {
   /**
    * Crea una instancia validada de UserSession a partir de LoginResponse (Pos.Api).
    * Falla cerrado (retorna null) si falta algún campo requerido, la fecha es inválida/vencida,
-   * el rol no es canónico o existe incoherencia entre el rol y el tenantId.
+   * el rol no es canónico, hay Guid.Empty o existe incoherencia entre el rol y el tenantId.
    */
   static fromAuthResponse(response: AuthResponse): UserSession | null {
     if (!response || typeof response !== 'object') {
@@ -101,16 +86,21 @@ export class UserSession {
     });
   }
 
-  private static validateAndCreate(candidate: RawSessionCandidate): UserSession | null {
+  private static validateAndCreate(candidate: {
+    readonly token: unknown;
+    readonly id: unknown;
+    readonly email: unknown;
+    readonly role: unknown;
+    readonly tenantId: unknown;
+    readonly expiresAt: unknown;
+    readonly name: unknown;
+  }): UserSession | null {
     if (
       typeof candidate.token !== 'string' ||
       candidate.token.trim().length === 0 ||
-      typeof candidate.id !== 'string' ||
-      candidate.id.trim().length === 0 ||
+      !isNonEmptyIdentifier(candidate.id) ||
       typeof candidate.email !== 'string' ||
       candidate.email.trim().length === 0 ||
-      typeof candidate.role !== 'string' ||
-      candidate.role.trim().length === 0 ||
       !isUserRole(candidate.role)
     ) {
       return null;

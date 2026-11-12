@@ -79,7 +79,7 @@ export default defineConfig({
         '**/*.test.ts',
         '**/index.ts',
         '**/*.routes.ts',
-        '**/*.model.ts',
+        'libs/shared/data-access/src/models/**/*.model.ts',
         '**/*.interface.ts',
         '**/*.interfaces.ts',
         '**/main.ts',

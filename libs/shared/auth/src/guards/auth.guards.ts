@@ -7,7 +7,7 @@
 import { inject } from '@angular/core';
 import type { CanActivateFn } from '@angular/router';
 import { Router } from '@angular/router';
-import { isUserRole, type UserRole } from '../models/user-role.model';
+import { isRoleTenantCoherent, isUserRole, type UserRole } from '../models/user-role.model';
 import { AuthService } from '../services/auth.service';
 
 /**
@@ -29,7 +29,8 @@ export const authGuard: CanActivateFn = () => {
  * Factory de guard de rol.
  * Uso: canActivate: [roleGuard(['SuperAdmin', 'TenantAdmin'])]
  *
- * Redirige a /forbidden si el rol está ausente, no es canónico o no está permitido.
+ * Redirige a /forbidden si el rol está ausente, no es canónico, es incoherente
+ * con el tenantId de sesión o no está permitido.
  */
 export const roleGuard = (allowedRoles: readonly UserRole[]): CanActivateFn => {
   return () => {
@@ -41,7 +42,13 @@ export const roleGuard = (allowedRoles: readonly UserRole[]): CanActivateFn => {
     }
 
     const userRole = authService.userRole();
-    if (userRole && isUserRole(userRole) && allowedRoles.includes(userRole)) {
+    const tenantId = authService.tenantId();
+    if (
+      userRole &&
+      isUserRole(userRole) &&
+      isRoleTenantCoherent(userRole, tenantId) &&
+      allowedRoles.includes(userRole)
+    ) {
       return true;
     }
 
