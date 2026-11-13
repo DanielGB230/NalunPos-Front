@@ -39,7 +39,7 @@
 
 4. **Exposición de Contratos y Reglas de Cobertura:**
    - `libs/shared/data-access/src/index.ts` re-exporta los tipos generados: `export * from './generated/openapi.types';`.
-   - En `vitest.config.ts`, se añade `'libs/shared/data-access/src/generated/**'` a `coverage.exclude`, ya que el archivo alberga definiciones 100% de tipos sin lógica ejecutable en runtime.
+   - En `vitest.config.ts`, se añade `'libs/shared/data-access/src/generated/openapi.types.ts'` a `coverage.exclude`, ya que el archivo alberga definiciones 100% de tipos sin lógica ejecutable en runtime.
 
 5. **Automatización en Scripts y Pipeline de CI:**
    - Se registran en `package.json` los scripts normativos:

@@ -22,11 +22,17 @@
           },
           "reviewedAtUtc": {
             "format": "date-time",
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "reviewedByUserId": {
             "format": "uuid",
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "riskLevelName": {
             "type": "string"
@@ -49,7 +55,13 @@
         "type": "object"
       },
       "AgentActionStatus": {
-        "enum": ["PendingApproval", "Approved", "Rejected", "Executed", null]
+        "enum": [
+          "PendingApproval",
+          "Approved",
+          "Rejected",
+          "Executed",
+          null
+        ]
       },
       "BranchDto": {
         "properties": {
@@ -81,7 +93,10 @@
           },
           "updatedAtUtc": {
             "format": "date-time",
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "zipCode": {
             "type": "string"
@@ -109,7 +124,10 @@
           },
           "currentSessionId": {
             "format": "uuid",
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "id": {
             "format": "uuid",
@@ -126,7 +144,10 @@
           },
           "updatedAtUtc": {
             "format": "date-time",
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "required": [
@@ -145,7 +166,11 @@
           "actualFinalAmount": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": ["null", "number", "string"]
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
           },
           "cashRegisterId": {
             "format": "uuid",
@@ -153,7 +178,10 @@
           },
           "closedAtUtc": {
             "format": "date-time",
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "currency": {
             "type": "string"
@@ -161,7 +189,11 @@
           "expectedFinalAmount": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": ["null", "number", "string"]
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
           },
           "id": {
             "format": "uuid",
@@ -170,10 +202,16 @@
           "initialAmount": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": ["number", "string"]
+            "type": [
+              "number",
+              "string"
+            ]
           },
           "notes": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "openedAtUtc": {
             "format": "date-time",
@@ -209,7 +247,10 @@
             "type": "string"
           },
           "description": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "id": {
             "format": "uuid",
@@ -223,10 +264,20 @@
           },
           "updatedAtUtc": {
             "format": "date-time",
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
-        "required": ["id", "name", "description", "isActive", "createdAtUtc", "updatedAtUtc"],
+        "required": [
+          "id",
+          "name",
+          "description",
+          "isActive",
+          "createdAtUtc",
+          "updatedAtUtc"
+        ],
         "type": "object"
       },
       "ChangeStatusRequest": {
@@ -235,7 +286,9 @@
             "type": "boolean"
           }
         },
-        "required": ["isActive"],
+        "required": [
+          "isActive"
+        ],
         "type": "object"
       },
       "CloseCashRegisterSessionRequest": {
@@ -243,7 +296,10 @@
           "actualFinalAmount": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": ["number", "string"]
+            "type": [
+              "number",
+              "string"
+            ]
           },
           "currency": {
             "default": "USD",
@@ -252,13 +308,22 @@
           "expectedFinalAmount": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": ["number", "string"]
+            "type": [
+              "number",
+              "string"
+            ]
           },
           "notes": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
-        "required": ["actualFinalAmount", "expectedFinalAmount"],
+        "required": [
+          "actualFinalAmount",
+          "expectedFinalAmount"
+        ],
         "type": "object"
       },
       "CreateBranchRequest": {
@@ -282,7 +347,14 @@
             "type": "string"
           }
         },
-        "required": ["name", "street", "city", "country", "zipCode", "phoneNumber"],
+        "required": [
+          "name",
+          "street",
+          "city",
+          "country",
+          "zipCode",
+          "phoneNumber"
+        ],
         "type": "object"
       },
       "CreateCashRegisterRequest": {
@@ -299,28 +371,43 @@
             "type": "string"
           }
         },
-        "required": ["branchId", "name"],
+        "required": [
+          "branchId",
+          "name"
+        ],
         "type": "object"
       },
       "CreateCategoryRequest": {
         "properties": {
           "description": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "name": {
             "type": "string"
           }
         },
-        "required": ["name", "description"],
+        "required": [
+          "name",
+          "description"
+        ],
         "type": "object"
       },
       "CreateCustomerRequest": {
         "properties": {
           "city": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "country": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "email": {
             "default": "",
@@ -334,7 +421,10 @@
             "type": "string"
           },
           "street": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "taxCountryCode": {
             "type": "string"
@@ -343,16 +433,26 @@
             "type": "string"
           },
           "zipCode": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
-        "required": ["fullName", "taxId", "taxCountryCode"],
+        "required": [
+          "fullName",
+          "taxId",
+          "taxCountryCode"
+        ],
         "type": "object"
       },
       "CreateProductRequest": {
         "properties": {
           "barcode": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "categoryId": {
             "format": "uuid",
@@ -361,19 +461,29 @@
           "costAmount": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": ["null", "number", "string"]
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
           },
           "currency": {
             "type": "string"
           },
           "description": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "initialStock": {
             "default": 0,
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "name": {
             "type": "string"
@@ -381,13 +491,22 @@
           "priceAmount": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": ["number", "string"]
+            "type": [
+              "number",
+              "string"
+            ]
           },
           "sku": {
             "type": "string"
           }
         },
-        "required": ["name", "sku", "priceAmount", "currency", "categoryId"],
+        "required": [
+          "name",
+          "sku",
+          "priceAmount",
+          "currency",
+          "categoryId"
+        ],
         "type": "object"
       },
       "CreatePurchaseOrderItemRequest": {
@@ -403,15 +522,25 @@
           "quantity": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": ["number", "string"]
+            "type": [
+              "number",
+              "string"
+            ]
           },
           "unitCostAmount": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": ["number", "string"]
+            "type": [
+              "number",
+              "string"
+            ]
           }
         },
-        "required": ["productId", "quantity", "unitCostAmount"],
+        "required": [
+          "productId",
+          "quantity",
+          "unitCostAmount"
+        ],
         "type": "object"
       },
       "CreatePurchaseOrderRequest": {
@@ -423,7 +552,10 @@
             "type": "array"
           },
           "notes": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "orderNumber": {
             "type": "string"
@@ -437,13 +569,21 @@
             "type": "string"
           }
         },
-        "required": ["supplierId", "warehouseId", "orderNumber", "items"],
+        "required": [
+          "supplierId",
+          "warehouseId",
+          "orderNumber",
+          "items"
+        ],
         "type": "object"
       },
       "CreateRoleRequest": {
         "properties": {
           "description": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "name": {
             "type": "string"
@@ -452,10 +592,15 @@
             "items": {
               "type": "string"
             },
-            "type": ["null", "array"]
+            "type": [
+              "null",
+              "array"
+            ]
           }
         },
-        "required": ["name"],
+        "required": [
+          "name"
+        ],
         "type": "object"
       },
       "CreateSaleItemRequest": {
@@ -470,15 +615,26 @@
           "quantity": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": ["number", "string"]
+            "type": [
+              "number",
+              "string"
+            ]
           },
           "unitPriceAmount": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": ["number", "string"]
+            "type": [
+              "number",
+              "string"
+            ]
           }
         },
-        "required": ["productId", "productName", "quantity", "unitPriceAmount"],
+        "required": [
+          "productId",
+          "productName",
+          "quantity",
+          "unitPriceAmount"
+        ],
         "type": "object"
       },
       "CreateSaleRequest": {
@@ -489,7 +645,10 @@
           },
           "customerId": {
             "format": "uuid",
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "items": {
             "items": {
@@ -508,10 +667,18 @@
             "default": 0,
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": ["number", "string"]
+            "type": [
+              "number",
+              "string"
+            ]
           }
         },
-        "required": ["receiptNumber", "sessionId", "customerId", "items"],
+        "required": [
+          "receiptNumber",
+          "sessionId",
+          "customerId",
+          "items"
+        ],
         "type": "object"
       },
       "CreateStockAdjustmentItemRequest": {
@@ -523,10 +690,16 @@
           "quantity": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": ["number", "string"]
+            "type": [
+              "number",
+              "string"
+            ]
           }
         },
-        "required": ["productId", "quantity"],
+        "required": [
+          "productId",
+          "quantity"
+        ],
         "type": "object"
       },
       "CreateStockAdjustmentRequest": {
@@ -538,7 +711,10 @@
             "type": "array"
           },
           "notes": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "reason": {
             "$ref": "#/components/schemas/StockAdjustmentReason"
@@ -548,7 +724,11 @@
             "type": "string"
           }
         },
-        "required": ["warehouseId", "reason", "items"],
+        "required": [
+          "warehouseId",
+          "reason",
+          "items"
+        ],
         "type": "object"
       },
       "CreateStockTransferItemRequest": {
@@ -560,10 +740,16 @@
           "quantity": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": ["number", "string"]
+            "type": [
+              "number",
+              "string"
+            ]
           }
         },
-        "required": ["productId", "quantity"],
+        "required": [
+          "productId",
+          "quantity"
+        ],
         "type": "object"
       },
       "CreateStockTransferRequest": {
@@ -579,14 +765,21 @@
             "type": "array"
           },
           "notes": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "sourceWarehouseId": {
             "format": "uuid",
             "type": "string"
           }
         },
-        "required": ["sourceWarehouseId", "destinationWarehouseId", "items"],
+        "required": [
+          "sourceWarehouseId",
+          "destinationWarehouseId",
+          "items"
+        ],
         "type": "object"
       },
       "CreateSupplierRequest": {
@@ -649,7 +842,11 @@
             "type": "string"
           }
         },
-        "required": ["userId", "title", "message"],
+        "required": [
+          "userId",
+          "title",
+          "message"
+        ],
         "type": "object"
       },
       "CreateTenantRequest": {
@@ -667,7 +864,12 @@
             "type": "string"
           }
         },
-        "required": ["name", "documentNumber", "adminEmail", "adminPassword"],
+        "required": [
+          "name",
+          "documentNumber",
+          "adminEmail",
+          "adminPassword"
+        ],
         "type": "object"
       },
       "CreateUserRequest": {
@@ -690,10 +892,19 @@
           },
           "tenantId": {
             "format": "uuid",
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
-        "required": ["firstName", "lastName", "email", "password", "roleId"],
+        "required": [
+          "firstName",
+          "lastName",
+          "email",
+          "password",
+          "roleId"
+        ],
         "type": "object"
       },
       "CreateWarehouseRequest": {
@@ -703,7 +914,10 @@
             "type": "string"
           },
           "description": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "isDefault": {
             "type": "boolean"
@@ -712,16 +926,27 @@
             "type": "string"
           }
         },
-        "required": ["branchId", "name", "description", "isDefault"],
+        "required": [
+          "branchId",
+          "name",
+          "description",
+          "isDefault"
+        ],
         "type": "object"
       },
       "CustomerDto": {
         "properties": {
           "city": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "country": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "createdAtUtc": {
             "format": "date-time",
@@ -744,7 +969,10 @@
             "type": "string"
           },
           "street": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "taxCountryCode": {
             "type": "string"
@@ -754,10 +982,16 @@
           },
           "updatedAtUtc": {
             "format": "date-time",
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "zipCode": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "required": [
@@ -783,7 +1017,10 @@
             "type": "string"
           },
           "error": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "id": {
             "format": "uuid",
@@ -796,17 +1033,31 @@
           "retryCount": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "tenantId": {
             "format": "uuid",
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "type": {
             "type": "string"
           }
         },
-        "required": ["id", "tenantId", "type", "content", "occurredOnUtc", "retryCount", "error"],
+        "required": [
+          "id",
+          "tenantId",
+          "type",
+          "content",
+          "occurredOnUtc",
+          "retryCount",
+          "error"
+        ],
         "type": "object"
       },
       "DemandForecastDto": {
@@ -818,19 +1069,30 @@
           "daysAhead": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "predictedRequiredQuantity": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "productId": {
             "format": "uuid",
             "type": "string"
           }
         },
-        "required": ["productId", "daysAhead", "predictedRequiredQuantity", "calculatedAtUtc"],
+        "required": [
+          "productId",
+          "daysAhead",
+          "predictedRequiredQuantity",
+          "calculatedAtUtc"
+        ],
         "type": "object"
       },
       "InventoryMovementDto": {
@@ -850,7 +1112,10 @@
             "type": "string"
           },
           "notes": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "productId": {
             "format": "uuid",
@@ -859,11 +1124,17 @@
           "quantity": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": ["number", "string"]
+            "type": [
+              "number",
+              "string"
+            ]
           },
           "referenceId": {
             "format": "uuid",
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "required": [
@@ -890,7 +1161,10 @@
         ]
       },
       "InvoiceDocumentType": {
-        "enum": ["Invoice", "Receipt"]
+        "enum": [
+          "Invoice",
+          "Receipt"
+        ]
       },
       "InvoiceDto": {
         "properties": {
@@ -919,10 +1193,16 @@
           },
           "manualInterventionAtUtc": {
             "format": "date-time",
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "manualInterventionReason": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "saleId": {
             "format": "uuid",
@@ -934,7 +1214,10 @@
           "totalAmount": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": ["number", "string"]
+            "type": [
+              "number",
+              "string"
+            ]
           }
         },
         "required": [
@@ -967,7 +1250,12 @@
             "type": "string"
           }
         },
-        "required": ["saleId", "documentType", "customerTaxIdValue", "customerTaxCountryCode"],
+        "required": [
+          "saleId",
+          "documentType",
+          "customerTaxIdValue",
+          "customerTaxCountryCode"
+        ],
         "type": "object"
       },
       "LoginRequest": {
@@ -979,7 +1267,10 @@
             "type": "string"
           }
         },
-        "required": ["email", "password"],
+        "required": [
+          "email",
+          "password"
+        ],
         "type": "object"
       },
       "LoginResponse": {
@@ -1003,7 +1294,10 @@
           },
           "tenantId": {
             "format": "uuid",
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "token": {
             "type": "string"
@@ -1034,17 +1328,26 @@
           "initialAmount": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": ["number", "string"]
+            "type": [
+              "number",
+              "string"
+            ]
           },
           "notes": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "userId": {
             "format": "uuid",
             "type": "string"
           }
         },
-        "required": ["userId", "initialAmount"],
+        "required": [
+          "userId",
+          "initialAmount"
+        ],
         "type": "object"
       },
       "PagedResultOfAgentActionRecordDto": {
@@ -1064,25 +1367,42 @@
           "pageNumber": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "pageSize": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "totalCount": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "totalPages": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           }
         },
-        "required": ["items", "pageNumber", "pageSize", "totalCount"],
+        "required": [
+          "items",
+          "pageNumber",
+          "pageSize",
+          "totalCount"
+        ],
         "type": "object"
       },
       "PagedResultOfCategoryDto": {
@@ -1102,25 +1422,42 @@
           "pageNumber": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "pageSize": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "totalCount": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "totalPages": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           }
         },
-        "required": ["items", "pageNumber", "pageSize", "totalCount"],
+        "required": [
+          "items",
+          "pageNumber",
+          "pageSize",
+          "totalCount"
+        ],
         "type": "object"
       },
       "PagedResultOfCustomerDto": {
@@ -1140,25 +1477,42 @@
           "pageNumber": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "pageSize": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "totalCount": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "totalPages": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           }
         },
-        "required": ["items", "pageNumber", "pageSize", "totalCount"],
+        "required": [
+          "items",
+          "pageNumber",
+          "pageSize",
+          "totalCount"
+        ],
         "type": "object"
       },
       "PagedResultOfDeadLetterMessageResponse": {
@@ -1178,25 +1532,42 @@
           "pageNumber": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "pageSize": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "totalCount": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "totalPages": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           }
         },
-        "required": ["items", "pageNumber", "pageSize", "totalCount"],
+        "required": [
+          "items",
+          "pageNumber",
+          "pageSize",
+          "totalCount"
+        ],
         "type": "object"
       },
       "PagedResultOfInventoryMovementDto": {
@@ -1216,25 +1587,42 @@
           "pageNumber": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "pageSize": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "totalCount": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "totalPages": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           }
         },
-        "required": ["items", "pageNumber", "pageSize", "totalCount"],
+        "required": [
+          "items",
+          "pageNumber",
+          "pageSize",
+          "totalCount"
+        ],
         "type": "object"
       },
       "PagedResultOfProductDto": {
@@ -1254,25 +1642,42 @@
           "pageNumber": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "pageSize": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "totalCount": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "totalPages": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           }
         },
-        "required": ["items", "pageNumber", "pageSize", "totalCount"],
+        "required": [
+          "items",
+          "pageNumber",
+          "pageSize",
+          "totalCount"
+        ],
         "type": "object"
       },
       "PagedResultOfPurchaseOrderDto": {
@@ -1292,25 +1697,42 @@
           "pageNumber": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "pageSize": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "totalCount": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "totalPages": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           }
         },
-        "required": ["items", "pageNumber", "pageSize", "totalCount"],
+        "required": [
+          "items",
+          "pageNumber",
+          "pageSize",
+          "totalCount"
+        ],
         "type": "object"
       },
       "PagedResultOfSaleDto": {
@@ -1330,25 +1752,42 @@
           "pageNumber": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "pageSize": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "totalCount": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "totalPages": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           }
         },
-        "required": ["items", "pageNumber", "pageSize", "totalCount"],
+        "required": [
+          "items",
+          "pageNumber",
+          "pageSize",
+          "totalCount"
+        ],
         "type": "object"
       },
       "PagedResultOfStockLevelDto": {
@@ -1368,25 +1807,42 @@
           "pageNumber": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "pageSize": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "totalCount": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "totalPages": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           }
         },
-        "required": ["items", "pageNumber", "pageSize", "totalCount"],
+        "required": [
+          "items",
+          "pageNumber",
+          "pageSize",
+          "totalCount"
+        ],
         "type": "object"
       },
       "PagedResultOfStockTransferDto": {
@@ -1406,25 +1862,42 @@
           "pageNumber": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "pageSize": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "totalCount": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "totalPages": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           }
         },
-        "required": ["items", "pageNumber", "pageSize", "totalCount"],
+        "required": [
+          "items",
+          "pageNumber",
+          "pageSize",
+          "totalCount"
+        ],
         "type": "object"
       },
       "PagedResultOfSupplierDto": {
@@ -1444,25 +1917,42 @@
           "pageNumber": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "pageSize": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "totalCount": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "totalPages": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           }
         },
-        "required": ["items", "pageNumber", "pageSize", "totalCount"],
+        "required": [
+          "items",
+          "pageNumber",
+          "pageSize",
+          "totalCount"
+        ],
         "type": "object"
       },
       "PagedResultOfSystemNotificationDto": {
@@ -1482,25 +1972,42 @@
           "pageNumber": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "pageSize": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "totalCount": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "totalPages": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           }
         },
-        "required": ["items", "pageNumber", "pageSize", "totalCount"],
+        "required": [
+          "items",
+          "pageNumber",
+          "pageSize",
+          "totalCount"
+        ],
         "type": "object"
       },
       "PagedResultOfTenantDto": {
@@ -1520,25 +2027,42 @@
           "pageNumber": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "pageSize": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "totalCount": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "totalPages": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           }
         },
-        "required": ["items", "pageNumber", "pageSize", "totalCount"],
+        "required": [
+          "items",
+          "pageNumber",
+          "pageSize",
+          "totalCount"
+        ],
         "type": "object"
       },
       "PagedResultOfUserDto": {
@@ -1558,25 +2082,42 @@
           "pageNumber": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "pageSize": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "totalCount": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "totalPages": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           }
         },
-        "required": ["items", "pageNumber", "pageSize", "totalCount"],
+        "required": [
+          "items",
+          "pageNumber",
+          "pageSize",
+          "totalCount"
+        ],
         "type": "object"
       },
       "PaymentDto": {
@@ -1584,7 +2125,10 @@
           "amount": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": ["number", "string"]
+            "type": [
+              "number",
+              "string"
+            ]
           },
           "createdAtUtc": {
             "format": "date-time",
@@ -1594,7 +2138,10 @@
             "type": "string"
           },
           "externalReference": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "id": {
             "format": "uuid",
@@ -1624,7 +2171,12 @@
         "type": "object"
       },
       "PaymentMethod": {
-        "enum": ["Cash", "CreditCard", "DebitCard", "Transfer"]
+        "enum": [
+          "Cash",
+          "CreditCard",
+          "DebitCard",
+          "Transfer"
+        ]
       },
       "PosDeviceDto": {
         "properties": {
@@ -1645,7 +2197,10 @@
           },
           "lastPingUtc": {
             "format": "date-time",
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "name": {
             "type": "string"
@@ -1655,7 +2210,10 @@
           },
           "updatedAtUtc": {
             "format": "date-time",
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "required": [
@@ -1674,24 +2232,43 @@
         "properties": {
           "code": {
             "description": "Código de error de dominio RFC 9457 (ADR 0023).",
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "detail": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "instance": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "status": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["null", "integer", "string"]
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ]
           },
           "title": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "type": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "type": "object"
@@ -1701,14 +2278,20 @@
           "amount": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": ["number", "string"]
+            "type": [
+              "number",
+              "string"
+            ]
           },
           "currency": {
             "default": "USD",
             "type": "string"
           },
           "externalReference": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "method": {
             "$ref": "#/components/schemas/PaymentMethod"
@@ -1718,13 +2301,20 @@
             "type": "string"
           }
         },
-        "required": ["saleId", "amount", "method"],
+        "required": [
+          "saleId",
+          "amount",
+          "method"
+        ],
         "type": "object"
       },
       "ProductDto": {
         "properties": {
           "barcode": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "categoryId": {
             "format": "uuid",
@@ -1733,7 +2323,11 @@
           "costAmount": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": ["null", "number", "string"]
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
           },
           "createdAtUtc": {
             "format": "date-time",
@@ -1743,7 +2337,10 @@
             "type": "string"
           },
           "description": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "id": {
             "format": "uuid",
@@ -1758,7 +2355,10 @@
           "priceAmount": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": ["number", "string"]
+            "type": [
+              "number",
+              "string"
+            ]
           },
           "sku": {
             "type": "string"
@@ -1766,11 +2366,17 @@
           "stockQuantity": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           },
           "updatedAtUtc": {
             "format": "date-time",
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "required": [
@@ -1795,7 +2401,10 @@
           "currentStockCalculated": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": ["number", "string"]
+            "type": [
+              "number",
+              "string"
+            ]
           },
           "productId": {
             "format": "uuid",
@@ -1808,7 +2417,12 @@
             "type": "string"
           }
         },
-        "required": ["productId", "productName", "sku", "currentStockCalculated"],
+        "required": [
+          "productId",
+          "productName",
+          "sku",
+          "currentStockCalculated"
+        ],
         "type": "object"
       },
       "ProposeAgentActionRequest": {
@@ -1826,7 +2440,12 @@
             "$ref": "#/components/schemas/RiskLevel"
           }
         },
-        "required": ["agentId", "proposedActionType", "payloadJson", "riskLevel"],
+        "required": [
+          "agentId",
+          "proposedActionType",
+          "payloadJson",
+          "riskLevel"
+        ],
         "type": "object"
       },
       "PurchaseOrderDto": {
@@ -1849,7 +2468,10 @@
             "type": "array"
           },
           "notes": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "orderNumber": {
             "type": "string"
@@ -1867,11 +2489,17 @@
           "totalOrderedCostAmount": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": ["number", "string"]
+            "type": [
+              "number",
+              "string"
+            ]
           },
           "updatedAtUtc": {
             "format": "date-time",
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "warehouseId": {
             "format": "uuid",
@@ -1913,22 +2541,34 @@
           "quantityOrdered": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": ["number", "string"]
+            "type": [
+              "number",
+              "string"
+            ]
           },
           "quantityPending": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": ["number", "string"]
+            "type": [
+              "number",
+              "string"
+            ]
           },
           "quantityReceived": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": ["number", "string"]
+            "type": [
+              "number",
+              "string"
+            ]
           },
           "unitCostAmount": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": ["number", "string"]
+            "type": [
+              "number",
+              "string"
+            ]
           }
         },
         "required": [
@@ -1944,16 +2584,28 @@
         "type": "object"
       },
       "PurchaseOrderStatus": {
-        "enum": ["Draft", "Sent", "PartiallyReceived", "Received", "Cancelled"]
+        "enum": [
+          "Draft",
+          "Sent",
+          "PartiallyReceived",
+          "Received",
+          "Cancelled"
+        ]
       },
       "ReceivePurchaseOrderItemRequest": {
         "properties": {
           "batchNumber": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "expirationDate": {
             "format": "date-time",
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "productId": {
             "format": "uuid",
@@ -1962,10 +2614,16 @@
           "receivedQuantity": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": ["number", "string"]
+            "type": [
+              "number",
+              "string"
+            ]
           }
         },
-        "required": ["productId", "receivedQuantity"],
+        "required": [
+          "productId",
+          "receivedQuantity"
+        ],
         "type": "object"
       },
       "ReceivePurchaseOrderRequest": {
@@ -1977,7 +2635,9 @@
             "type": "array"
           }
         },
-        "required": ["lines"],
+        "required": [
+          "lines"
+        ],
         "type": "object"
       },
       "RecordInventoryMovementRequest": {
@@ -1986,7 +2646,10 @@
             "$ref": "#/components/schemas/InventoryMovementType"
           },
           "notes": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "productId": {
             "format": "uuid",
@@ -1995,18 +2658,32 @@
           "quantity": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": ["number", "string"]
+            "type": [
+              "number",
+              "string"
+            ]
           },
           "referenceId": {
             "format": "uuid",
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "warehouseId": {
             "format": "uuid",
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
-        "required": ["productId", "warehouseId", "quantity", "movementType"],
+        "required": [
+          "productId",
+          "warehouseId",
+          "quantity",
+          "movementType"
+        ],
         "type": "object"
       },
       "RegisterPosDeviceRequest": {
@@ -2022,7 +2699,11 @@
             "type": "string"
           }
         },
-        "required": ["branchId", "name", "serialNumber"],
+        "required": [
+          "branchId",
+          "name",
+          "serialNumber"
+        ],
         "type": "object"
       },
       "ReprocessDeadLetterMessagesRequest": {
@@ -2035,7 +2716,9 @@
             "type": "array"
           }
         },
-        "required": ["messageIds"],
+        "required": [
+          "messageIds"
+        ],
         "type": "object"
       },
       "ReprocessDeadLetterMessagesResponse": {
@@ -2043,10 +2726,15 @@
           "reprocessedCount": {
             "format": "int32",
             "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": ["integer", "string"]
+            "type": [
+              "integer",
+              "string"
+            ]
           }
         },
-        "required": ["reprocessedCount"],
+        "required": [
+          "reprocessedCount"
+        ],
         "type": "object"
       },
       "ReviewAgentActionRequest": {
@@ -2055,19 +2743,32 @@
             "type": "string"
           },
           "comment": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
-        "required": ["action", "comment"],
+        "required": [
+          "action",
+          "comment"
+        ],
         "type": "object"
       },
       "RiskLevel": {
-        "enum": ["Low", "Medium", "High"]
+        "enum": [
+          "Low",
+          "Medium",
+          "High"
+        ]
       },
       "RoleDto": {
         "properties": {
           "description": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "id": {
             "format": "uuid",
@@ -2083,7 +2784,12 @@
             "type": "array"
           }
         },
-        "required": ["id", "name", "description", "permissions"],
+        "required": [
+          "id",
+          "name",
+          "description",
+          "permissions"
+        ],
         "type": "object"
       },
       "SaleDto": {
@@ -2097,7 +2803,10 @@
           },
           "customerId": {
             "format": "uuid",
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "id": {
             "format": "uuid",
@@ -2122,17 +2831,26 @@
           "subTotalAmount": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": ["number", "string"]
+            "type": [
+              "number",
+              "string"
+            ]
           },
           "taxAmount": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": ["number", "string"]
+            "type": [
+              "number",
+              "string"
+            ]
           },
           "totalAmount": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": ["number", "string"]
+            "type": [
+              "number",
+              "string"
+            ]
           }
         },
         "required": [
@@ -2169,17 +2887,26 @@
           "quantity": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": ["number", "string"]
+            "type": [
+              "number",
+              "string"
+            ]
           },
           "subTotalAmount": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": ["number", "string"]
+            "type": [
+              "number",
+              "string"
+            ]
           },
           "unitPriceAmount": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": ["number", "string"]
+            "type": [
+              "number",
+              "string"
+            ]
           }
         },
         "required": [
@@ -2194,7 +2921,12 @@
         "type": "object"
       },
       "SaleStatus": {
-        "enum": ["Completed", "Cancelled", "Paid", null]
+        "enum": [
+          "Completed",
+          "Cancelled",
+          "Paid",
+          null
+        ]
       },
       "StockAdjustmentDto": {
         "properties": {
@@ -2213,7 +2945,10 @@
             "type": "array"
           },
           "notes": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "reason": {
             "$ref": "#/components/schemas/StockAdjustmentReason"
@@ -2226,7 +2961,15 @@
             "type": "string"
           }
         },
-        "required": ["id", "warehouseId", "reason", "reasonName", "notes", "lines", "createdAtUtc"],
+        "required": [
+          "id",
+          "warehouseId",
+          "reason",
+          "reasonName",
+          "notes",
+          "lines",
+          "createdAtUtc"
+        ],
         "type": "object"
       },
       "StockAdjustmentLineDto": {
@@ -2238,20 +2981,35 @@
           "quantity": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": ["number", "string"]
+            "type": [
+              "number",
+              "string"
+            ]
           }
         },
-        "required": ["productId", "quantity"],
+        "required": [
+          "productId",
+          "quantity"
+        ],
         "type": "object"
       },
       "StockAdjustmentReason": {
-        "enum": ["Shrinkage", "PhysicalCount", "Correction", "Donation", "Breakage"]
+        "enum": [
+          "Shrinkage",
+          "PhysicalCount",
+          "Correction",
+          "Donation",
+          "Breakage"
+        ]
       },
       "StockLevelDto": {
         "properties": {
           "containerId": {
             "format": "uuid",
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "id": {
             "format": "uuid",
@@ -2263,7 +3021,10 @@
           "minStockThreshold": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": ["number", "string"]
+            "type": [
+              "number",
+              "string"
+            ]
           },
           "productId": {
             "format": "uuid",
@@ -2272,17 +3033,26 @@
           "quantityAvailable": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": ["number", "string"]
+            "type": [
+              "number",
+              "string"
+            ]
           },
           "quantityReserved": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": ["number", "string"]
+            "type": [
+              "number",
+              "string"
+            ]
           },
           "totalPhysical": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": ["number", "string"]
+            "type": [
+              "number",
+              "string"
+            ]
           },
           "warehouseId": {
             "format": "uuid",
@@ -2323,7 +3093,10 @@
             "type": "array"
           },
           "notes": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "sourceWarehouseId": {
             "format": "uuid",
@@ -2349,10 +3122,16 @@
           "quantity": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": ["number", "string"]
+            "type": [
+              "number",
+              "string"
+            ]
           }
         },
-        "required": ["productId", "quantity"],
+        "required": [
+          "productId",
+          "quantity"
+        ],
         "type": "object"
       },
       "SupplierDto": {
@@ -2397,7 +3176,10 @@
           },
           "updatedAtUtc": {
             "format": "date-time",
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "zipCode": {
             "type": "string"
@@ -2445,7 +3227,14 @@
             "type": "string"
           }
         },
-        "required": ["id", "userId", "title", "message", "isRead", "createdAtUtc"],
+        "required": [
+          "id",
+          "userId",
+          "title",
+          "message",
+          "isRead",
+          "createdAtUtc"
+        ],
         "type": "object"
       },
       "TenantDto": {
@@ -2468,7 +3257,13 @@
             "type": "string"
           }
         },
-        "required": ["id", "name", "documentNumber", "status", "createdAtUtc"],
+        "required": [
+          "id",
+          "name",
+          "documentNumber",
+          "status",
+          "createdAtUtc"
+        ],
         "type": "object"
       },
       "UpdateBranchRequest": {
@@ -2492,28 +3287,47 @@
             "type": "string"
           }
         },
-        "required": ["name", "street", "city", "country", "zipCode", "phoneNumber"],
+        "required": [
+          "name",
+          "street",
+          "city",
+          "country",
+          "zipCode",
+          "phoneNumber"
+        ],
         "type": "object"
       },
       "UpdateCategoryRequest": {
         "properties": {
           "description": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "name": {
             "type": "string"
           }
         },
-        "required": ["name", "description"],
+        "required": [
+          "name",
+          "description"
+        ],
         "type": "object"
       },
       "UpdateCustomerRequest": {
         "properties": {
           "city": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "country": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "email": {
             "default": "",
@@ -2527,7 +3341,10 @@
             "type": "string"
           },
           "street": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "taxCountryCode": {
             "type": "string"
@@ -2536,10 +3353,17 @@
             "type": "string"
           },
           "zipCode": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
-        "required": ["fullName", "taxId", "taxCountryCode"],
+        "required": [
+          "fullName",
+          "taxId",
+          "taxCountryCode"
+        ],
         "type": "object"
       },
       "UpdateProductPriceRequest": {
@@ -2550,29 +3374,46 @@
           "priceAmount": {
             "format": "double",
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
-            "type": ["number", "string"]
+            "type": [
+              "number",
+              "string"
+            ]
           }
         },
-        "required": ["priceAmount", "currency"],
+        "required": [
+          "priceAmount",
+          "currency"
+        ],
         "type": "object"
       },
       "UpdateProductRequest": {
         "properties": {
           "barcode": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "categoryId": {
             "format": "uuid",
             "type": "string"
           },
           "description": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "name": {
             "type": "string"
           }
         },
-        "required": ["name", "description", "barcode", "categoryId"],
+        "required": [
+          "name",
+          "description",
+          "barcode",
+          "categoryId"
+        ],
         "type": "object"
       },
       "UpdateSupplierRequest": {
@@ -2634,7 +3475,11 @@
             "type": "string"
           }
         },
-        "required": ["firstName", "lastName", "email"],
+        "required": [
+          "firstName",
+          "lastName",
+          "email"
+        ],
         "type": "object"
       },
       "UpdateUserRoleRequest": {
@@ -2644,7 +3489,9 @@
             "type": "string"
           }
         },
-        "required": ["roleId"],
+        "required": [
+          "roleId"
+        ],
         "type": "object"
       },
       "UserDto": {
@@ -2678,11 +3525,17 @@
           },
           "tenantId": {
             "format": "uuid",
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "updatedAtUtc": {
             "format": "date-time",
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           }
         },
         "required": [
@@ -2710,7 +3563,10 @@
             "type": "string"
           },
           "description": {
-            "type": ["null", "string"]
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "id": {
             "format": "uuid",
@@ -2769,7 +3625,10 @@
             "schema": {
               "format": "int32",
               "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": ["integer", "string"]
+              "type": [
+                "integer",
+                "string"
+              ]
             }
           },
           {
@@ -2778,7 +3637,10 @@
             "schema": {
               "format": "int32",
               "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": ["integer", "string"]
+              "type": [
+                "integer",
+                "string"
+              ]
             }
           }
         ],
@@ -2804,7 +3666,9 @@
             "description": "OK"
           }
         },
-        "tags": ["AiGovernance"]
+        "tags": [
+          "AiGovernance"
+        ]
       }
     },
     "/api/v1/ai-governance/propose": {
@@ -2891,7 +3755,9 @@
             "description": "Conflict"
           }
         },
-        "tags": ["AiGovernance"]
+        "tags": [
+          "AiGovernance"
+        ]
       }
     },
     "/api/v1/ai-governance/{id}/review": {
@@ -2989,7 +3855,9 @@
             "description": "Not Found"
           }
         },
-        "tags": ["AiGovernance"]
+        "tags": [
+          "AiGovernance"
+        ]
       }
     },
     "/api/v1/auth/login": {
@@ -3046,7 +3914,9 @@
             "description": "Unauthorized"
           }
         },
-        "tags": ["Auth"]
+        "tags": [
+          "Auth"
+        ]
       }
     },
     "/api/v1/auth/ping": {
@@ -3063,7 +3933,9 @@
             "description": "OK"
           }
         },
-        "tags": ["Auth"]
+        "tags": [
+          "Auth"
+        ]
       }
     },
     "/api/v1/branches": {
@@ -3108,7 +3980,9 @@
             "description": "OK"
           }
         },
-        "tags": ["Branches"]
+        "tags": [
+          "Branches"
+        ]
       },
       "post": {
         "requestBody": {
@@ -3173,7 +4047,9 @@
             "description": "Bad Request"
           }
         },
-        "tags": ["Branches"]
+        "tags": [
+          "Branches"
+        ]
       }
     },
     "/api/v1/branches/{id}": {
@@ -3231,7 +4107,9 @@
             "description": "Not Found"
           }
         },
-        "tags": ["Branches"]
+        "tags": [
+          "Branches"
+        ]
       },
       "patch": {
         "parameters": [
@@ -3327,7 +4205,9 @@
             "description": "Not Found"
           }
         },
-        "tags": ["Branches"]
+        "tags": [
+          "Branches"
+        ]
       }
     },
     "/api/v1/branches/{id}/status": {
@@ -3425,7 +4305,9 @@
             "description": "Conflict"
           }
         },
-        "tags": ["Branches"]
+        "tags": [
+          "Branches"
+        ]
       }
     },
     "/api/v1/cash-registers": {
@@ -3461,7 +4343,9 @@
             "description": "OK"
           }
         },
-        "tags": ["CashRegisters"]
+        "tags": [
+          "CashRegisters"
+        ]
       },
       "post": {
         "requestBody": {
@@ -3546,7 +4430,9 @@
             "description": "Not Found"
           }
         },
-        "tags": ["CashRegisters"]
+        "tags": [
+          "CashRegisters"
+        ]
       }
     },
     "/api/v1/cash-registers/sessions/{sessionId}/close": {
@@ -3644,7 +4530,9 @@
             "description": "Not Found"
           }
         },
-        "tags": ["CashRegisters"]
+        "tags": [
+          "CashRegisters"
+        ]
       }
     },
     "/api/v1/cash-registers/{registerId}/active-session": {
@@ -3702,7 +4590,9 @@
             "description": "Not Found"
           }
         },
-        "tags": ["CashRegisters"]
+        "tags": [
+          "CashRegisters"
+        ]
       }
     },
     "/api/v1/cash-registers/{registerId}/sessions/open": {
@@ -3820,7 +4710,9 @@
             "description": "Conflict"
           }
         },
-        "tags": ["CashRegisters"]
+        "tags": [
+          "CashRegisters"
+        ]
       }
     },
     "/api/v1/categories": {
@@ -3846,7 +4738,10 @@
             "schema": {
               "format": "int32",
               "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": ["integer", "string"]
+              "type": [
+                "integer",
+                "string"
+              ]
             }
           },
           {
@@ -3855,7 +4750,10 @@
             "schema": {
               "format": "int32",
               "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": ["integer", "string"]
+              "type": [
+                "integer",
+                "string"
+              ]
             }
           }
         ],
@@ -3881,7 +4779,9 @@
             "description": "OK"
           }
         },
-        "tags": ["Categories"]
+        "tags": [
+          "Categories"
+        ]
       },
       "post": {
         "requestBody": {
@@ -3946,7 +4846,9 @@
             "description": "Bad Request"
           }
         },
-        "tags": ["Categories"]
+        "tags": [
+          "Categories"
+        ]
       }
     },
     "/api/v1/categories/{id}": {
@@ -4004,7 +4906,9 @@
             "description": "Not Found"
           }
         },
-        "tags": ["Categories"]
+        "tags": [
+          "Categories"
+        ]
       },
       "patch": {
         "parameters": [
@@ -4100,7 +5004,9 @@
             "description": "Not Found"
           }
         },
-        "tags": ["Categories"]
+        "tags": [
+          "Categories"
+        ]
       }
     },
     "/api/v1/categories/{id}/status": {
@@ -4198,7 +5104,9 @@
             "description": "Conflict"
           }
         },
-        "tags": ["Categories"]
+        "tags": [
+          "Categories"
+        ]
       }
     },
     "/api/v1/customers": {
@@ -4224,7 +5132,10 @@
             "schema": {
               "format": "int32",
               "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": ["integer", "string"]
+              "type": [
+                "integer",
+                "string"
+              ]
             }
           },
           {
@@ -4233,7 +5144,10 @@
             "schema": {
               "format": "int32",
               "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": ["integer", "string"]
+              "type": [
+                "integer",
+                "string"
+              ]
             }
           }
         ],
@@ -4259,7 +5173,9 @@
             "description": "OK"
           }
         },
-        "tags": ["Customers"]
+        "tags": [
+          "Customers"
+        ]
       },
       "post": {
         "requestBody": {
@@ -4324,7 +5240,9 @@
             "description": "Bad Request"
           }
         },
-        "tags": ["Customers"]
+        "tags": [
+          "Customers"
+        ]
       }
     },
     "/api/v1/customers/{id}": {
@@ -4382,7 +5300,9 @@
             "description": "Not Found"
           }
         },
-        "tags": ["Customers"]
+        "tags": [
+          "Customers"
+        ]
       },
       "patch": {
         "parameters": [
@@ -4478,7 +5398,9 @@
             "description": "Not Found"
           }
         },
-        "tags": ["Customers"]
+        "tags": [
+          "Customers"
+        ]
       }
     },
     "/api/v1/customers/{id}/status": {
@@ -4576,7 +5498,9 @@
             "description": "Conflict"
           }
         },
-        "tags": ["Customers"]
+        "tags": [
+          "Customers"
+        ]
       }
     },
     "/api/v1/demand-forecast/{productId}": {
@@ -4598,7 +5522,10 @@
               "default": 30,
               "format": "int32",
               "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": ["integer", "string"]
+              "type": [
+                "integer",
+                "string"
+              ]
             }
           }
         ],
@@ -4644,7 +5571,9 @@
             "description": "Not Found"
           }
         },
-        "tags": ["DemandForecast"]
+        "tags": [
+          "DemandForecast"
+        ]
       }
     },
     "/api/v1/inventory/movements": {
@@ -4731,7 +5660,9 @@
             "description": "Not Found"
           }
         },
-        "tags": ["Inventory"]
+        "tags": [
+          "Inventory"
+        ]
       }
     },
     "/api/v1/inventory/products/{productId}/movements": {
@@ -4784,7 +5715,10 @@
             "schema": {
               "format": "int32",
               "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": ["integer", "string"]
+              "type": [
+                "integer",
+                "string"
+              ]
             }
           },
           {
@@ -4793,7 +5727,10 @@
             "schema": {
               "format": "int32",
               "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": ["integer", "string"]
+              "type": [
+                "integer",
+                "string"
+              ]
             }
           }
         ],
@@ -4839,7 +5776,9 @@
             "description": "Not Found"
           }
         },
-        "tags": ["Inventory"]
+        "tags": [
+          "Inventory"
+        ]
       }
     },
     "/api/v1/inventory/products/{productId}/stock": {
@@ -4897,7 +5836,9 @@
             "description": "Not Found"
           }
         },
-        "tags": ["Inventory"]
+        "tags": [
+          "Inventory"
+        ]
       }
     },
     "/api/v1/invoices": {
@@ -4964,7 +5905,9 @@
             "description": "Bad Request"
           }
         },
-        "tags": ["Invoices"]
+        "tags": [
+          "Invoices"
+        ]
       }
     },
     "/api/v1/invoices/{id}": {
@@ -5022,7 +5965,9 @@
             "description": "Not Found"
           }
         },
-        "tags": ["Invoices"]
+        "tags": [
+          "Invoices"
+        ]
       }
     },
     "/api/v1/invoices/{id}/reconcile": {
@@ -5120,7 +6065,9 @@
             "description": "Conflict"
           }
         },
-        "tags": ["Invoices"]
+        "tags": [
+          "Invoices"
+        ]
       }
     },
     "/api/v1/notifications": {
@@ -5187,7 +6134,9 @@
             "description": "Bad Request"
           }
         },
-        "tags": ["Notifications"]
+        "tags": [
+          "Notifications"
+        ]
       }
     },
     "/api/v1/notifications/user/{userId}": {
@@ -5215,7 +6164,10 @@
             "schema": {
               "format": "int32",
               "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": ["integer", "string"]
+              "type": [
+                "integer",
+                "string"
+              ]
             }
           },
           {
@@ -5224,7 +6176,10 @@
             "schema": {
               "format": "int32",
               "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": ["integer", "string"]
+              "type": [
+                "integer",
+                "string"
+              ]
             }
           }
         ],
@@ -5250,7 +6205,9 @@
             "description": "OK"
           }
         },
-        "tags": ["Notifications"]
+        "tags": [
+          "Notifications"
+        ]
       }
     },
     "/api/v1/notifications/{id}/read": {
@@ -5308,7 +6265,9 @@
             "description": "Not Found"
           }
         },
-        "tags": ["Notifications"]
+        "tags": [
+          "Notifications"
+        ]
       }
     },
     "/api/v1/payments": {
@@ -5395,7 +6354,9 @@
             "description": "Not Found"
           }
         },
-        "tags": ["Payments"]
+        "tags": [
+          "Payments"
+        ]
       }
     },
     "/api/v1/payments/sale/{saleId}": {
@@ -5442,7 +6403,9 @@
             "description": "OK"
           }
         },
-        "tags": ["Payments"]
+        "tags": [
+          "Payments"
+        ]
       }
     },
     "/api/v1/platform/outbox/dead-letter": {
@@ -5454,7 +6417,10 @@
             "schema": {
               "format": "int32",
               "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": ["integer", "string"]
+              "type": [
+                "integer",
+                "string"
+              ]
             }
           },
           {
@@ -5463,7 +6429,10 @@
             "schema": {
               "format": "int32",
               "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": ["integer", "string"]
+              "type": [
+                "integer",
+                "string"
+              ]
             }
           }
         ],
@@ -5549,7 +6518,9 @@
             "description": "Forbidden"
           }
         },
-        "tags": ["OutboxDeadLetter"]
+        "tags": [
+          "OutboxDeadLetter"
+        ]
       }
     },
     "/api/v1/platform/outbox/dead-letter/reprocess": {
@@ -5656,7 +6627,9 @@
             "description": "Forbidden"
           }
         },
-        "tags": ["OutboxDeadLetter"]
+        "tags": [
+          "OutboxDeadLetter"
+        ]
       }
     },
     "/api/v1/platform/tenants": {
@@ -5682,7 +6655,10 @@
             "schema": {
               "format": "int32",
               "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": ["integer", "string"]
+              "type": [
+                "integer",
+                "string"
+              ]
             }
           },
           {
@@ -5691,7 +6667,10 @@
             "schema": {
               "format": "int32",
               "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": ["integer", "string"]
+              "type": [
+                "integer",
+                "string"
+              ]
             }
           }
         ],
@@ -5757,7 +6736,9 @@
             "description": "Forbidden"
           }
         },
-        "tags": ["Tenants"]
+        "tags": [
+          "Tenants"
+        ]
       },
       "post": {
         "requestBody": {
@@ -5885,7 +6866,9 @@
             "description": "Conflict"
           }
         },
-        "tags": ["Tenants"]
+        "tags": [
+          "Tenants"
+        ]
       }
     },
     "/api/v1/pos-devices": {
@@ -5952,7 +6935,9 @@
             "description": "Bad Request"
           }
         },
-        "tags": ["PosDevices"]
+        "tags": [
+          "PosDevices"
+        ]
       }
     },
     "/api/v1/pos-devices/branch/{branchId}": {
@@ -5999,7 +6984,9 @@
             "description": "OK"
           }
         },
-        "tags": ["PosDevices"]
+        "tags": [
+          "PosDevices"
+        ]
       }
     },
     "/api/v1/pos-devices/{id}": {
@@ -6057,7 +7044,9 @@
             "description": "Not Found"
           }
         },
-        "tags": ["PosDevices"]
+        "tags": [
+          "PosDevices"
+        ]
       }
     },
     "/api/v1/pos-devices/{id}/ping": {
@@ -6115,7 +7104,9 @@
             "description": "Not Found"
           }
         },
-        "tags": ["PosDevices"]
+        "tags": [
+          "PosDevices"
+        ]
       }
     },
     "/api/v1/products": {
@@ -6149,7 +7140,10 @@
             "schema": {
               "format": "int32",
               "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": ["integer", "string"]
+              "type": [
+                "integer",
+                "string"
+              ]
             }
           },
           {
@@ -6158,7 +7152,10 @@
             "schema": {
               "format": "int32",
               "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": ["integer", "string"]
+              "type": [
+                "integer",
+                "string"
+              ]
             }
           }
         ],
@@ -6184,7 +7181,9 @@
             "description": "OK"
           }
         },
-        "tags": ["Products"]
+        "tags": [
+          "Products"
+        ]
       },
       "post": {
         "requestBody": {
@@ -6269,7 +7268,9 @@
             "description": "Conflict"
           }
         },
-        "tags": ["Products"]
+        "tags": [
+          "Products"
+        ]
       }
     },
     "/api/v1/products/{id}": {
@@ -6327,7 +7328,9 @@
             "description": "Not Found"
           }
         },
-        "tags": ["Products"]
+        "tags": [
+          "Products"
+        ]
       },
       "patch": {
         "parameters": [
@@ -6423,7 +7426,9 @@
             "description": "Not Found"
           }
         },
-        "tags": ["Products"]
+        "tags": [
+          "Products"
+        ]
       }
     },
     "/api/v1/products/{id}/price": {
@@ -6521,7 +7526,9 @@
             "description": "Not Found"
           }
         },
-        "tags": ["Products"]
+        "tags": [
+          "Products"
+        ]
       }
     },
     "/api/v1/products/{id}/status": {
@@ -6619,7 +7626,9 @@
             "description": "Conflict"
           }
         },
-        "tags": ["Products"]
+        "tags": [
+          "Products"
+        ]
       }
     },
     "/api/v1/purchase-orders": {
@@ -6654,7 +7663,10 @@
             "schema": {
               "format": "int32",
               "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": ["integer", "string"]
+              "type": [
+                "integer",
+                "string"
+              ]
             }
           },
           {
@@ -6663,7 +7675,10 @@
             "schema": {
               "format": "int32",
               "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": ["integer", "string"]
+              "type": [
+                "integer",
+                "string"
+              ]
             }
           }
         ],
@@ -6689,7 +7704,9 @@
             "description": "OK"
           }
         },
-        "tags": ["PurchaseOrders"]
+        "tags": [
+          "PurchaseOrders"
+        ]
       },
       "post": {
         "requestBody": {
@@ -6754,7 +7771,9 @@
             "description": "Bad Request"
           }
         },
-        "tags": ["PurchaseOrders"]
+        "tags": [
+          "PurchaseOrders"
+        ]
       }
     },
     "/api/v1/purchase-orders/{id}/receive": {
@@ -6852,7 +7871,9 @@
             "description": "Not Found"
           }
         },
-        "tags": ["PurchaseOrders"]
+        "tags": [
+          "PurchaseOrders"
+        ]
       }
     },
     "/api/v1/purchase-orders/{id}/send": {
@@ -6930,7 +7951,9 @@
             "description": "Not Found"
           }
         },
-        "tags": ["PurchaseOrders"]
+        "tags": [
+          "PurchaseOrders"
+        ]
       }
     },
     "/api/v1/roles": {
@@ -6966,7 +7989,9 @@
             "description": "OK"
           }
         },
-        "tags": ["Roles"]
+        "tags": [
+          "Roles"
+        ]
       },
       "post": {
         "requestBody": {
@@ -7031,7 +8056,9 @@
             "description": "Bad Request"
           }
         },
-        "tags": ["Roles"]
+        "tags": [
+          "Roles"
+        ]
       }
     },
     "/api/v1/sales": {
@@ -7074,7 +8101,10 @@
             "schema": {
               "format": "int32",
               "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": ["integer", "string"]
+              "type": [
+                "integer",
+                "string"
+              ]
             }
           },
           {
@@ -7083,7 +8113,10 @@
             "schema": {
               "format": "int32",
               "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": ["integer", "string"]
+              "type": [
+                "integer",
+                "string"
+              ]
             }
           }
         ],
@@ -7109,7 +8142,9 @@
             "description": "OK"
           }
         },
-        "tags": ["Sales"]
+        "tags": [
+          "Sales"
+        ]
       },
       "post": {
         "requestBody": {
@@ -7214,7 +8249,9 @@
             "description": "Conflict"
           }
         },
-        "tags": ["Sales"]
+        "tags": [
+          "Sales"
+        ]
       }
     },
     "/api/v1/sales/{id}": {
@@ -7272,7 +8309,9 @@
             "description": "Not Found"
           }
         },
-        "tags": ["Sales"]
+        "tags": [
+          "Sales"
+        ]
       }
     },
     "/api/v1/stock-adjustments": {
@@ -7339,7 +8378,9 @@
             "description": "Bad Request"
           }
         },
-        "tags": ["StockAdjustments"]
+        "tags": [
+          "StockAdjustments"
+        ]
       }
     },
     "/api/v1/stock-transfers": {
@@ -7367,7 +8408,10 @@
             "schema": {
               "format": "int32",
               "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": ["integer", "string"]
+              "type": [
+                "integer",
+                "string"
+              ]
             }
           },
           {
@@ -7376,7 +8420,10 @@
             "schema": {
               "format": "int32",
               "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": ["integer", "string"]
+              "type": [
+                "integer",
+                "string"
+              ]
             }
           }
         ],
@@ -7402,7 +8449,9 @@
             "description": "OK"
           }
         },
-        "tags": ["StockTransfers"]
+        "tags": [
+          "StockTransfers"
+        ]
       },
       "post": {
         "requestBody": {
@@ -7467,7 +8516,9 @@
             "description": "Bad Request"
           }
         },
-        "tags": ["StockTransfers"]
+        "tags": [
+          "StockTransfers"
+        ]
       }
     },
     "/api/v1/suppliers": {
@@ -7493,7 +8544,10 @@
             "schema": {
               "format": "int32",
               "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": ["integer", "string"]
+              "type": [
+                "integer",
+                "string"
+              ]
             }
           },
           {
@@ -7502,7 +8556,10 @@
             "schema": {
               "format": "int32",
               "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": ["integer", "string"]
+              "type": [
+                "integer",
+                "string"
+              ]
             }
           }
         ],
@@ -7528,7 +8585,9 @@
             "description": "OK"
           }
         },
-        "tags": ["Suppliers"]
+        "tags": [
+          "Suppliers"
+        ]
       },
       "post": {
         "requestBody": {
@@ -7593,7 +8652,9 @@
             "description": "Bad Request"
           }
         },
-        "tags": ["Suppliers"]
+        "tags": [
+          "Suppliers"
+        ]
       }
     },
     "/api/v1/suppliers/{id}": {
@@ -7651,7 +8712,9 @@
             "description": "Not Found"
           }
         },
-        "tags": ["Suppliers"]
+        "tags": [
+          "Suppliers"
+        ]
       },
       "patch": {
         "parameters": [
@@ -7747,7 +8810,9 @@
             "description": "Not Found"
           }
         },
-        "tags": ["Suppliers"]
+        "tags": [
+          "Suppliers"
+        ]
       }
     },
     "/api/v1/suppliers/{id}/status": {
@@ -7845,7 +8910,9 @@
             "description": "Conflict"
           }
         },
-        "tags": ["Suppliers"]
+        "tags": [
+          "Suppliers"
+        ]
       }
     },
     "/api/v1/users": {
@@ -7871,7 +8938,10 @@
             "schema": {
               "format": "int32",
               "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": ["integer", "string"]
+              "type": [
+                "integer",
+                "string"
+              ]
             }
           },
           {
@@ -7880,7 +8950,10 @@
             "schema": {
               "format": "int32",
               "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": ["integer", "string"]
+              "type": [
+                "integer",
+                "string"
+              ]
             }
           }
         ],
@@ -7906,7 +8979,9 @@
             "description": "OK"
           }
         },
-        "tags": ["Users"]
+        "tags": [
+          "Users"
+        ]
       },
       "post": {
         "requestBody": {
@@ -7971,7 +9046,9 @@
             "description": "Bad Request"
           }
         },
-        "tags": ["Users"]
+        "tags": [
+          "Users"
+        ]
       }
     },
     "/api/v1/users/{id}": {
@@ -8029,7 +9106,9 @@
             "description": "Not Found"
           }
         },
-        "tags": ["Users"]
+        "tags": [
+          "Users"
+        ]
       },
       "patch": {
         "parameters": [
@@ -8125,7 +9204,9 @@
             "description": "Not Found"
           }
         },
-        "tags": ["Users"]
+        "tags": [
+          "Users"
+        ]
       }
     },
     "/api/v1/users/{id}/role": {
@@ -8223,7 +9304,9 @@
             "description": "Not Found"
           }
         },
-        "tags": ["Users"]
+        "tags": [
+          "Users"
+        ]
       }
     },
     "/api/v1/users/{id}/status": {
@@ -8321,7 +9404,9 @@
             "description": "Conflict"
           }
         },
-        "tags": ["Users"]
+        "tags": [
+          "Users"
+        ]
       }
     },
     "/api/v1/warehouses": {
@@ -8361,7 +9446,9 @@
             "description": "Forbidden"
           }
         },
-        "tags": ["Warehouses"]
+        "tags": [
+          "Warehouses"
+        ]
       },
       "post": {
         "requestBody": {
@@ -8436,7 +9523,9 @@
             "description": "Conflict"
           }
         },
-        "tags": ["Warehouses"]
+        "tags": [
+          "Warehouses"
+        ]
       }
     },
     "/api/v1/warehouses/{warehouseId}/movements": {
@@ -8496,7 +9585,10 @@
             "schema": {
               "format": "int32",
               "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": ["integer", "string"]
+              "type": [
+                "integer",
+                "string"
+              ]
             }
           },
           {
@@ -8505,7 +9597,10 @@
             "schema": {
               "format": "int32",
               "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": ["integer", "string"]
+              "type": [
+                "integer",
+                "string"
+              ]
             }
           }
         ],
@@ -8561,7 +9656,9 @@
             "description": "Not Found"
           }
         },
-        "tags": ["Warehouses"]
+        "tags": [
+          "Warehouses"
+        ]
       }
     },
     "/api/v1/warehouses/{warehouseId}/stock": {
@@ -8597,7 +9694,10 @@
             "schema": {
               "format": "int32",
               "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": ["integer", "string"]
+              "type": [
+                "integer",
+                "string"
+              ]
             }
           },
           {
@@ -8606,7 +9706,10 @@
             "schema": {
               "format": "int32",
               "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": ["integer", "string"]
+              "type": [
+                "integer",
+                "string"
+              ]
             }
           }
         ],
@@ -8662,7 +9765,9 @@
             "description": "Not Found"
           }
         },
-        "tags": ["Warehouses"]
+        "tags": [
+          "Warehouses"
+        ]
       }
     }
   },

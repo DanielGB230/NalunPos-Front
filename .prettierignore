@@ -3,3 +3,6 @@ node_modules
 .nx
 .angular
 coverage
+
+# Snapshot canónico OpenAPI v1 copiado byte a byte desde NalunPos-Api
+libs/shared/data-access/openapi/openapi.v1.json
