@@ -133,7 +133,7 @@ test.describe('NalunPos-Web Smoke Suite', () => {
     ).toBeVisible();
 
     const storedSession = await page.evaluate(() =>
-      globalThis['sessionStorage'].getItem('nalunpos_auth_session'),
+      window.sessionStorage.getItem('nalunpos_auth_session'),
     );
     expect(storedSession).toBeNull();
   });

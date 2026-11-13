@@ -41,6 +41,9 @@ Este documento refleja el estado real, empírico y verificable del frontend de N
 | **Consolidado `libs/shared/*`** |       **95.51%**        |       **511 / 535**        |
 | **Consolidado `apps/*`**        |       **12.94%**        |       **105 / 811**        |
 
+> **Nota de Trazabilidad Histórica sobre la Base de Cobertura:**  
+> A partir del commit `d14aeb1` (Paso 2A), la exclusión en `vitest.config.ts` se restringió de `'**/*.model.ts'` (que excluía indiscriminadamente todos los modelos) a `'libs/shared/data-access/src/models/**/*.model.ts'` (modelos que son interfaces puras sin código ejecutable). Esto incorporó a la medición de cobertura real los archivos `user-role.model.ts` y `user-session.model.ts` de `libs/shared/auth`, los cuales albergan la lógica ejecutable de validación de contratos fail-closed con 100% de cobertura. Esta inclusión explica la variación formal respecto a la base histórica previa (43.95% global / 94.75% shared), situando la métrica real verificada en **45.76% global** y **95.51% en librerías compartidas**.
+
 ### 2.2 Pruebas End-to-End (`e2e/*.smoke.spec.ts`)
 
 - **Total de Tests E2E:** 11 pasados.

@@ -164,6 +164,15 @@ export default tseslint.config(
     },
   },
 
+  // ── Excepción: E2E Playwright audita el estado del browser desde fuera de la app Angular
+  {
+    files: ['e2e/**/*.ts'],
+    rules: {
+      'no-restricted-globals': 'off',
+      'no-restricted-properties': 'off',
+    },
+  },
+
   // ── Plantillas HTML (F0-2 obligatorias: accesibilidad + control flow) ────
   {
     files: ['**/*.html'],
