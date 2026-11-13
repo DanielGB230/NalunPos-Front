@@ -37,7 +37,17 @@ npm run format
 npm run format:fix
 ```
 
-### 4. Pruebas Unitarias y Cobertura (Vitest)
+### 4. Sincronización de Contratos y Tipos OpenAPI (ADR 0016)
+
+```bash
+# Generar tipos TypeScript deterministas desde el contrato OpenAPI v1
+npm run api:types
+
+# Verificar ausencia de deriva entre openapi.v1.json y los tipos generados (CI)
+npm run api:types:check
+```
+
+### 5. Pruebas Unitarias y Cobertura (Vitest)
 
 ```bash
 # Ejecutar suite completa de pruebas unitarias (246 tests en 29 suites)
@@ -47,7 +57,7 @@ npx vitest run
 npx vitest run --coverage
 ```
 
-### 5. Pruebas E2E de Humo (Playwright)
+### 6. Pruebas E2E de Humo (Playwright)
 
 ```bash
 # Ejecutar pruebas de humo E2E automatizadas con mocks de red
@@ -56,7 +66,7 @@ npm run e2e
 npx playwright test
 ```
 
-### 6. Verificación de Seguridad y CSP (Build Artifacts)
+### 7. Verificación de Seguridad y CSP (Build Artifacts)
 
 ```bash
 # Verificar integridad de CSP, hashes SHA-256 de scripts inline y ausencia de config.json / localhost en dist
@@ -65,7 +75,7 @@ npm run verify:csp
 
 Herramienta Node nativa ([`tools/verify-csp.mjs`](./tools/verify-csp.mjs)) que valida automáticamente los artefactos de producción en `dist/apps/`. Comprueba que la metaetiqueta CSP exista, que cada `<script>` inline tenga su hash SHA-256 en base64 en `script-src`, que no existan atributos de eventos inline (`on*=`), que `connect-src` apunte al origen canónico de producción (`https://api.nalunpos.com` según ADR 0014) sin `localhost` ni comodines `*`, y que ningún archivo de distribución contenga cadenas `localhost` ni archivos `config.json` de desarrollo.
 
-### 7. Verificación Documental y Candados Automáticos
+### 8. Verificación Documental y Candados Automáticos
 
 ```bash
 # Ejecutar suite de pruebas unitarias de herramientas de verificación (node:test nativo)
@@ -133,7 +143,7 @@ NalunPos-Front/
 - **Guía de Despliegue en Producción:** [`docs/deployment.md`](./docs/deployment.md)
 - **Guía para Creación de Nuevas Features:** [`docs/guides/new-feature.md`](./docs/guides/new-feature.md)
 - **Arquitectura del Sistema Frontend:** [`docs/architecture/architecture.md`](./docs/architecture/architecture.md)
-- **Registro de Decisiones de Arquitectura (ADR 0001 - 0015):** [`docs/architecture/adr/README.md`](./docs/architecture/adr/README.md)
+- **Registro de Decisiones de Arquitectura (ADR 0001 - 0016):** [`docs/architecture/adr/README.md`](./docs/architecture/adr/README.md)
 - **Directrices de Seguridad HTTP y CSP:** [`docs/security/headers-and-csp.md`](./docs/security/headers-and-csp.md)
 
 ---
@@ -147,5 +157,5 @@ NalunPos-Front/
 - **Estilos**: Tailwind CSS v4 + Angular Material M3 unificados mediante `libs/shared/design-tokens/src/theme.css` — Cero `!important`.
 - **Tipografías**: 100% auto-alojadas con `@fontsource` (Plus Jakarta Sans, Inter, JetBrains Mono, Material Symbols) — Cero peticiones externas a CDNs.
 - **Configuración de Runtime**: 12-factor compliant inyectada vía token `APP_CONFIG`. En producción, `/config.json` es suministrado externamente por el hosting conforme al [ADR 0014](./docs/architecture/adr/0014-canonical-api-origin-and-csp.md).
-- **Seguridad**: 0 usos de `innerHTML` o `bypassSecurityTrust*`. CSP estricta en producción: sin `'unsafe-inline'` en `script-src` (hashes SHA-256 para scripts inline); `style-src` permite `'unsafe-inline'` por requerimiento de Tailwind CSS v4 y Angular Material ([ADR 0014](./docs/architecture/adr/0014-canonical-api-origin-and-csp.md)). Contrato canónico de roles y sesión _fail-closed_ ([ADR 0015](./docs/architecture/adr/0015-fail-closed-session-role-contract.md)). Registro propuesto de in-memory auth con HttpOnly cookie ([ADR 0012](./docs/architecture/adr/0012-in-memory-token-storage-and-httponly-refresh-cookie.md)). Deduplicación canónica de datos y tokens ([ADR 0013](./docs/architecture/adr/0013-canonical-data-access-and-ui-tokens-deduplication.md)).
-- **Documentación de Decisiones**: Ver índice completo en [ADR README](./docs/architecture/adr/README.md) (ADR 0001 a 0015) y [Arquitectura](./docs/architecture/architecture.md).
+- **Seguridad y Contratos**: 0 usos de `innerHTML` o `bypassSecurityTrust*`. CSP estricta en producción: sin `'unsafe-inline'` en `script-src` (hashes SHA-256 para scripts inline); `style-src` permite `'unsafe-inline'` por requerimiento de Tailwind CSS v4 y Angular Material ([ADR 0014](./docs/architecture/adr/0014-canonical-api-origin-and-csp.md)). Contrato canónico de roles y sesión _fail-closed_ ([ADR 0015](./docs/architecture/adr/0015-fail-closed-session-role-contract.md)). Generación determinista de tipos desde OpenAPI v1 sin drift ([ADR 0016](./docs/architecture/adr/0016-openapi-generated-contract-types.md)). Registro propuesto de in-memory auth con HttpOnly cookie ([ADR 0012](./docs/architecture/adr/0012-in-memory-token-storage-and-httponly-refresh-cookie.md)). Deduplicación canónica de datos y tokens ([ADR 0013](./docs/architecture/adr/0013-canonical-data-access-and-ui-tokens-deduplication.md)).
+- **Documentación de Decisiones**: Ver índice completo en [ADR README](./docs/architecture/adr/README.md) (ADR 0001 a 0016) y [Arquitectura](./docs/architecture/architecture.md).

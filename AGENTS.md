@@ -168,19 +168,22 @@ npm run lint
 # 2. Verificación de estilo de código con Prettier
 npm run format
 
-# 3. Compilación limpia de producción sin caché
+# 3. Verificación de tipos OpenAPI v1 sin deriva (ADR 0016)
+npm run api:types:check
+
+# 4. Compilación limpia de producción sin caché
 npx nx run-many -t build -c production --skip-nx-cache
 
-# 4. Verificación automática de CSP y artefactos compilados en dist
+# 5. Verificación automática de CSP y artefactos compilados en dist
 npm run verify:csp
 
-# 5. Pruebas unitarias completas con reporte de cobertura V8
+# 6. Pruebas unitarias completas con reporte de cobertura V8
 npx vitest run --coverage
 
-# 6. Pruebas E2E de humo en navegadores headless
+# 7. Pruebas E2E de humo en navegadores headless
 npm run e2e
 
-# 7. Auditoría de seguridad de dependencias
+# 8. Auditoría de seguridad de dependencias
 npm audit --audit-level=high
 ```
 
@@ -233,7 +236,7 @@ El estado con cifras y fecha vigente está detallado en [`docs/STATUS.md`](./doc
 5. **Endpoints de Almacenes Pendientes en Backend:**
    - En `WarehouseApiService`, los métodos de modificación (`PUT`, `PATCH status`, `PATCH default`) lanzan errores descriptivos en espera de disponibilidad de endpoints en la API.
 6. **Normalización de Encabezados en ADRs Históricos:**
-   - De los 15 ADRs existentes (`0001` a `0015`), **5 ADRs** (`0003`, `0004`, `0009`, `0012` y `0015`) cumplen explícitamente con los tres encabezados mínimos (`Contexto`, `Decisión`, `Consecuencias`). Los **10 ADRs restantes** (`0001`, `0002`, `0005`, `0006`, `0007`, `0008`, `0010`, `0011`, `0013` y `0014`) no cuentan con la terna completa (los ADRs `0001`, `0002`, `0006`, `0007`, `0008`, `0010`, `0011`, `0013` y `0014` carecen de `## Contexto` explícito al residir en el párrafo introductorio o en razones, y el ADR `0005` carece de `## Consecuencias`), quedando catalogados para normalización en una tarea futura de limpieza documental sin alterar sus decisiones.
+   - De los 16 ADRs existentes (`0001` a `0016`), **6 ADRs** (`0003`, `0004`, `0009`, `0012`, `0015` y `0016`) cumplen explícitamente con los tres encabezados mínimos (`Contexto`, `Decisión`, `Consecuencias`). Los **10 ADRs restantes** (`0001`, `0002`, `0005`, `0006`, `0007`, `0008`, `0010`, `0011`, `0013` y `0014`) no cuentan con la terna completa (los ADRs `0001`, `0002`, `0006`, `0007`, `0008`, `0010`, `0011`, `0013` y `0014` carecen de `## Contexto` explícito al residir en el párrafo introductorio o en razones, y el ADR `0005` carece de `## Consecuencias`), quedando catalogados para normalización en una tarea futura de limpieza documental sin alterar sus decisiones.
 7. **Mapeo de rol de la sesión, contrato canónico y separación por app — RESUELTO (100% Cerrado — 2026-11-12):**
    - **Evidencia en Backend (`NalunPos-Api` commit `6bc7cb0`, `ADR 0023`):**
      - `docs/architecture/adr/0023-contrato-de-roles-y-sesion-de-autenticacion.md:1-99`: Formaliza los 5 roles canónicos (`PlatformRoles.SuperAdmin`, `TenantRoles`), resolución fail-closed bajo RLS y contrato estable HTTP/JWT.
@@ -245,6 +248,14 @@ El estado con cifras y fecha vigente está detallado en [`docs/STATUS.md`](./doc
      - [`libs/shared/auth/src/services/auth.service.ts:57-74`](./libs/shared/auth/src/services/auth.service.ts#L57-L74): Rechaza respuestas inválidas con `AUTH_INVALID_SESSION` (401) sin persistir sesión, y `restoreSessionFromStorage` (`L90-109`) purga registros inválidos.
      - [`libs/shared/auth/src/guards/auth.guards.ts:35-57`](./libs/shared/auth/src/guards/auth.guards.ts#L35-L57): `roleGuard` valida `isUserRole` e `isRoleTenantCoherent` (defensa en profundidad) redirigiendo a `/forbidden`.
      - [`apps/NalunPos-Admin-Web/src/app/app.routes.ts:23-60`](./apps/NalunPos-Admin-Web/src/app/app.routes.ts#L23-L60) y [`apps/NalunPos-Web/src/app/app.routes.ts:25-90`](./apps/NalunPos-Web/src/app/app.routes.ts#L25-L90): Aplican `canActivate: [authGuard, roleGuard(PLATFORM_ROLES)]` y `canActivate: [authGuard, roleGuard(TENANT_ROLES)]` en los layouts protegidos, verificados por E2E en [`e2e/nalunpos-web.smoke.spec.ts`](./e2e/nalunpos-web.smoke.spec.ts) y [`e2e/nalunpos-admin-web.smoke.spec.ts`](./e2e/nalunpos-admin-web.smoke.spec.ts).
+8. **Generación determinista de tipos desde OpenAPI v1 y prevención de deriva — RESUELTO (100% Cerrado — 2026-11-13):**
+   - **Evidencia en Backend (`NalunPos-Api` commit `f867fb2`, `ADR 0024`):** Snapshot de contrato OpenAPI v1 versionado en `docs/api/openapi.v1.json` con detección de deriva en CI.
+   - **Evidencia en Frontend (`NalunPos-Front`, [`ADR 0016`](./docs/architecture/adr/0016-openapi-generated-contract-types.md)):**
+     - [`libs/shared/data-access/openapi/openapi.v1.json`](./libs/shared/data-access/openapi/openapi.v1.json): Snapshot local del contrato backend.
+     - [`tools/generate-api-types.mjs`](./tools/generate-api-types.mjs): Script generador determinista con validación fail-closed de 0 `any` y 0 `eslint-disable`.
+     - [`libs/shared/data-access/src/generated/openapi.types.ts`](./libs/shared/data-access/src/generated/openapi.types.ts): Tipos exportados vía `@nalunpos/shared/data-access`.
+     - [`libs/shared/auth/src/interfaces/auth-openapi-contract.spec.ts`](./libs/shared/auth/src/interfaces/auth-openapi-contract.spec.ts): Verificación estática con `expectTypeOf` de Vitest.
+     - Scripts `api:types` y `api:types:check` en `package.json` integrados en el flujo de CI (`.github/workflows/ci.yml`).
 
 ---
 
@@ -271,5 +282,5 @@ El repositorio cuenta con skills de agentes estructurados en `.agents/skills/` q
 - **Guía de Contribución y DoD:** [`CONTRIBUTING.md`](./CONTRIBUTING.md)
 - **Política de Seguridad:** [`SECURITY.md`](./SECURITY.md)
 - **Arquitectura Frontend:** [`docs/architecture/architecture.md`](./docs/architecture/architecture.md)
-- **Registro de ADRs (0001 a 0015):** [`docs/architecture/adr/README.md`](./docs/architecture/adr/README.md)
+- **Registro de ADRs (0001 a 0016):** [`docs/architecture/adr/README.md`](./docs/architecture/adr/README.md)
 - **Cabeceras HTTP y Content Security Policy:** [`docs/security/headers-and-csp.md`](./docs/security/headers-and-csp.md)

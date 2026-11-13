@@ -2,7 +2,7 @@
 
 Esta guía establece el procedimiento estándar, la arquitectura modular y las reglas de diseño para incorporar un nuevo módulo o funcionalidad (feature) dentro del monorepo **NalunPos-Front**.
 
-Todos los lineamientos están fundamentados en las Decisiones de Arquitectura vigentes (**ADR 0001** a **ADR 0014**) y las restricciones del linter en `eslint.config.js`.
+Todos los lineamientos están fundamentados en las Decisiones de Arquitectura vigentes (**ADR 0001** a **ADR 0016**) y las restricciones del linter en `eslint.config.js`.
 
 ---
 
@@ -10,7 +10,7 @@ Todos los lineamientos están fundamentados en las Decisiones de Arquitectura vi
 
 Toda feature debe crearse dentro de la carpeta `features/` de la aplicación correspondiente (`apps/NalunPos-Web/src/app/features/` o `apps/NalunPos-Admin-Web/src/app/features/`).
 
-La distribución interna se rige por el **ADR 0007** (estructura de carpetas) y **ADR 0011** (rutas desacopladas):
+La distribución interna se rige por el **ADR 0007** (estructura de carpetas), **ADR 0011** (rutas desacopladas) y **ADR 0016** (tipado desde OpenAPI):
 
 ```text
 apps/<app>/src/app/features/<nombre-feature>/
@@ -26,15 +26,16 @@ apps/<app>/src/app/features/<nombre-feature>/
 ├── data-access/                 # Servicios de API locales (si la feature es exclusiva de la app)
 │   ├── <feature>-api.service.ts
 │   └── <feature>-api.service.spec.ts
-├── models/                      # Interfaces, DTOs y tipos locales de la feature
+├── models/                      # Interfaces, DTOs y tipos locales tipados desde OpenAPI (ADR 0016)
 │   └── <feature>.model.ts
 └── <nombre-feature>.routes.ts   # Declaración de rutas hijas exportadas por defecto
 ```
 
-> **Servicios Compartidos vs Locales (ADR 0013):**
+> **Servicios Compartidos vs Locales (ADR 0013) y Contratos OpenAPI (ADR 0016):**
 >
 > - Si la entidad o servicio HTTP es de alcance exclusivo de una aplicación (por ejemplo, gestión de tenants en `NalunPos-Admin-Web`), se aloja en `features/<feature>/data-access/`.
 > - Si la entidad es transversal o consumida por múltiples aplicaciones/módulos (por ejemplo, `WarehouseApiService`, `SupplierApiService`, `BranchApiService`), debe implementarse dentro de `libs/shared/data-access/src/services/` y exportarse en su `index.ts`.
+> - Todo DTO o modelo de solicitud/respuesta debe tiparse utilizando los esquemas de `@nalunpos/shared/data-access` (`components['schemas']` o `paths`) generados desde el contrato OpenAPI v1 mediante `npm run api:types` (ADR 0016). Prohibido definir tipos manuales redundantes que diverjan del backend.
 
 ---
 

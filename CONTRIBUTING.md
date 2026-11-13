@@ -91,7 +91,9 @@ Para que cualquier feature, componente o servicio se considere terminado y apto 
    - La cobertura de pruebas reportada por `npx vitest run --coverage` no debe degradarse.
 7. **Pruebas End-to-End (E2E) en Verde:**
    - Si el cambio impacta rutas públicas, autenticación, layout o navegación general, las pruebas de Playwright deben ejecutarse y aprobar: `npm run e2e`.
-8. **Documentación de Decisiones de Arquitectura (ADR):**
+8. **Contrato OpenAPI v1 sin Deriva:**
+   - La suite de verificación de tipos generados contra el snapshot OpenAPI debe aprobar sin discrepancias: `npm run api:types:check` (ADR 0016).
+9. **Documentación de Decisiones de Arquitectura (ADR):**
    - Si el cambio altera estructuras de módulos, introduce dependencias, modifica políticas de seguridad o define nuevos patrones, debe redactarse un nuevo Architectural Decision Record en `docs/architecture/adr/`.
    - El ADR debe cumplir el formato mínimo obligatorio: **`Contexto, Decisión, Consecuencias`**, integrarse en el índice maestro [`docs/architecture/adr/README.md`](./docs/architecture/adr/README.md) y seguir las directrices de [`AGENTS.md` (sección 8)](./AGENTS.md#8-gestión-de-decisiones-de-arquitectura-adrs).
 
@@ -101,17 +103,19 @@ Para que cualquier feature, componente o servicio se considere terminado y apto 
 
 Todos los comandos se ejecutan desde la raíz del monorepo y se encuentran declarados en `package.json`:
 
-| Comando npm               | Script Subyacente                             | Propósito                                                                   |
-| :------------------------ | :-------------------------------------------- | :-------------------------------------------------------------------------- |
-| **`npm run lint`**        | `nx run-many -t lint`                         | Analiza límites de módulos y reglas de ESLint en todos los proyectos.       |
-| **`npm run format`**      | `prettier --check .`                          | Verifica el estilo y formateo de todo el repositorio.                       |
-| **`npm run format:fix`**  | `prettier --write .`                          | Aplica el formateo automático de Prettier a todos los archivos soportados.  |
-| **`npm test`**            | `nx run-many -t test`                         | Ejecuta la suite completa de pruebas unitarias con Vitest.                  |
-| **`npm run test:tools`**  | `node --test tools/verify-docs/**/*.spec.mjs` | Ejecuta las pruebas unitarias nativas de las herramientas y reglas de docs. |
-| **`npm run build`**       | `nx run-many -t build`                        | Compila las aplicaciones para producción validando presupuestos y tipos.    |
-| **`npm run verify:csp`**  | `node tools/verify-csp.mjs`                   | Audita artefactos compilados, plantillas de configuración y CSP estricta.   |
-| **`npm run verify:docs`** | `node tools/verify-docs/index.mjs`            | Audita la integridad documental, enlaces, ADRs, skills y consistencia tags. |
-| **`npm run e2e`**         | `playwright test`                             | Ejecuta las pruebas automatizadas de extremo a extremo (E2E Smoke Tests).   |
+| Comando npm                   | Script Subyacente                             | Propósito                                                                   |
+| :---------------------------- | :-------------------------------------------- | :-------------------------------------------------------------------------- |
+| **`npm run lint`**            | `nx run-many -t lint`                         | Analiza límites de módulos y reglas de ESLint en todos los proyectos.       |
+| **`npm run format`**          | `prettier --check .`                          | Verifica el estilo y formateo de todo el repositorio.                       |
+| **`npm run format:fix`**      | `prettier --write .`                          | Aplica el formateo automático de Prettier a todos los archivos soportados.  |
+| **`npm run api:types`**       | `node tools/generate-api-types.mjs`           | Genera tipos TypeScript deterministas desde el contrato OpenAPI v1.         |
+| **`npm run api:types:check`** | `node tools/generate-api-types.mjs --check`   | Valida que no exista deriva entre openapi.v1.json y los tipos generados.    |
+| **`npm test`**                | `nx run-many -t test`                         | Ejecuta la suite completa de pruebas unitarias con Vitest.                  |
+| **`npm run test:tools`**      | `node --test tools/verify-docs/**/*.spec.mjs` | Ejecuta las pruebas unitarias nativas de las herramientas y reglas de docs. |
+| **`npm run build`**           | `nx run-many -t build`                        | Compila las aplicaciones para producción validando presupuestos y tipos.    |
+| **`npm run verify:csp`**      | `node tools/verify-csp.mjs`                   | Audita artefactos compilados, plantillas de configuración y CSP estricta.   |
+| **`npm run verify:docs`**     | `node tools/verify-docs/index.mjs`            | Audita la integridad documental, enlaces, ADRs, skills y consistencia tags. |
+| **`npm run e2e`**             | `playwright test`                             | Ejecuta las pruebas automatizadas de extremo a extremo (E2E Smoke Tests).   |
 
 ---
 
@@ -119,6 +123,6 @@ Todos los comandos se ejecutan desde la raíz del monorepo y se encuentran decla
 
 - [**`AGENTS.md`**](./AGENTS.md): Reglas de ingeniería no negociables, fronteras de Nx, interceptores bidireccionales y deuda técnica conocida.
 - [**`docs/architecture/architecture.md`**](./docs/architecture/architecture.md): Documento integral de diseño y arquitectura de NalunPos Frontend.
-- [**`docs/architecture/adr/`**](./docs/architecture/adr/): Repositorio central de Architectural Decision Records (ADRs 0001–0015).
+- [**`docs/architecture/adr/`**](./docs/architecture/adr/): Repositorio central de Architectural Decision Records (ADRs 0001–0016).
 - [**`docs/security/headers-and-csp.md`**](./docs/security/headers-and-csp.md): Guía de seguridad sobre cabeceras HTTP y Content Security Policy.
 - [**`SECURITY.md`**](./SECURITY.md): Política de seguridad y proceso para reporte responsable de vulnerabilidades.

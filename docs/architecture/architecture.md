@@ -158,6 +158,7 @@ Las aplicaciones no contienen URLs de backend hardcodeadas (ADR 0009 y ADR 0014)
 ## 8. Registro de Decisiones de Arquitectura (ADRs) y Registros Históricos
 
 - **Contrato Canónico de Roles y Sesión Fail-Closed ([ADR 0015](./adr/0015-fail-closed-session-role-contract.md))**: Partición estricta de `PLATFORM_ROLES` (`SuperAdmin` ⇔ `tenantId === null`) y `TENANT_ROLES` (`TenantAdmin`, `Supervisor`, `InventoryManager`, `Cajero` ⇔ `tenantId` válido distinto de `EMPTY_GUID`), construcción única _fail-closed_ mediante `UserSession` con constructor privado y separación de acceso por layout raíz en `NalunPos-Admin-Web` y `NalunPos-Web`.
-- **Índice Maestro de ADRs**: El registro maestro de decisiones se encuentra en [`docs/architecture/adr/README.md`](./adr/README.md), abarcando desde **ADR 0001** hasta **ADR 0015**.
+- **Generación de Tipos desde OpenAPI v1 y Prevención de Deriva ([ADR 0016](./adr/0016-openapi-generated-contract-types.md))**: Generación determinista de tipos TypeScript mediante `openapi-typescript` (`tools/generate-api-types.mjs`) a partir del snapshot OpenAPI v1 de `NalunPos-Api`, validación fail-closed de cero `any` y cero `eslint-disable`, y verificación de sincronización en CI con `npm run api:types:check`.
+- **Índice Maestro de ADRs**: El registro maestro de decisiones se encuentra en [`docs/architecture/adr/README.md`](./adr/README.md), abarcando desde **ADR 0001** hasta **ADR 0016**.
 - **Registros Históricos de Refactorización**:
   - [Refactor F0-4: Eliminación de Duplicación entre Apps y Extracción a Shared-UI](./history/refactor-f0-4-duplication-elimination.md).

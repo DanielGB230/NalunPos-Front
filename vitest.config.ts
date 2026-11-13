@@ -80,6 +80,7 @@ export default defineConfig({
         '**/index.ts',
         '**/*.routes.ts',
         'libs/shared/data-access/src/models/**/*.model.ts',
+        'libs/shared/data-access/src/generated/**',
         '**/*.interface.ts',
         '**/*.interfaces.ts',
         '**/main.ts',

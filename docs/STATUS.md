@@ -1,8 +1,8 @@
 # Estado Vivo del Monorepo (STATUS)
 
-**Fecha de Actualización:** 2026-11-12  
+**Fecha de Actualización:** 2026-11-13  
 **Rama Base:** `main`  
-**Estado de Auditoría:** Vigente en rama `main` (Cierre de Contrato de Roles y Seguridad Fail-Closed)
+**Estado de Auditoría:** Vigente en rama `main` (Cierre de Contrato de Roles, Tipos OpenAPI v1 y Prevención de Deriva)
 
 Este documento refleja el estado real, empírico y verificable del frontend de NalunPos (`NalunPos-Front`). Toda métrica, cifra de cobertura, tamaño de bundle y resultado de seguridad proviene de ejecuciones directas realizadas en el entorno de integración continua y desarrollo.
 
@@ -10,15 +10,16 @@ Este documento refleja el estado real, empírico y verificable del frontend de N
 
 ## 1. Resumen Ejecutivo: Hecho / Deuda / Pendiente
 
-| Dimensión                                   | Estado Actual | Detalle Técnico                                                                                                                  |
-| :------------------------------------------ | :-----------: | :------------------------------------------------------------------------------------------------------------------------------- |
-| **Arquitectura de Monorepo (Nx)**           |   Completo    | Angular 22, Tailwind CSS v4, Signals y Signal Forms, ESLint 9 Flat Config.                                                       |
-| **Políticas de Seguridad y CSP**            |   Completo    | Estrategia fail-closed, `verify:csp` en CI, SHA-256 en Beasties, segregación de entornos.                                        |
-| **Pruebas Unitarias (Vitest)**              |    Parcial    | 246 tests pasando en 29 suites (100% éxito); `libs/shared/*` con 95.51% líneas (`libs/shared/auth` 100.00%), `apps/*` en 12.94%. |
-| **Pruebas End-to-End (Playwright)**         |   Completo    | 11 tests E2E pasando en CI (`NalunPos-Web` y `NalunPos-Admin-Web`, incluyendo contrato fail-closed y guards por app).            |
-| **Budgets de Producción**                   |   Completo    | `NalunPos-Admin-Web`: 453.76 kB; `NalunPos-Web`: 461.10 kB (ambos bajo el budget de 500 kB).                                     |
-| **Auditoría de Vulnerabilidades**           |  Controlado   | 0 vulnerabilidades altas/críticas; 18 moderadas en devDependencies de tooling.                                                   |
-| **Contrato de Roles (Backend ↔ Frontend)** | **RESUELTO**  | **100% Cerrado (2026-11-12):** Roles canónicos + fail-closed (`ADR 0023` backend / `ADR 0015` frontend).                         |
+| Dimensión                                   | Estado Actual | Detalle Técnico                                                                                                                   |
+| :------------------------------------------ | :-----------: | :-------------------------------------------------------------------------------------------------------------------------------- |
+| **Arquitectura de Monorepo (Nx)**           |   Completo    | Angular 22, Tailwind CSS v4, Signals y Signal Forms, ESLint 9 Flat Config.                                                        |
+| **Políticas de Seguridad y CSP**            |   Completo    | Estrategia fail-closed, `verify:csp` en CI, SHA-256 en Beasties, segregación de entornos.                                         |
+| **Pruebas Unitarias (Vitest)**              |    Parcial    | 246 tests pasando en 29 suites (100% éxito); `libs/shared/*` con 95.51% líneas (`libs/shared/auth` 100.00%), `apps/*` en 12.94%.  |
+| **Pruebas End-to-End (Playwright)**         |   Completo    | 11 tests E2E pasando en CI (`NalunPos-Web` y `NalunPos-Admin-Web`, incluyendo contrato fail-closed y guards por app).             |
+| **Budgets de Producción**                   |   Completo    | `NalunPos-Admin-Web`: 453.76 kB; `NalunPos-Web`: 461.10 kB (ambos bajo el budget de 500 kB).                                      |
+| **Auditoría de Vulnerabilidades**           |  Controlado   | 0 vulnerabilidades altas/críticas; 18 moderadas en devDependencies de tooling.                                                    |
+| **Contrato de Roles (Backend ↔ Frontend)** | **RESUELTO**  | **100% Cerrado (2026-11-12):** Roles canónicos + fail-closed (`ADR 0023` backend / `ADR 0015` frontend).                          |
+| **Contrato OpenAPI v1 y Tipos Tipados**     | **RESUELTO**  | **100% Cerrado (2026-11-13):** Snapshot determinista `openapi.v1.json`, tipos generados sin deriva (`api:types:check`), ADR 0016. |
 
 ---
 
@@ -112,3 +113,13 @@ Este documento refleja el estado real, empírico y verificable del frontend de N
   - `libs/shared/auth/src/services/auth.service.ts:57-74,90-109`: Aborta login con `AUTH_INVALID_SESSION` (401) si `UserSession.fromAuthResponse` devuelve `null` y purga `sessionStorage` si falla `fromStoredSession` (100% cobertura V8).
   - `libs/shared/auth/src/guards/auth.guards.ts:35-57`: `roleGuard` valida `isUserRole` e `isRoleTenantCoherent` (defensa en profundidad) antes de autorizar rutas (100% cobertura V8).
   - `apps/NalunPos-Admin-Web/src/app/app.routes.ts:23-60` y `apps/NalunPos-Web/src/app/app.routes.ts:25-90`: Aíslan los layouts protegidos con `canActivate: [authGuard, roleGuard(PLATFORM_ROLES)]` y `canActivate: [authGuard, roleGuard(TENANT_ROLES)]`, validado mediante E2E reales en `e2e/nalunpos-web.smoke.spec.ts:75-167` y `e2e/nalunpos-admin-web.smoke.spec.ts:73-128`.
+
+### 8. Generación Determinista de Tipos OpenAPI v1 y Prevención de Deriva — **RESUELTO (100% Cerrado — 2026-11-13)**
+
+- **Estado:** **RESUELTO (100% Cerrado)** el **2026-11-13**. Se adoptó `openapi-typescript` (~7.13.0, MIT) como devDependency para generar tipos estáticos TypeScript nativos desde el snapshot `openapi.v1.json` del backend (ADR 0024).
+- **Evidencia en Frontend (`NalunPos-Front`, [ADR 0016](./architecture/adr/0016-openapi-generated-contract-types.md)):**
+  - `libs/shared/data-access/openapi/openapi.v1.json`: Snapshot idéntico al contrato formal del backend.
+  - `tools/generate-api-types.mjs`: Script generador con verificación fail-closed (0 `any`, 0 `eslint-disable`, formato Prettier con `endOfLine: 'lf'`).
+  - `libs/shared/data-access/src/generated/openapi.types.ts`: Tipos exportados vía `@nalunpos/shared/data-access` (excluido de cobertura V8 al ser 100% definiciones de tipos sin sentencias runtime).
+  - `libs/shared/auth/src/interfaces/auth-openapi-contract.spec.ts`: Suite de pruebas estáticas con `expectTypeOf` de Vitest garantizando compatibilidad de `LoginRequest`, `AuthResponse`, `WarehouseDto` y `CreateWarehouseRequest`.
+  - Scripts `api:types` y `api:types:check` en `package.json` integrados en el pipeline de CI (`.github/workflows/ci.yml`).

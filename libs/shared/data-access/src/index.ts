@@ -15,6 +15,9 @@ export * from './models/warehouse.model';
 export * from './models/branch.model';
 export * from './models/supplier.model';
 
+// Contratos y tipos generados desde OpenAPI v1
+export * from './generated/openapi.types';
+
 // Servicios API compartidos
 export * from './services/warehouse-api.service';
 export * from './services/branch-api.service';
