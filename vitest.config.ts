@@ -52,6 +52,10 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./test-setup.ts'],
+    typecheck: {
+      tsconfig: './tsconfig.typecheck.json',
+      include: ['**/*.test-d.ts'],
+    },
     exclude: [
       '**/node_modules/**',
       '**/dist/**',
@@ -77,6 +81,7 @@ export default defineConfig({
       exclude: [
         '**/*.spec.ts',
         '**/*.test.ts',
+        '**/*.test-d.ts',
         '**/index.ts',
         '**/*.routes.ts',
         'libs/shared/data-access/src/models/**/*.model.ts',

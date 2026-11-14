@@ -121,5 +121,5 @@ Este documento refleja el estado real, empírico y verificable del frontend de N
   - `libs/shared/data-access/openapi/openapi.v1.json`: Snapshot idéntico al contrato formal del backend.
   - `tools/generate-api-types.mjs`: Script generador con verificación fail-closed (0 `any`, 0 `eslint-disable`, formato Prettier con `endOfLine: 'lf'`).
   - `libs/shared/data-access/src/generated/openapi.types.ts`: Tipos exportados vía `@nalunpos/shared/data-access` (excluido de cobertura V8 al ser 100% definiciones de tipos sin sentencias runtime).
-  - `libs/shared/auth/src/interfaces/auth-openapi-contract.spec.ts`: Suite de pruebas estáticas con `expectTypeOf` de Vitest garantizando compatibilidad de `LoginRequest`, `AuthResponse`, `WarehouseDto` y `CreateWarehouseRequest`.
+  - `libs/shared/auth/src/interfaces/auth-openapi-contract.test-d.ts`: Suite de pruebas estáticas con `expectTypeOf` de Vitest Typecheck (`npm run test:types`) garantizando compatibilidad de `LoginRequest`, `AuthResponse`, `WarehouseDto` y `CreateWarehouseRequest`.
   - Scripts `api:types` y `api:types:check` en `package.json` integrados en el pipeline de CI (`.github/workflows/ci.yml`).

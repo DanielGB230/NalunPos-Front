@@ -254,7 +254,7 @@ El estado con cifras y fecha vigente está detallado en [`docs/STATUS.md`](./doc
      - [`libs/shared/data-access/openapi/openapi.v1.json`](./libs/shared/data-access/openapi/openapi.v1.json): Snapshot local del contrato backend.
      - [`tools/generate-api-types.mjs`](./tools/generate-api-types.mjs): Script generador determinista con validación fail-closed de 0 `any` y 0 `eslint-disable`.
      - [`libs/shared/data-access/src/generated/openapi.types.ts`](./libs/shared/data-access/src/generated/openapi.types.ts): Tipos exportados vía `@nalunpos/shared/data-access`.
-     - [`libs/shared/auth/src/interfaces/auth-openapi-contract.spec.ts`](./libs/shared/auth/src/interfaces/auth-openapi-contract.spec.ts): Verificación estática con `expectTypeOf` de Vitest.
+     - [`libs/shared/auth/src/interfaces/auth-openapi-contract.test-d.ts`](./libs/shared/auth/src/interfaces/auth-openapi-contract.test-d.ts): Verificación estática de tipos con `expectTypeOf` de Vitest Typecheck (`npm run test:types`).
      - Scripts `api:types` y `api:types:check` en `package.json` integrados en el flujo de CI (`.github/workflows/ci.yml`).
 
 ---

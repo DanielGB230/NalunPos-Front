@@ -13,6 +13,7 @@
     "format:fix": "prettier --write .",
     "test": "nx run-many -t test",
     "test:tools": "node --test tools/verify-docs/**/*.spec.mjs",
+    "test:types": "vitest run --typecheck.only",
     "build": "nx run-many -t build",
     "api:types": "node tools/generate-api-types.mjs",
     "api:types:check": "node tools/generate-api-types.mjs --check",

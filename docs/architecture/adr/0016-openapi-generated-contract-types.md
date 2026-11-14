@@ -47,9 +47,9 @@
      - `"api:types:check": "node tools/generate-api-types.mjs --check"`
    - En `.github/workflows/ci.yml`, el job `lint-and-format` ejecuta obligatoriamente `npm run api:types:check`, bloqueando cualquier fusión si los tipos generados difieren del contrato OpenAPI.
 
-6. **Pruebas Estáticas de Tipos con Vitest (`expectTypeOf`):**
-   - Se incorpora la suite `libs/shared/auth/src/interfaces/auth-openapi-contract.spec.ts`, validando en tiempo de compilación y prueba que:
-     - `LoginRequest` y `AuthResponse` son exacta y bidireccionalmente compatibles con `components['schemas']['LoginRequest']` y `components['schemas']['LoginResponse']`.
+6. **Pruebas Estáticas de Tipos con Vitest Typecheck (`expectTypeOf` / `*.test-d.ts`):**
+   - Se incorpora la suite `libs/shared/auth/src/interfaces/auth-openapi-contract.test-d.ts`, ejecutada mediante Vitest Typecheck (`npm run test:types`), validando en tiempo de compilación y prueba que:
+     - `LoginRequest` y `AuthResponse` son exacta y bidireccionalmente compatibles con `components['schemas']['LoginRequest']` y `components['schemas']['LoginResponse']` usando `.toExtend()`.
      - La respuesta tipada de `paths['/api/v1/auth/login']['post']['responses'][200]` coincide con el esquema `LoginResponse`.
      - Esquemas canónicos como `WarehouseDto` y `CreateWarehouseRequest` exponen todas las propiedades y tipos requeridos por la arquitectura.
 

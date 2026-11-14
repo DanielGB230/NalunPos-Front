@@ -1,10 +1,10 @@
 // =============================================================================
-// auth-openapi-contract.spec.ts
-// Verificación estática y de contrato en tiempo de pruebas entre las interfaces
+// auth-openapi-contract.test-d.ts
+// Verificación estática y de contrato en tiempo de pruebas de tipos entre las interfaces
 // manuales del frontend y los esquemas tipados generados desde OpenAPI v1.
 // =============================================================================
 
-import { describe, it, expect, expectTypeOf } from 'vitest';
+import { describe, it, expectTypeOf } from 'vitest';
 import type { AuthResponse, LoginRequest } from './auth.interfaces';
 import type { components, paths } from '@nalunpos/shared/data-access';
 
@@ -15,14 +15,14 @@ describe('Contrato OpenAPI v1 ↔ DTOs de Autenticación y Almacenes', () => {
   type OpenApiCreateWarehouseRequest = components['schemas']['CreateWarehouseRequest'];
 
   it('debe coincidir el contrato de LoginRequest con el schema OpenAPI v1', () => {
-    // Verificación bidireccional de compatibilidad de tipos
-    expectTypeOf<LoginRequest>().toMatchTypeOf<OpenApiLoginRequest>();
-    expectTypeOf<OpenApiLoginRequest>().toMatchTypeOf<LoginRequest>();
+    // Verificación bidireccional de compatibilidad de tipos con toExtend
+    expectTypeOf<LoginRequest>().toExtend<OpenApiLoginRequest>();
+    expectTypeOf<OpenApiLoginRequest>().toExtend<LoginRequest>();
   });
 
   it('debe coincidir el contrato de AuthResponse con el schema LoginResponse de OpenAPI v1', () => {
     // OpenApiLoginResponse asignable a AuthResponse (DTO inmutable en frontend)
-    expectTypeOf<OpenApiLoginResponse>().toMatchTypeOf<AuthResponse>();
+    expectTypeOf<OpenApiLoginResponse>().toExtend<AuthResponse>();
 
     // Verificación de propiedades requeridas y tipos exactos
     expectTypeOf<AuthResponse['token']>().toEqualTypeOf<OpenApiLoginResponse['token']>();
@@ -41,7 +41,7 @@ describe('Contrato OpenAPI v1 ↔ DTOs de Autenticación y Almacenes', () => {
     type PathLoginResponse =
       paths['/api/v1/auth/login']['post']['responses'][200]['content']['application/json'];
     expectTypeOf<PathLoginResponse>().toEqualTypeOf<OpenApiLoginResponse>();
-    expectTypeOf<PathLoginResponse>().toMatchTypeOf<AuthResponse>();
+    expectTypeOf<PathLoginResponse>().toExtend<AuthResponse>();
   });
 
   it('debe garantizar que WarehouseDto existe en OpenAPI v1 con las propiedades canónicas requeridas', () => {
@@ -69,9 +69,5 @@ describe('Contrato OpenAPI v1 ↔ DTOs de Autenticación y Almacenes', () => {
     expectTypeOf<OpenApiCreateWarehouseRequest['name']>().toBeString();
     expectTypeOf<OpenApiCreateWarehouseRequest['branchId']>().toBeString();
     expectTypeOf<OpenApiCreateWarehouseRequest['isDefault']>().toBeBoolean();
-  });
-
-  it('debe validar la aserción en runtime para completar la suite con éxito', () => {
-    expect(true).toBe(true);
   });
 });
