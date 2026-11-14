@@ -32,7 +32,7 @@
     "@angular/cli": "~22.2.0",
     "@angular/compiler-cli": "~22.2.0",
     "@angular/language-service": "~22.2.0",
-    "@nx/angular": "23.3.1",
+    "@nx/angular": "24.0.6",
     "@nx/eslint": "23.3.1",
     "@nx/eslint-plugin": "23.3.1",
     "@nx/js": "23.3.1",
