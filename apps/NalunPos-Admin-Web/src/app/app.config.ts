@@ -1,31 +1,21 @@
 // =============================================================================
 // app.config.ts — NalunPos-Admin-Web
 // Configuración central para el panel SuperAdmin (bootstrap).
-// Registra: Router, HttpClient, Interceptores, Signal Forms, Runtime AppConfig.
+// Registra: Router, HttpClient, Interceptores, Signal Forms.
+// La configuración de runtime (APP_CONFIG) se provee ya resuelta en main.ts.
 // =============================================================================
 
 import type { ApplicationConfig } from '@angular/core';
-import {
-  inject,
-  provideAppInitializer,
-  provideBrowserGlobalErrorListeners,
-  provideZonelessChangeDetection,
-} from '@angular/core';
+import { provideBrowserGlobalErrorListeners, provideZonelessChangeDetection } from '@angular/core';
 import { provideRouter, withComponentInputBinding, withViewTransitions } from '@angular/router';
 import { provideHttpClient, withInterceptors, withFetch } from '@angular/common/http';
 import { appRoutes } from './app.routes';
-import { environment } from '../environments/environment';
 import {
   authTokenInterceptor,
   sessionExpiredInterceptor,
   AuthService,
 } from '@nalunpos/shared/auth';
-import {
-  APP_CONFIG,
-  correlationIdInterceptor,
-  errorInterceptor,
-  provideRuntimeConfig,
-} from '@nalunpos/shared/data-access';
+import { correlationIdInterceptor, errorInterceptor } from '@nalunpos/shared/data-access';
 import { APP_NAV_CONFIG, AUTH_GATEWAY, LOGIN_CONFIG } from '@nalunpos/shared/util';
 import { ADMIN_NAV_CONFIG } from './core/config/nav.config';
 import { ADMIN_LOGIN_CONFIG } from './core/config/login.config';
@@ -34,16 +24,6 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideZonelessChangeDetection(),
     provideBrowserGlobalErrorListeners(),
-
-    // Carga de configuración validada en runtime (/config.json con fallback a environment)
-    provideRuntimeConfig(environment),
-
-    // Sincronización de AuthService con la URL en runtime
-    provideAppInitializer(() => {
-      const authService = inject(AuthService);
-      const config = inject(APP_CONFIG);
-      authService.configureApiUrl(config.apiUrl);
-    }),
 
     provideRouter(appRoutes, withViewTransitions(), withComponentInputBinding()),
     provideHttpClient(

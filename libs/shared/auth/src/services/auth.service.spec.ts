@@ -3,7 +3,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import type { AppError } from '@nalunpos/shared/data-access';
+import { APP_CONFIG, type AppError } from '@nalunpos/shared/data-access';
 import { of, throwError } from 'rxjs';
 import type { AuthResponse, LoginRequest } from '../interfaces/auth.interfaces';
 import { AuthService } from './auth.service';
@@ -14,6 +14,12 @@ describe('AuthService', () => {
   let routerMock: { navigate: ReturnType<typeof vi.fn> };
 
   const STORAGE_KEY = 'nalunpos_auth_session';
+
+  const TEST_APP_CONFIG = {
+    apiUrl: 'https://api.nalunpos.com',
+    appName: 'NalunPos',
+    production: false,
+  };
 
   const mockSuperAdminResponse: AuthResponse = {
     token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.test-jwt-token',
@@ -51,13 +57,13 @@ describe('AuthService', () => {
     TestBed.configureTestingModule({
       providers: [
         AuthService,
+        { provide: APP_CONFIG, useValue: TEST_APP_CONFIG },
         { provide: HttpClient, useValue: httpMock },
         { provide: Router, useValue: routerMock },
       ],
     });
 
     service = TestBed.inject(AuthService);
-    service.configureApiUrl('https://api.nalunpos.com');
   });
 
   afterEach(() => {
@@ -266,6 +272,7 @@ describe('AuthService', () => {
     TestBed.configureTestingModule({
       providers: [
         AuthService,
+        { provide: APP_CONFIG, useValue: TEST_APP_CONFIG },
         { provide: HttpClient, useValue: httpMock },
         { provide: Router, useValue: routerMock },
       ],
@@ -297,6 +304,7 @@ describe('AuthService', () => {
     TestBed.configureTestingModule({
       providers: [
         AuthService,
+        { provide: APP_CONFIG, useValue: TEST_APP_CONFIG },
         { provide: HttpClient, useValue: httpMock },
         { provide: Router, useValue: routerMock },
       ],
@@ -316,6 +324,7 @@ describe('AuthService', () => {
     TestBed.configureTestingModule({
       providers: [
         AuthService,
+        { provide: APP_CONFIG, useValue: TEST_APP_CONFIG },
         { provide: HttpClient, useValue: httpMock },
         { provide: Router, useValue: routerMock },
       ],
@@ -343,6 +352,7 @@ describe('AuthService', () => {
     TestBed.configureTestingModule({
       providers: [
         AuthService,
+        { provide: APP_CONFIG, useValue: TEST_APP_CONFIG },
         { provide: HttpClient, useValue: httpMock },
         { provide: Router, useValue: routerMock },
       ],
@@ -372,6 +382,7 @@ describe('AuthService', () => {
       TestBed.configureTestingModule({
         providers: [
           AuthService,
+          { provide: APP_CONFIG, useValue: TEST_APP_CONFIG },
           { provide: HttpClient, useValue: httpMock },
           { provide: Router, useValue: routerMock },
         ],
@@ -400,6 +411,7 @@ describe('AuthService', () => {
     TestBed.configureTestingModule({
       providers: [
         AuthService,
+        { provide: APP_CONFIG, useValue: TEST_APP_CONFIG },
         { provide: HttpClient, useValue: httpMock },
         { provide: Router, useValue: routerMock },
       ],
@@ -427,6 +439,7 @@ describe('AuthService', () => {
     TestBed.configureTestingModule({
       providers: [
         AuthService,
+        { provide: APP_CONFIG, useValue: TEST_APP_CONFIG },
         { provide: HttpClient, useValue: httpMock },
         { provide: Router, useValue: routerMock },
       ],

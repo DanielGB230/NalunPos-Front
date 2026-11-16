@@ -9,7 +9,7 @@
 import { Injectable, computed, inject, signal, type Signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import type { AppError } from '@nalunpos/shared/data-access';
+import { APP_CONFIG, type AppError } from '@nalunpos/shared/data-access';
 import type { Observable } from 'rxjs';
 import { of, switchMap, throwError } from 'rxjs';
 import type { AuthResponse, LoginRequest } from '../interfaces/auth.interfaces';
@@ -20,6 +20,7 @@ import { UserSession } from '../models/user-session.model';
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
+  private readonly config = inject(APP_CONFIG);
 
   /**
    * Única clave constante de persistencia para sesión y token unificados en sessionStorage.
@@ -47,30 +48,27 @@ export class AuthService {
     return this._currentUser()?.token ?? null;
   }
 
-  private apiUrl = '';
-
-  configureApiUrl(apiUrl: string): void {
-    this.apiUrl = apiUrl;
-  }
-
   // ─── Login ─────────────────────────────────────────────────────────────────
   login(credentials: LoginRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/api/v1/auth/login`, credentials).pipe(
-      switchMap((response) => {
-        const session = UserSession.fromAuthResponse(response);
-        if (!session) {
-          const invalidSessionError: AppError = {
-            code: 'AUTH_INVALID_SESSION',
-            message: 'No fue posible iniciar sesión. Verifica tus credenciales e intenta de nuevo.',
-            status: 401,
-          };
-          return throwError(() => invalidSessionError);
-        }
+    return this.http
+      .post<AuthResponse>(`${this.config.apiUrl}/api/v1/auth/login`, credentials)
+      .pipe(
+        switchMap((response) => {
+          const session = UserSession.fromAuthResponse(response);
+          if (!session) {
+            const invalidSessionError: AppError = {
+              code: 'AUTH_INVALID_SESSION',
+              message:
+                'No fue posible iniciar sesión. Verifica tus credenciales e intenta de nuevo.',
+              status: 401,
+            };
+            return throwError(() => invalidSessionError);
+          }
 
-        this.persistSession(session);
-        return of(response);
-      }),
-    );
+          this.persistSession(session);
+          return of(response);
+        }),
+      );
   }
 
   // ─── Logout ────────────────────────────────────────────────────────────────

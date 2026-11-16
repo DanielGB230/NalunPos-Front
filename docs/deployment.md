@@ -93,9 +93,9 @@ En el paso de despliegue (CD) o durante la preparación del servidor, `/config.j
 
 ### 3.3 Comportamiento Fail-Closed
 
-El bootstrap de las aplicaciones (`apps/*/src/app/app.config.ts`) registra la inicialización reactiva mediante `provideRuntimeConfig` y `provideAppInitializer`, exponiendo la configuración fuertemente tipada en el token de inyección `APP_CONFIG`:
+El bootstrap de las aplicaciones (`apps/*/src/main.ts`) resuelve la configuración **antes** de crear la aplicación mediante `loadAppConfig('/config.json', environment)` y la provee como valor ya validado en el token `APP_CONFIG` (`{ provide: APP_CONFIG, useValue: config }`):
 
-- **En Producción (`production: true`):** El método `AppConfigService.loadConfig` (invocado por `loadAppConfig` / `provideRuntimeConfig`) opera estrictamente _fail-closed_. Si la petición HTTP a `/config.json` retorna un código distinto de HTTP 200 (como HTTP 404), un error de red o timeout, la promesa se rechaza lanzando un error crítico que cancela inmediatamente el arranque de Angular. La aplicación **nunca opera con valores por defecto ni fallbacks en memoria**, garantizando que jamás interactúe con orígenes no autorizados.
+- **En Producción (`production: true`):** `loadAppConfig` opera estrictamente _fail-closed_. Si la petición HTTP a `/config.json` retorna un código distinto de HTTP 200 (como HTTP 404), un error de red o timeout, o si el JSON no supera `validateAppConfig`, la promesa se rechaza y `bootstrapApplication` nunca se ejecuta. La aplicación **nunca opera con valores por defecto ni fallbacks en memoria**, garantizando que jamás interactúe con orígenes no autorizados.
 - **En Desarrollo (`production: false`):** Exclusivamente en modo de desarrollo local, si `/config.json` no está disponible en el servidor local, el loader recurre de forma tolerante a las variables locales declaradas en `environment.ts` para facilitar el flujo de depuración.
 
 ---

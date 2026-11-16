@@ -9,6 +9,8 @@ export * from './interceptors/correlation-id.interceptor';
 export * from './interceptors/error.interceptor';
 export * from './config/app-config.interface';
 export * from './config/app-config.token';
+export * from './config/validate-app-config';
+export * from './config/load-app-config';
 
 // Modelos y contratos compartidos
 export * from './models/warehouse.model';

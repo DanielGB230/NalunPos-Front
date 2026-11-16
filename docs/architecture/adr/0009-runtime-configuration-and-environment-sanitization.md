@@ -44,25 +44,22 @@ export interface AppConfig {
 }
 ```
 
-### 2.3 Inicialización con `provideAppInitializer()`
+### 2.3 Resolución previa al bootstrap (`main.ts`)
 
-Durante el arranque de Angular (`main.ts`), la función `provideRuntimeConfig()` carga y valida `/config.json` antes de que se instancie cualquier componente o servicio:
+Antes de crear la aplicación, cada `main.ts` resuelve y valida `/config.json` mediante `loadAppConfig()` y provee el valor ya resuelto. Al no existir ninguna fase de carga diferida, es imposible inyectar `APP_CONFIG` sin que la configuración esté cargada:
 
 ```typescript
-provideAppInitializer(() => {
-  const http = inject(HttpClient);
-  const configService = inject(AppConfigService);
-  return firstValueFrom(
-    http.get<AppConfig>('/config.json').pipe(
-      tap((config) => configService.setConfig(config)),
-      catchError(() => {
-        configService.setConfig(fallbackConfig);
-        return of(fallbackConfig);
-      }),
-    ),
-  );
-});
+const config = await loadAppConfig('/config.json', environment);
+
+bootstrapApplication(
+  AppComponent,
+  mergeApplicationConfig(appConfig, {
+    providers: [{ provide: APP_CONFIG, useValue: config }],
+  }),
+);
 ```
+
+En producción, `loadAppConfig` es _fail-closed_: si `/config.json` retorna un código distinto de HTTP 200, falla la red o el JSON no supera `validateAppConfig`, la promesa se rechaza y `bootstrapApplication` nunca se ejecuta. En desarrollo, y solo en desarrollo, recurre al fallback validado de `environment.ts`.
 
 ---
 
@@ -72,4 +69,4 @@ provideAppInitializer(() => {
 
 - **Inmutabilidad de Artefactos (Build Once, Deploy Anywhere)**: El mismo bundle compilado en `dist/` puede desplegarse en cualquier entorno únicamente montando un volumen o actualizando `/config.json` en el servidor web.
 - **Servicios Desacoplados**: Los servicios de datos (`CategoryApiService`, `WarehouseApiService`, `AuthService`, etc.) consumen `APP_CONFIG` mediante `inject(APP_CONFIG)` y jamás importan archivos de entorno estáticos.
-- **Resiliencia**: En caso de fallo transitorio al cargar `/config.json`, se activa una configuración de fallback segura.
+- **Resiliencia**: En desarrollo, un fallo al cargar `/config.json` activa el fallback validado de `environment.ts`; en producción la aplicación falla cerrada y no arranca con valores no autorizados.
