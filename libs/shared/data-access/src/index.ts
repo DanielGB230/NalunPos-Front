@@ -14,6 +14,7 @@ export * from './config/app-config.token';
 export * from './models/warehouse.model';
 export * from './models/branch.model';
 export * from './models/supplier.model';
+export * from './models/tenant.model';
 
 // Contratos y tipos generados desde OpenAPI v1
 export * from './generated/openapi.types';

@@ -18,7 +18,13 @@ import {
   QuickFilterBarComponent,
 } from '@nalunpos/shared/ui';
 import { AppDatePipe } from '@nalunpos/shared/util';
-import type { TenantDto } from '../../models/tenant.model';
+import {
+  TENANT_STATUS_BADGE_CONFIG,
+  TENANT_STATUS_LABELS,
+  type TenantDto,
+  type TenantStatus,
+  type TenantStatusBadgeConfig,
+} from '../../models/tenant.model';
 import { TenantApiService } from '../../data-access/tenant-api.service';
 import { TenantCreateFormComponent } from '../../components/tenant-create/tenant-create-form.component';
 
@@ -46,11 +52,18 @@ export class TenantListComponent implements OnInit {
   protected readonly displayedColumns: string[] = [
     'name',
     'documentNumber',
-    'subdomain',
     'status',
     'createdAtUtc',
     'actions',
   ];
+
+  // ── Mapas tipados de estado (cero strings literales sueltos) ──
+  protected readonly statusLabels = TENANT_STATUS_LABELS;
+  protected readonly statusConfig = TENANT_STATUS_BADGE_CONFIG;
+
+  protected getStatusBadge(status: TenantStatus): TenantStatusBadgeConfig {
+    return this.statusConfig[status] ?? this.statusConfig.PendingProvisioning;
+  }
 
   // ── Estado reactivo (Signal-First) ──
   protected readonly tenants = signal<TenantDto[]>([]);
@@ -62,8 +75,18 @@ export class TenantListComponent implements OnInit {
   protected readonly errorMessage = signal<string | null>(null);
 
   // ── Estado UI de filtros ──
-  protected readonly selectedStatusFilter = signal<'all' | 'Active' | 'Pending' | 'Paused'>('all');
+  protected readonly selectedStatusFilter = signal<'all' | TenantStatus>('all');
   protected readonly showAdvancedFilters = signal(false);
+
+  // ── Filtrado reactivo en cliente sobre la página actual ──
+  protected readonly filteredTenants = computed(() => {
+    const list = this.tenants();
+    const filter = this.selectedStatusFilter();
+    if (filter === 'all') {
+      return list;
+    }
+    return list.filter((t) => t.status === filter);
+  });
 
   // ── Configuración del Hero (estática) ──
   protected readonly heroConfig: PageHeroConfig = {
@@ -119,12 +142,17 @@ export class TenantListComponent implements OnInit {
     },
   ]);
 
-  // ── Tabs de filtro rápido (reactivos sobre totalCount) ──
+  // ── Tabs de filtro rápido (reactivos sobre totalCount, sin números fabricados) ──
   protected readonly filterTabs = computed<QuickFilterTab[]>(() => [
     { key: 'all', label: `Todos (${this.totalCount()})`, colorVariant: 'default' },
-    { key: 'Active', label: 'Activos (12)', colorVariant: 'blue' },
-    { key: 'Pending', label: 'Pending Provisioning (5)', colorVariant: 'orchid', hasPing: true },
-    { key: 'Paused', label: 'En Pausa (0)', colorVariant: 'default' },
+    {
+      key: 'PendingProvisioning',
+      label: this.statusLabels.PendingProvisioning,
+      colorVariant: 'orchid',
+      hasPing: true,
+    },
+    { key: 'Active', label: this.statusLabels.Active, colorVariant: 'blue' },
+    { key: 'Suspended', label: this.statusLabels.Suspended, colorVariant: 'default' },
   ]);
 
   // ── Configuración del Drawer de filtros avanzados (estática) ──
@@ -137,9 +165,14 @@ export class TenantListComponent implements OnInit {
         note: 'Multi-selección',
         options: [
           { label: 'Todos', value: 'all', checked: true },
-          { label: 'Activos', value: 'Active', checked: true, colorVariant: 'blue' },
-          { label: 'Provisioning', value: 'Pending', checked: true, colorVariant: 'orchid' },
-          { label: 'En Pausa', value: 'Paused' },
+          { label: this.statusLabels.Active, value: 'Active', checked: true, colorVariant: 'blue' },
+          {
+            label: this.statusLabels.PendingProvisioning,
+            value: 'PendingProvisioning',
+            checked: true,
+            colorVariant: 'orchid',
+          },
+          { label: this.statusLabels.Suspended, value: 'Suspended' },
         ],
       },
       {
@@ -213,7 +246,7 @@ export class TenantListComponent implements OnInit {
   }
 
   protected setStatusFilter(filter: string): void {
-    this.selectedStatusFilter.set(filter as 'all' | 'Active' | 'Pending' | 'Paused');
+    this.selectedStatusFilter.set(filter as 'all' | TenantStatus);
   }
 
   protected toggleAdvancedFilters(): void {

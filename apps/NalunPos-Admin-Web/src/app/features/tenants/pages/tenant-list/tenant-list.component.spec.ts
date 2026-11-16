@@ -31,7 +31,7 @@ describe('TenantListComponent', () => {
       id: 'tenant-2',
       name: 'Empresa Beta',
       documentNumber: '20987654321',
-      status: 'Pending',
+      status: 'PendingProvisioning',
       createdAtUtc: '2026-10-28T11:00:00Z',
     },
   ];

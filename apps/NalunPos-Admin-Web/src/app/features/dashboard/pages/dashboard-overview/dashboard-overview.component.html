@@ -138,13 +138,11 @@
                 <td class="py-3 px-3 text-slate-500 font-mono">{{ tenant.documentNumber }}</td>
                 <td class="py-3 px-3">
                   <span
-                    [class]="
-                      tenant.status === 'Active'
-                        ? 'px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200'
-                        : 'px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-100 text-amber-700 border border-amber-200'
-                    "
+                    class="px-2 py-0.5 text-[10px] font-bold rounded-full border {{
+                      statusBadgeClasses[tenant.status]
+                    }}"
                   >
-                    {{ tenant.status }}
+                    {{ statusLabels[tenant.status] }}
                   </span>
                 </td>
                 <td class="py-3 px-3 text-right text-slate-500 font-medium">

@@ -3,7 +3,11 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { RouterLink } from '@angular/router';
 import { AppDatePipe } from '@nalunpos/shared/util';
 import { TenantApiService } from '../../../tenants/data-access/tenant-api.service';
-import type { TenantDto } from '../../../tenants/models/tenant.model';
+import {
+  TENANT_STATUS_LABELS,
+  type TenantDto,
+  type TenantStatus,
+} from '../../../tenants/models/tenant.model';
 
 interface KpiStat {
   title: string;
@@ -27,6 +31,14 @@ export class DashboardOverviewComponent implements OnInit {
   protected readonly recentTenants = signal<TenantDto[]>([]);
   protected readonly totalTenantsCount = signal<number>(0);
   protected readonly isLoading = signal<boolean>(false);
+
+  // ── Mapas tipados de estado para UI (cero comparaciones sueltas) ──
+  protected readonly statusLabels = TENANT_STATUS_LABELS;
+  protected readonly statusBadgeClasses: Record<TenantStatus, string> = {
+    Active: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+    PendingProvisioning: 'bg-amber-100 text-amber-700 border-amber-200',
+    Suspended: 'bg-slate-100 text-slate-700 border-slate-200',
+  };
 
   protected readonly kpiStats = signal<KpiStat[]>([
     {

@@ -5023,8 +5023,10 @@ export interface components {
       /** Format: uuid */
       id: string;
       name: string;
-      status: string;
+      status: components['schemas']['TenantStatus'];
     };
+    /** @enum {unknown} */
+    TenantStatus: 'PendingProvisioning' | 'Active' | 'Suspended';
     UpdateBranchRequest: {
       city: string;
       country: string;

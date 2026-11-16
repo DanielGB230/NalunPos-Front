@@ -1,11 +1,11 @@
-import '@angular/compiler';
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import '@angular/compiler';
+import { TestBed } from '@angular/core/testing';
 import { APP_CONFIG, type AppConfig, type PagedResult } from '@nalunpos/shared/data-access';
-import { TenantApiService } from './tenant-api.service';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { CreateTenantRequest, TenantDto } from '../models/tenant.model';
+import { TenantApiService } from './tenant-api.service';
 
 describe('TenantApiService', () => {
   let service: TenantApiService;
@@ -29,7 +29,7 @@ describe('TenantApiService', () => {
       id: 'tenant-2',
       name: 'Empresa Beta',
       documentNumber: '20987654321',
-      status: 'Pending',
+      status: 'PendingProvisioning',
       createdAtUtc: '2026-10-28T11:00:00Z',
     },
   ];
