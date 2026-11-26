@@ -13,6 +13,8 @@ describe('Contrato OpenAPI v1 ↔ DTOs de Autenticación y Almacenes', () => {
   type OpenApiLoginRequest = components['schemas']['LoginRequest'];
   type OpenApiWarehouseDto = components['schemas']['WarehouseDto'];
   type OpenApiCreateWarehouseRequest = components['schemas']['CreateWarehouseRequest'];
+  type OpenApiCurrentUserResponse = components['schemas']['CurrentUserResponse'];
+  type OpenApiProblemDetails = components['schemas']['ProblemDetails'];
 
   it('debe coincidir el contrato de LoginRequest con el schema OpenAPI v1', () => {
     // Verificación bidireccional de compatibilidad de tipos con toExtend
@@ -69,5 +71,33 @@ describe('Contrato OpenAPI v1 ↔ DTOs de Autenticación y Almacenes', () => {
     expectTypeOf<OpenApiCreateWarehouseRequest['name']>().toBeString();
     expectTypeOf<OpenApiCreateWarehouseRequest['branchId']>().toBeString();
     expectTypeOf<OpenApiCreateWarehouseRequest['isDefault']>().toBeBoolean();
+  });
+
+  it('debe coincidir la respuesta 200 de POST /api/v1/auth/refresh con el schema LoginResponse', () => {
+    type PathRefreshResponse =
+      paths['/api/v1/auth/refresh']['post']['responses'][200]['content']['application/json'];
+    expectTypeOf<PathRefreshResponse>().toEqualTypeOf<OpenApiLoginResponse>();
+    expectTypeOf<PathRefreshResponse>().toExtend<AuthResponse>();
+  });
+
+  it('debe garantizar que POST /api/v1/auth/logout responde 204 sin contenido tipado', () => {
+    type LogoutResponses = paths['/api/v1/auth/logout']['post']['responses'];
+    expectTypeOf<keyof LogoutResponses>().toEqualTypeOf<204 | 401>();
+    expectTypeOf<LogoutResponses[204]['content']['application/json']>().toBeUnknown();
+  });
+
+  it('debe coincidir la respuesta 200 de GET /api/v1/auth/me con el schema CurrentUserResponse', () => {
+    type PathCurrentUserResponse =
+      paths['/api/v1/auth/me']['get']['responses'][200]['content']['application/json'];
+    expectTypeOf<PathCurrentUserResponse>().toEqualTypeOf<OpenApiCurrentUserResponse>();
+    expectTypeOf<PathCurrentUserResponse>().toHaveProperty('userId');
+    expectTypeOf<PathCurrentUserResponse>().toHaveProperty('role');
+    expectTypeOf<PathCurrentUserResponse>().toHaveProperty('roleId');
+    expectTypeOf<PathCurrentUserResponse>().toHaveProperty('tenantId');
+  });
+
+  it('debe exponer la extensión RFC 9457 `code` en el schema ProblemDetails', () => {
+    expectTypeOf<OpenApiProblemDetails>().toHaveProperty('code');
+    expectTypeOf<NonNullable<OpenApiProblemDetails['code']>>().toBeString();
   });
 });

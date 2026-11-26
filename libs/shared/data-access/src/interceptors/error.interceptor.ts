@@ -1,7 +1,8 @@
 // =============================================================================
 // errorInterceptor — NalunPos Data Access
 // Captura respuestas de error HTTP (400, 401, 403, 404, 500) y traduce el formato
-// RFC 7807 (ProblemDetails de .NET 9) a objetos AppError fuertemente tipados.
+// RFC 9457 (ProblemDetails de .NET) a objetos AppError fuertemente tipados.
+// El código de dominio se toma de la extensión `code`; `type` nunca se usa como código.
 // =============================================================================
 
 import type { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
@@ -21,7 +22,7 @@ function parseHttpError(error: HttpErrorResponse): AppError {
   if (error.error && typeof error.error === 'object') {
     const problem = error.error as ProblemDetails;
     return {
-      code: problem.type ?? `HTTP_${error.status}`,
+      code: problem.code ?? `HTTP_${error.status}`,
       message: problem.detail || problem.title || getFallbackMessage(error.status),
       status: error.status,
       details: problem.errors,

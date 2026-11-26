@@ -10,6 +10,8 @@ export interface ProblemDetails {
   readonly detail?: string;
   readonly instance?: string;
   readonly errors?: Record<string, string[]>;
+  /** Código de error de dominio RFC 9457 expuesto por el backend (ADR 0023). */
+  readonly code?: string;
 }
 
 export interface AppError {

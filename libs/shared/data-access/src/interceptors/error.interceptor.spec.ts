@@ -171,7 +171,7 @@ describe('errorInterceptor', () => {
     expect(capturedError?.message).toContain('error inesperado');
   });
 
-  it('debe usar HTTP_status cuando problem.type no está presente y usar title cuando detail está vacío', () => {
+  it('debe usar HTTP_status cuando problem.code no está presente y usar title cuando detail está vacío', () => {
     const req = new HttpRequest('GET', '/api/v1/no-type');
     const mockHttpError = new HttpErrorResponse({
       status: 422,
@@ -207,5 +207,116 @@ describe('errorInterceptor', () => {
 
     expect(capturedError?.code).toBe('HTTP_400');
     expect(capturedError?.message).toContain('datos inválidos');
+  });
+
+  it('debe usar problem.code "Auth.RefreshTokenInvalid" en un 401 cuando el backend lo expone', () => {
+    const req = new HttpRequest('POST', '/api/v1/auth/refresh');
+    const mockHttpError = new HttpErrorResponse({
+      status: 401,
+      statusText: 'Unauthorized',
+      error: {
+        type: 'https://nalunpos.com/errors/refresh-token-invalid',
+        title: 'Unauthorized',
+        status: 401,
+        code: 'Auth.RefreshTokenInvalid',
+      },
+    });
+
+    let capturedError: AppError | undefined;
+    errorInterceptor(req, () => throwError(() => mockHttpError)).subscribe({
+      error: (err: AppError) => {
+        capturedError = err;
+      },
+    });
+
+    expect(capturedError?.code).toBe('Auth.RefreshTokenInvalid');
+  });
+
+  it('debe usar problem.code "Auth.RefreshConcurrent" en un 409', () => {
+    const req = new HttpRequest('POST', '/api/v1/auth/refresh');
+    const mockHttpError = new HttpErrorResponse({
+      status: 409,
+      statusText: 'Conflict',
+      error: {
+        title: 'Conflict',
+        status: 409,
+        code: 'Auth.RefreshConcurrent',
+      },
+    });
+
+    let capturedError: AppError | undefined;
+    errorInterceptor(req, () => throwError(() => mockHttpError)).subscribe({
+      error: (err: AppError) => {
+        capturedError = err;
+      },
+    });
+
+    expect(capturedError?.code).toBe('Auth.RefreshConcurrent');
+    expect(capturedError?.status).toBe(409);
+  });
+
+  it('debe usar problem.code en un 403 de tenant suspendido', () => {
+    const req = new HttpRequest('GET', '/api/v1/warehouses');
+    const mockHttpError = new HttpErrorResponse({
+      status: 403,
+      statusText: 'Forbidden',
+      error: {
+        title: 'Forbidden',
+        status: 403,
+        code: 'Tenant.Suspended',
+      },
+    });
+
+    let capturedError: AppError | undefined;
+    errorInterceptor(req, () => throwError(() => mockHttpError)).subscribe({
+      error: (err: AppError) => {
+        capturedError = err;
+      },
+    });
+
+    expect(capturedError?.code).toBe('Tenant.Suspended');
+    expect(capturedError?.status).toBe(403);
+  });
+
+  it('debe ignorar problem.type y recurrir a HTTP_status cuando problem.code no está presente', () => {
+    const req = new HttpRequest('GET', '/api/v1/public');
+    const mockHttpError = new HttpErrorResponse({
+      status: 400,
+      statusText: 'Bad Request',
+      error: {
+        type: 'https://tools.ietf.org/html/rfc7231#section-6.5.1',
+        title: 'Bad Request',
+        status: 400,
+        detail: 'Solicitud inválida.',
+      },
+    });
+
+    let capturedError: AppError | undefined;
+    errorInterceptor(req, () => throwError(() => mockHttpError)).subscribe({
+      error: (err: AppError) => {
+        capturedError = err;
+      },
+    });
+
+    expect(capturedError?.code).toBe('HTTP_400');
+  });
+
+  it('debe usar HTTP_status cuando la respuesta de error no tiene cuerpo', () => {
+    const req = new HttpRequest('GET', '/api/v1/no-body');
+    const mockHttpError = new HttpErrorResponse({
+      status: 503,
+      statusText: 'Service Unavailable',
+      error: null,
+    });
+
+    let capturedError: AppError | undefined;
+    errorInterceptor(req, () => throwError(() => mockHttpError)).subscribe({
+      error: (err: AppError) => {
+        capturedError = err;
+      },
+    });
+
+    expect(capturedError?.code).toBe('HTTP_503');
+    expect(capturedError?.status).toBe(503);
   });
 });

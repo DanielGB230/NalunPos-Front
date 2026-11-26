@@ -118,7 +118,7 @@ Este documento refleja el estado real, empírico y verificable del frontend de N
 
 - **Estado:** **RESUELTO (100% Cerrado)** el **2026-11-13**. Se adoptó `openapi-typescript` (~7.13.0, MIT) como devDependency para generar tipos estáticos TypeScript nativos desde el snapshot `openapi.v1.json` del backend (ADR 0024).
 - **Evidencia en Frontend (`NalunPos-Front`, [ADR 0016](./architecture/adr/0016-openapi-generated-contract-types.md)):**
-  - `libs/shared/data-access/openapi/openapi.v1.json`: Snapshot idéntico al contrato formal del backend.
+  - `libs/shared/data-access/openapi/openapi.v1.json`: Snapshot sincronizado desde `NalunPos-Api` `739ca75` el **2026-11-26**; SHA256 `a2827866b75f97d1bc78dc9e587f6a0aa1e23e0e9b6b04fae4f85766e708a342`.
   - `tools/generate-api-types.mjs`: Script generador con verificación fail-closed (0 `any`, 0 `eslint-disable`, formato Prettier con `endOfLine: 'lf'`).
   - `libs/shared/data-access/src/generated/openapi.types.ts`: Tipos exportados vía `@nalunpos/shared/data-access` (excluido de cobertura V8 al ser 100% definiciones de tipos sin sentencias runtime).
   - `libs/shared/auth/src/interfaces/auth-openapi-contract.test-d.ts`: Suite de pruebas estáticas con `expectTypeOf` de Vitest Typecheck (`npm run test:types`) garantizando compatibilidad de `LoginRequest`, `AuthResponse`, `WarehouseDto` y `CreateWarehouseRequest`.
