@@ -71,6 +71,24 @@ describe('sessionRefreshInterceptor (Pruebas Unitarias Aisladas)', () => {
     expect(result.completed).toBe(true);
   });
 
+  it('debe refrescar y reintentar ante 401 en GET /auth/me porque es un endpoint protegido', () => {
+    authServiceMock.getToken.mockReturnValue('token-old');
+    authServiceMock.refreshSession.mockReturnValue(of(undefined));
+
+    const httpError = new HttpErrorResponse({ status: 401, statusText: 'Unauthorized' });
+    const nextFn = vi
+      .fn()
+      .mockReturnValueOnce(throwError(() => httpError))
+      .mockReturnValueOnce(of(new HttpResponse({ status: 200 })));
+
+    const result = execute(new HttpRequest('GET', '/api/v1/auth/me'), nextFn);
+
+    expect(authServiceMock.refreshSession).toHaveBeenCalledTimes(1);
+    expect(nextFn).toHaveBeenCalledTimes(2);
+    expect(result.capturedRequests[1]?.context.get(SESSION_RETRIED)).toBe(true);
+    expect(result.completed).toBe(true);
+  });
+
   it('debe reintentar sin refrescar cuando otro refresh ya cambio el token durante la peticion', () => {
     authServiceMock.getToken.mockReturnValueOnce('token-old').mockReturnValue('token-new');
 

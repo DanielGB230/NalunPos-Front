@@ -193,6 +193,44 @@ describe('sessionExpiredInterceptor (Pruebas Unitarias Aisladas)', () => {
     }
   });
 
+  it('debe ejecutar logout() ante 401 en GET /auth/me porque es un endpoint protegido', () => {
+    const req = new HttpRequest('GET', '/api/v1/auth/me');
+    const httpError = new HttpErrorResponse({ status: 401, statusText: 'Unauthorized' });
+    const nextFn = vi.fn(() => throwError(() => httpError));
+
+    let receivedError: unknown;
+    TestBed.runInInjectionContext(() =>
+      sessionExpiredInterceptor(req, nextFn).subscribe({
+        error: (err) => {
+          receivedError = err;
+        },
+      }),
+    );
+
+    expect(authServiceMock.logout).toHaveBeenCalledOnce();
+    expect(routerMock.navigate).not.toHaveBeenCalled();
+    expect(receivedError).toBe(httpError);
+  });
+
+  it('debe redirigir a /forbidden ante 403 en GET /auth/me porque es un endpoint protegido', () => {
+    const req = new HttpRequest('GET', '/api/v1/auth/me');
+    const httpError = new HttpErrorResponse({ status: 403, statusText: 'Forbidden' });
+    const nextFn = vi.fn(() => throwError(() => httpError));
+
+    let receivedError: unknown;
+    TestBed.runInInjectionContext(() =>
+      sessionExpiredInterceptor(req, nextFn).subscribe({
+        error: (err) => {
+          receivedError = err;
+        },
+      }),
+    );
+
+    expect(authServiceMock.logout).not.toHaveBeenCalled();
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/forbidden']);
+    expect(receivedError).toBe(httpError);
+  });
+
   it('NO debe redirigir ni ejecutar logout ante otros errores HTTP (ej. 500)', () => {
     const req = new HttpRequest('GET', '/api/v1/products');
     const httpError = new HttpErrorResponse({ status: 500, statusText: 'Internal Error' });
@@ -373,6 +411,31 @@ describe('Cadena Completa de Interceptores HTTP (Test de Integración Real)', ()
     );
 
     expect(httpMock.match('https://api.nalunpos.com/api/v1/auth/refresh').length).toBe(0);
+    expect(authServiceLogoutSpy).toHaveBeenCalledTimes(1);
+    expect(capturedError?.status).toBe(401);
+  });
+
+  it('a.5) 401 en GET /auth/me con refresh fallido → logout() y error al llamador', () => {
+    let capturedError: AppError | undefined;
+
+    httpClient.get('/api/v1/auth/me').subscribe({
+      error: (err: AppError) => {
+        capturedError = err;
+      },
+    });
+
+    const first = httpMock.expectOne('/api/v1/auth/me');
+    first.flush(
+      { title: 'Unauthorized', detail: 'Sesión expirada', status: 401 },
+      { status: 401, statusText: 'Unauthorized' },
+    );
+
+    const refreshReq = httpMock.expectOne('https://api.nalunpos.com/api/v1/auth/refresh');
+    refreshReq.flush(
+      { title: 'Unauthorized', detail: 'Refresh inválido', status: 401 },
+      { status: 401, statusText: 'Unauthorized' },
+    );
+
     expect(authServiceLogoutSpy).toHaveBeenCalledTimes(1);
     expect(capturedError?.status).toBe(401);
   });

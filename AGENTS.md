@@ -124,7 +124,7 @@ provideHttpClient(
 1. **Peticiones Salientes (Request — Izquierda a Derecha / 1° → 5°):**
    - **`correlationIdInterceptor` (1°)**: Genera y adjunta la cabecera `X-Correlation-Id` con un UUIDv4.
    - **`sessionExpiredInterceptor` (2°)**: Pasa la petición intacta vía `next(req)`.
-   - **`sessionRefreshInterceptor` (3°)**: Captura el token al iniciar la petición y la deja pasar. En el retorno aplica la política de refresh (ADR 0017): un único `401` protegido dispara un refresh single-flight y **un solo reintento** marcado con `SESSION_RETRIED`; los endpoints `/auth/*` quedan excluidos.
+   - **`sessionRefreshInterceptor` (3°)**: Captura el token al iniciar la petición y la deja pasar. En el retorno aplica la política de refresh (ADR 0017): un único `401` protegido dispara un refresh single-flight y **un solo reintento** marcado con `SESSION_RETRIED`; solo las tres rutas anónimas (`/auth/login`, `/auth/refresh`, `/auth/logout`) quedan excluidas. `/auth/me` es protegida y sí se refresca.
    - **`authTokenInterceptor` (4°)**: Extrae el access token de `AuthService` y lo inyecta en `Authorization: Bearer <token>`. **Invariante de Seguridad (ADR 0014):** Comprueba coincidencia estricta de origen contra `apiUrl` (previene fugas de token ante colisiones de dominios o URLs malformadas). Al ejecutarse **después** de `sessionRefreshInterceptor`, el reintento recibe el token renovado.
    - **`errorInterceptor` (5°)**: Envía la petición a la red vía `next(req)`.
 

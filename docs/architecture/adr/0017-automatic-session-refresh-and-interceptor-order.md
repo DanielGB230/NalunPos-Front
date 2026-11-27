@@ -44,7 +44,7 @@ withInterceptors([
 `sessionRefreshInterceptor` (`libs/shared/auth/src/interceptors/session-refresh.interceptor.ts`) aplica esta política:
 
 1. **Captura del token al iniciar la petición.** Antes de `next(req)` se guarda `authService.getToken()`.
-2. **Solo 401 de endpoints protegidos.** Un `401` en `/auth/login`, `/auth/refresh` o `/auth/logout` se propaga sin refresh (anti-bucle). El estado se extrae de forma polimórfica vía `AppError.status` o `HttpErrorResponse.status`.
+2. **Solo 401 de endpoints protegidos.** Las únicas rutas excluidas del refresh son las **tres anónimas**: `/auth/login`, `/auth/refresh` y `/auth/logout`; un `401` en ellas se propaga sin refresh (anti-bucle). `/auth/me` es una ruta **protegida** y, por tanto, sí dispara refresh y reintento. La clasificación se centraliza en `isAnonymousAuthEndpoint()` (`libs/shared/auth/src/interceptors/session-http.helpers.ts`), que exige coincidencia exacta de segmento y tolera query string. El estado se extrae de forma polimórfica vía `extractHttpStatus()` del mismo archivo (`AppError.status` o `HttpErrorResponse.status`).
 3. **Detección de refresh concurrente.** Si al recibir el `401` el token actual difiere del capturado, otro refresh ya se completó: se reintenta directamente sin duplicar la llamada.
 4. **Refresh único.** En caso contrario se invoca `AuthService.refreshSession()`. El `SessionRefreshCoordinator` garantiza un solo `POST /api/v1/auth/refresh` en vuelo por pestaña (single-flight) y serializa entre pestañas con el Web Lock `nalunpos-session-refresh`.
 5. **Reintento marcado.** El reintento se clona con `HttpContextToken SESSION_RETRIED = true`. Si vuelve a responder `401`, se propaga sin segundo refresh.
@@ -63,9 +63,11 @@ withInterceptors([
 
 `authGuard` pasa a devolver `Observable<boolean | UrlTree>` basado en `ensureValidSession()`. Si la sesión no puede garantizarse, redirige a `/login` conservando el `returnUrl` de la navegación rechazada cuando existe. `roleGuard` y `guestGuard` no cambian: la autorización por rol sigue siendo una comprobación síncrona sobre la sesión ya validada.
 
-### 5. Exclusión de `/auth/*` en `sessionExpiredInterceptor`
+### 5. Exclusión de las tres rutas anónimas en `sessionExpiredInterceptor`
 
-Un `403` de `/auth/login`, `/auth/refresh` o `/auth/logout` se propaga al llamador y **no** navega a `/forbidden`. Los endpoints anónimos de autenticación no representan una sesión autenticada sin permisos, por lo que redirigir al usuario a la pantalla de acceso denegado sería incorrecto.
+Las únicas rutas excluidas de la navegación a `/forbidden` y del logout automático son las **tres anónimas**: `/auth/login`, `/auth/refresh` y `/auth/logout`. Un `403` en ellas se propaga al llamador y **no** navega a `/forbidden`; un `401` en ellas no ejecuta `logout()`. Los endpoints anónimos de autenticación no representan una sesión autenticada sin permisos, por lo que redirigir al usuario a la pantalla de acceso denegado sería incorrecto.
+
+`/auth/me` es una ruta **protegida**: su `401` sí limpia la sesión y su `403` sí navega a `/forbidden`. El criterio es único y compartido con `sessionRefreshInterceptor` mediante `isAnonymousAuthEndpoint()` en `session-http.helpers.ts`, evitando dos definiciones divergentes de la misma regla.
 
 ---
 

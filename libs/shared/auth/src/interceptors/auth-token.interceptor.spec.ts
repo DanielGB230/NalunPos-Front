@@ -74,6 +74,23 @@ describe('authTokenInterceptor', () => {
       expect(capturedReq?.headers.has('Authorization')).toBe(true);
       expect(capturedReq?.headers.get('Authorization')).toBe(`Bearer ${mockToken}`);
     });
+    it('debe adjuntar token usando window.location.origin cuando document.baseURI está vacío', () => {
+      const baseUriSpy = vi.spyOn(document, 'baseURI', 'get').mockReturnValue('');
+      authServiceMock.getToken.mockReturnValue('fallback-origin-token');
+
+      const req = new HttpRequest('GET', '/api/v1/warehouses');
+      let capturedReq: HttpRequest<unknown> | undefined;
+
+      const nextFn = vi.fn((clonedReq: HttpRequest<unknown>) => {
+        capturedReq = clonedReq;
+        return of(new HttpResponse());
+      });
+
+      TestBed.runInInjectionContext(() => authTokenInterceptor(req, nextFn).subscribe());
+
+      expect(capturedReq?.headers.get('Authorization')).toBe('Bearer fallback-origin-token');
+      baseUriSpy.mockRestore();
+    });
   });
 
   describe('Casos Negativos de Seguridad (Mitigación Estricta de Fuga de Credenciales)', () => {
