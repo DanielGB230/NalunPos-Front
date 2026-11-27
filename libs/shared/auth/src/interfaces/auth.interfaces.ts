@@ -1,9 +1,7 @@
 // =============================================================================
 // DTOs de Autenticación — Contratos con el Backend NalunPos-Api
-// Fuente: POST /api/v1/auth/login (LoginResponse)
+// Fuente: POST /api/v1/auth/login, /refresh (LoginResponse)
 // =============================================================================
-
-import type { UserRole } from '../models/user-role.model';
 
 export interface LoginRequest {
   readonly email: string;
@@ -19,14 +17,4 @@ export interface AuthResponse {
   readonly fullName: string;
   readonly tenantId: string | null;
   readonly expiresAtUtc: string;
-}
-
-export interface StoredAuthSession {
-  readonly id: string;
-  readonly name: string;
-  readonly email: string;
-  readonly role: UserRole;
-  readonly tenantId: string | null;
-  readonly token: string;
-  readonly expiresAt: string;
 }

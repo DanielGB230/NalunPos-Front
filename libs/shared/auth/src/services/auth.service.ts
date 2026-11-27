@@ -1,35 +1,29 @@
 // =============================================================================
 // AuthService — Librería Compartida: libs/shared/auth
-// Responsabilidad: Estado de autenticación (Signal-First) + comunicación con el backend.
+// Responsabilidad: estado de autenticación (Signal-First) y orquestación del
+// ciclo de sesión contra AuthApiClient. La sesión vive SOLO en memoria.
 // ADR-0002: Signals nativos en lugar de NgRx.
-// ADR-0003: Sesión y Token unificados en una sola clave en sessionStorage (Vigente Fase 0).
-// ADR-0012: In-Memory Token + HttpOnly Refresh Cookie (Propuesto para Fase F1 Backend).
+// ADR-0012: Access token en memoria + refresh token en cookie HttpOnly.
 // =============================================================================
 
 import { Injectable, computed, inject, signal, type Signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { APP_CONFIG, type AppError } from '@nalunpos/shared/data-access';
-import type { Observable } from 'rxjs';
-import { of, switchMap, throwError } from 'rxjs';
+import type { AppError } from '@nalunpos/shared/data-access';
+import { EMPTY, catchError, map, of, switchMap, tap, throwError, type Observable } from 'rxjs';
 import type { AuthResponse, LoginRequest } from '../interfaces/auth.interfaces';
 import type { UserRole } from '../models/user-role.model';
 import { UserSession } from '../models/user-session.model';
+import { AuthApiClient } from './auth-api.client';
+import { SessionRefreshCoordinator } from './session-refresh.coordinator';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly http = inject(HttpClient);
+  private readonly authApi = inject(AuthApiClient);
+  private readonly sessionRefresh = inject(SessionRefreshCoordinator);
   private readonly router = inject(Router);
-  private readonly config = inject(APP_CONFIG);
 
-  /**
-   * Única clave constante de persistencia para sesión y token unificados en sessionStorage.
-   * Regla de arquitectura F0: Prohibido almacenar claves separadas para token y sesión.
-   */
-  private readonly STORAGE_KEY = 'nalunpos_auth_session';
-
-  // ─── Estado de la sesión (Signal-First en memoria) ────────────────────────
-  private readonly _currentUser = signal<UserSession | null>(this.restoreSessionFromStorage());
+  // ─── Estado de la sesión (Signal-First, solo memoria) ─────────────────────
+  private readonly _currentUser = signal<UserSession | null>(null);
 
   readonly currentUser: Signal<UserSession | null> = this._currentUser.asReadonly();
   readonly isAuthenticated: Signal<boolean> = computed(() => {
@@ -50,59 +44,48 @@ export class AuthService {
 
   // ─── Login ─────────────────────────────────────────────────────────────────
   login(credentials: LoginRequest): Observable<AuthResponse> {
-    return this.http
-      .post<AuthResponse>(`${this.config.apiUrl}/api/v1/auth/login`, credentials)
-      .pipe(
-        switchMap((response) => {
-          const session = UserSession.fromAuthResponse(response);
-          if (!session) {
-            const invalidSessionError: AppError = {
-              code: 'AUTH_INVALID_SESSION',
-              message:
-                'No fue posible iniciar sesión. Verifica tus credenciales e intenta de nuevo.',
-              status: 401,
-            };
-            return throwError(() => invalidSessionError);
-          }
+    return this.authApi.login(credentials).pipe(
+      switchMap((response) => {
+        const session = UserSession.fromAuthResponse(response);
+        if (!session) {
+          return throwError(() => this.createInvalidSessionError());
+        }
 
-          this.persistSession(session);
-          return of(response);
-        }),
-      );
+        this._currentUser.set(session);
+        return of(response);
+      }),
+    );
+  }
+
+  // ─── Inicialización de sesión al arranque ──────────────────────────────────
+  initializeSession(): Observable<void> {
+    return this.sessionRefresh.refresh().pipe(
+      map((response) => UserSession.fromAuthResponse(response)),
+      tap((session) => this._currentUser.set(session)),
+      map(() => undefined),
+      catchError(() => {
+        this._currentUser.set(null);
+        return of(undefined);
+      }),
+    );
   }
 
   // ─── Logout ────────────────────────────────────────────────────────────────
   logout(): void {
     this._currentUser.set(null);
-    sessionStorage.removeItem(this.STORAGE_KEY);
     this.router.navigate(['/login']);
+    this.authApi
+      .logout()
+      .pipe(catchError(() => EMPTY))
+      .subscribe();
   }
 
   // ─── Privados ──────────────────────────────────────────────────────────────
-
-  private persistSession(session: UserSession): void {
-    this._currentUser.set(session);
-    sessionStorage.setItem(this.STORAGE_KEY, JSON.stringify(session.toStoredSession()));
-  }
-
-  private restoreSessionFromStorage(): UserSession | null {
-    try {
-      const raw = sessionStorage.getItem(this.STORAGE_KEY);
-      if (!raw) {
-        return null;
-      }
-
-      const parsed: unknown = JSON.parse(raw);
-      const session = UserSession.fromStoredSession(parsed);
-      if (!session) {
-        sessionStorage.removeItem(this.STORAGE_KEY);
-        return null;
-      }
-
-      return session;
-    } catch {
-      sessionStorage.removeItem(this.STORAGE_KEY);
-      return null;
-    }
+  private createInvalidSessionError(): AppError {
+    return {
+      code: 'AUTH_INVALID_SESSION',
+      message: 'No fue posible iniciar sesión. Verifica tus credenciales e intenta de nuevo.',
+      status: 401,
+    };
   }
 }

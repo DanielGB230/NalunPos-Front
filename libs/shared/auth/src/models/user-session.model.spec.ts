@@ -80,7 +80,7 @@ describe('user-role.model', () => {
   });
 });
 
-describe('UserSession.fromAuthResponse y fromStoredSession (política fail-closed)', () => {
+describe('UserSession.fromAuthResponse (política fail-closed)', () => {
   afterEach(() => {
     vi.useRealTimers();
   });
@@ -161,11 +161,9 @@ describe('UserSession.fromAuthResponse y fromStoredSession (política fail-close
     expect(session?.isExpired).toBe(true);
   });
 
-  it('debe retornar null en fromAuthResponse y fromStoredSession cuando la entrada es nula o no es un objeto', () => {
+  it('debe retornar null en fromAuthResponse cuando la entrada es nula o no es un objeto', () => {
     expect(UserSession.fromAuthResponse(null as unknown as AuthResponse)).toBeNull();
     expect(UserSession.fromAuthResponse('invalid' as unknown as AuthResponse)).toBeNull();
-    expect(UserSession.fromStoredSession(null)).toBeNull();
-    expect(UserSession.fromStoredSession('invalid')).toBeNull();
   });
 
   // ─── Rechazos por rol inválido / desconocido / numérico / ausente ─────────

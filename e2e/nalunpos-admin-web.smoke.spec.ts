@@ -14,6 +14,24 @@ test.describe('NalunPos-Admin-Web Smoke Suite', () => {
         }),
       });
     });
+
+    // Sin cookie de refresh: el arranque no restaura sesión y no bloquea la app.
+    await page.route('**/api/v1/auth/refresh', async (route) => {
+      await route.fulfill({
+        status: 401,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          code: 'Auth.RefreshTokenInvalid',
+          title: 'Unauthorized',
+          status: 401,
+        }),
+      });
+    });
+
+    // Logout idempotente contra el servidor.
+    await page.route('**/api/v1/auth/logout', async (route) => {
+      await route.fulfill({ status: 204, body: '' });
+    });
   });
 
   test('debe cargar la consola administrativa de login sin errores de runtime', async ({
@@ -32,7 +50,12 @@ test.describe('NalunPos-Admin-Web Smoke Suite', () => {
     await expect(page.locator('#password-input')).toBeVisible();
     await expect(page.locator('button[type="submit"]')).toBeVisible();
 
-    expect(consoleErrors).toEqual([]);
+    // El refresh de arranque sin cookie devuelve 401: el navegador lo registra como
+    // error de recurso esperado. Se descarta ese mensaje y se exige cero errores reales.
+    const unexpectedErrors = consoleErrors.filter(
+      (msg) => !msg.includes('Failed to load resource: the server responded with a status of 401'),
+    );
+    expect(unexpectedErrors).toEqual([]);
   });
 
   test('no debe registrar violaciones de Content Security Policy (securitypolicyviolation) al cargar /login', async ({

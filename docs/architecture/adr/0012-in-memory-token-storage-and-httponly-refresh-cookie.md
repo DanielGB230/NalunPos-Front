@@ -1,76 +1,63 @@
 # ADR 0012: In-Memory Access Token Storage with HttpOnly SameSite=Strict Refresh Cookie
 
-- **Estado**: Propuesto (Dependiente de Fase F1 Backend)
-- **Fecha**: 2026-10-28 (Reconciliado 2026-10-30)
-- **Contexto**: Frontend Security & Multi-Tenant Authentication Strategy (Evolución hacia Fase F1)
+- **Estado**: Aceptado
+- **Fecha**: 2026-10-28 (Implementado 2026-11-26)
+- **Contexto**: Frontend Security & Multi-Tenant Authentication Strategy (Fase F1)
 
 ---
 
-## 1. Contexto del Problema y Dependencia
+## 1. Contexto
 
-Esta decisión arquitectónica define la meta final de seguridad para el manejo de credenciales en `NalunPos-Front`.
-
-> [!IMPORTANT]
-> **Estado Actual: Propuesto (Dependiente de Fase F1 Backend)**  
-> Esta arquitectura requiere que la API Backend (`NalunPos-Api`) exponga y soporte:
->
-> 1. `POST /api/v1/auth/refresh` con emisión de cookie `HttpOnly; Secure; SameSite=Strict; Path=/api/v1/auth`.
-> 2. `POST /api/v1/auth/logout` con revocación en servidor y limpieza de la cookie de refresh.
-> 3. `GET /api/v1/auth/me` para la hidratación inicial de la sesión del usuario.
->
-> Durante la **Fase 0**, el frontend opera bajo el [ADR 0003](./0003-token-storage-strategy.md) (`Aceptado — Vigente en Fase 0`), utilizando una única clave estructurada en `sessionStorage` gestionada exclusivamente por `AuthService`. Esta decisión (ADR 0012) se activará formalmente en la **Fase F1** una vez que el backend libere los contratos requeridos.
+La Fase F1 del backend (`NalunPos-Api` `739ca75`) liberó el contrato de autenticación Zero-Trust. El frontend deja de persistir la sesión en `sessionStorage` (ADR 0003, ahora reemplazado) y pasa a mantener el access token exclusivamente en memoria, apoyándose en una cookie de refresh `HttpOnly` emitida por el backend.
 
 ---
 
-## 2. Decisión Arquitectónica Propuesta
+## 2. Decisión
 
-Se propone adoptar una arquitectura de autenticación **Zero-Trust Token Management** estructurada en dos capas independientes:
+### 2.1 Access Token solo en memoria
 
-### 2.1 Access Token en Memoria (In-Memory Only)
+- El access token vive en el Signal privado de `AuthService`, encapsulado en `UserSession`. No se escribe en `localStorage`, `sessionStorage`, `IndexedDB` ni en cookies accesibles por JavaScript.
+- Una recarga (`F5`) o una nueva pestaña destruye el token en memoria y lo recupera con un refresh silencioso.
 
-- El token JWT de acceso (`accessToken`) de corta duración (5 a 15 minutos) residirá **exclusivamente en la memoria volátil** de Angular, encapsulado en un closure/Signal privado dentro de `AuthService`.
-- No se escribirá en `localStorage`, `sessionStorage`, `IndexedDB` ni `document.cookie`.
-- Si el usuario refresca la página (`F5`) o abre una nueva pestaña, el token en memoria se destruye de forma segura y se recupera instantáneamente mediante silent refresh contra `/api/v1/auth/refresh`.
+### 2.2 Cookie de refresh real
 
-### 2.2 Refresh Token en Cookie HttpOnly + SameSite=Strict
+- Nombre y atributos emitidos por el backend: `nalunpos_rt` con `HttpOnly`, `Secure`, `SameSite=Strict` y `Path=/api/v1/auth`.
+- El refresh token rota en cada uso. Solo el backend la crea, rota o elimina.
+- `POST /api/v1/auth/login`, `/refresh` y `/logout` son endpoints anónimos y se invocan con `withCredentials: true`; en el login es obligatorio para aceptar el `Set-Cookie`.
 
-- El refresh token (larga duración, rotativo por cada uso) será emitido y administrado **exclusivamente por el Backend** mediante una cabecera `Set-Cookie`:
-  ```http
-  Set-Cookie: nalunpos_rt=uuid-refresh-token;
-              HttpOnly;
-              Secure;
-              SameSite=Strict;
-              Path=/api/v1/auth;
-              Max-Age=604800
-  ```
-- **Protección contra XSS**: Al tener el flag `HttpOnly`, JavaScript (y por tanto cualquier vector XSS) es físicamente incapaz de leer o exfiltrar el refresh token.
-- **Protección contra CSRF**: Al tener el flag `SameSite=Strict`, el navegador jamás enviará la cookie en solicitudes cross-site (enlaces externos, iframes o scripts de otros dominios).
-- **Alcance Restringido (`Path=/api/v1/auth`)**: La cookie únicamente es enviada por el navegador a los endpoints de autenticación y renovación de token, no a los endpoints de datos de negocio.
+### 2.3 Refresh de arranque coordinado
 
-### 2.3 Flujo de Renovación Silenciosa (Silent Refresh)
+- `AuthService.initializeSession()` se ejecuta como `provideAppInitializer` en ambas aplicaciones.
+- `SessionRefreshCoordinator` garantiza un único refresh en vuelo por pestaña (single-flight) y serializa las llamadas entre pestañas mediante Web Locks con el nombre `nalunpos-session-refresh`.
+- Si `navigator.locks` no existe, degrada únicamente a single-flight por pestaña, sin polyfill.
+- Cualquier fallo (400/401/403/409/429/5xx/red) o una respuesta inválida deja la sesión vacía, pero **nunca bloquea el arranque ni lanza**.
 
-1. Al iniciar la aplicación, `AuthService.initializeSession()` invoca `POST /api/v1/auth/refresh` con `withCredentials: true`.
-2. El backend valida la cookie HttpOnly, rota el refresh token en una nueva cookie y retorna un nuevo `accessToken` en el payload JSON.
-3. Si el access token expira durante una llamada API, el interceptor captura el error 401, pausa las peticiones en cola, ejecuta la renovación silenciosa y reintenta la petición original con el nuevo token sin interrumpir al usuario.
+### 2.4 Refresh devuelve la sesión completa
+
+- `POST /api/v1/auth/refresh` devuelve el `LoginResponse` completo (token, usuario, rol, tenant y expiración).
+- No se usa `GET /api/v1/auth/me`; `UserSession.fromAuthResponse` aplica la misma validación fail-closed que en el login.
+
+### 2.5 Logout: memoria inmediata y revocación no bloqueante
+
+- `AuthService.logout()` limpia la sesión en memoria y navega a `/login` de inmediato; después invoca `POST /api/v1/auth/logout` sin bloquear y silencia cualquier error.
+- `logout` es idempotente y es lo único que borra la cookie.
+- **Limitación:** si la revocación en servidor falla (red caída, 5xx), la cookie de refresh permanece válida hasta su expiración natural o hasta un logout posterior exitoso. El frontend no puede eliminarla por ser `HttpOnly`.
+
+### 2.6 Anti-bucle de sesión expirada
+
+- `sessionExpiredInterceptor` no ejecuta `logout()` ante un 401 de `/auth/login`, `/auth/refresh` o `/auth/logout`; solo lo hace ante un 401 de un endpoint protegido.
+
+### 2.7 Requisito de despliegue
+
+- El frontend debe servirse bajo un subdominio de `nalunpos.com` y la API en un origen del mismo site. Con `SameSite=Strict`, un front en otro dominio registrable impediría enviar la cookie de refresh.
+- CORS del backend con `Access-Control-Allow-Credentials: true` y origen explícito del frontend, nunca `*`.
 
 ---
 
-## 3. Plan de Activación e Implementación
+## 3. Consecuencias
 
-1. **Fase 0 (Actual)**: Operación bajo [ADR 0003](./0003-token-storage-strategy.md) con clave única `nalunpos_auth_session` en `sessionStorage` y lectura mediante Signals.
-2. **Fase F1 Backend**: Implementación en `NalunPos-Api` de rotación de refresh token y cookie HttpOnly.
-3. **Fase F1 Frontend**: Transición transparente en `AuthService` para desactivar el respaldo de `sessionStorage` y activar el silent refresh en runtime.
-
----
-
-## 4. Consecuencias
-
-### Positivas
-
-- **Inmunidad contra robo de credenciales persistentes vía XSS**: Incluso ante una inyección de script, el atacante no puede extraer el refresh token.
-- **Cumplimiento de estándares Enterprise**: Alineación estricta con OWASP Top 10 y directrices NIST SP 800-63B.
-- **Experiencia de usuario transparente**: Renovación fluida en segundo plano sin interrupciones.
-
-### Requisitos Técnicos
-
-- Requiere CORS estricto en el Backend (`Access-Control-Allow-Credentials: true` con origen explícito `https://*.nalunpos.com`, nunca `*`).
+- **Inmunidad ante XSS para el refresh token**: `HttpOnly` impide que JavaScript lo lea o exfiltre.
+- **Sin persistencia local**: una recarga no deja rastro de sesión en storage; la restauración depende exclusivamente de la cookie.
+- **Arranque resiliente**: un refresh fallido no rompe la aplicación; el usuario simplemente llega sin sesión.
+- **Riesgo residual acotado**: ante fallo de revocación, la cookie sobrevive hasta su expiración; se mitiga con expiración corta y rotación en cada refresh.
+- **Acoplamiento de despliegue**: front y API deben compartir site (`*.nalunpos.com`) por `SameSite=Strict`.

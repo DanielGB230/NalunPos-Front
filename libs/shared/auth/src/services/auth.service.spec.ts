@@ -1,25 +1,19 @@
 import '@angular/compiler';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
-import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { APP_CONFIG, type AppError } from '@nalunpos/shared/data-access';
-import { of, throwError } from 'rxjs';
+import type { AppError } from '@nalunpos/shared/data-access';
+import { Subject, of, throwError } from 'rxjs';
 import type { AuthResponse, LoginRequest } from '../interfaces/auth.interfaces';
+import { AuthApiClient } from './auth-api.client';
 import { AuthService } from './auth.service';
+import { SessionRefreshCoordinator } from './session-refresh.coordinator';
 
 describe('AuthService', () => {
   let service: AuthService;
-  let httpMock: { post: ReturnType<typeof vi.fn> };
+  let authApiMock: { login: ReturnType<typeof vi.fn>; logout: ReturnType<typeof vi.fn> };
+  let coordinatorMock: { refresh: ReturnType<typeof vi.fn> };
   let routerMock: { navigate: ReturnType<typeof vi.fn> };
-
-  const STORAGE_KEY = 'nalunpos_auth_session';
-
-  const TEST_APP_CONFIG = {
-    apiUrl: 'https://api.nalunpos.com',
-    appName: 'NalunPos',
-    production: false,
-  };
 
   const mockSuperAdminResponse: AuthResponse = {
     token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.test-jwt-token',
@@ -44,21 +38,24 @@ describe('AuthService', () => {
   };
 
   beforeEach(() => {
-    sessionStorage.clear();
+    authApiMock = {
+      login: vi.fn(),
+      logout: vi.fn().mockReturnValue(of(undefined)),
+    };
 
-    httpMock = {
-      post: vi.fn(),
+    coordinatorMock = {
+      refresh: vi.fn(),
     };
 
     routerMock = {
-      navigate: vi.fn(),
+      navigate: vi.fn().mockResolvedValue(true),
     };
 
     TestBed.configureTestingModule({
       providers: [
         AuthService,
-        { provide: APP_CONFIG, useValue: TEST_APP_CONFIG },
-        { provide: HttpClient, useValue: httpMock },
+        { provide: AuthApiClient, useValue: authApiMock },
+        { provide: SessionRefreshCoordinator, useValue: coordinatorMock },
         { provide: Router, useValue: routerMock },
       ],
     });
@@ -68,30 +65,26 @@ describe('AuthService', () => {
 
   afterEach(() => {
     vi.useRealTimers();
-    sessionStorage.clear();
     vi.restoreAllMocks();
   });
 
-  it('debe inicializarse no autenticado cuando sessionStorage esta vacio', () => {
+  it('debe inicializarse sin sesion en memoria', () => {
     expect(service.isAuthenticated()).toBe(false);
     expect(service.currentUser()).toBeNull();
     expect(service.userRole()).toBeNull();
     expect(service.tenantId()).toBeNull();
     expect(service.getToken()).toBeNull();
     expect(service.token()).toBeNull();
-    expect(sessionStorage.length).toBe(0);
   });
 
-  it('debe cambiar isAuthenticated a false cuando la sesión activa en memoria expira', () => {
+  it('debe cambiar isAuthenticated a false cuando la sesion en memoria expira', () => {
     const start = new Date('2026-11-12T10:00:00.000Z');
     vi.useFakeTimers();
     vi.setSystemTime(start);
 
-    const timedResponse: AuthResponse = {
-      ...mockSuperAdminResponse,
-      expiresAtUtc: '2026-11-12T11:00:00.000Z',
-    };
-    httpMock.post.mockReturnValue(of(timedResponse));
+    authApiMock.login.mockReturnValue(
+      of({ ...mockSuperAdminResponse, expiresAtUtc: '2026-11-12T11:00:00.000Z' }),
+    );
 
     service.login({ email: 'admin@nalunpos.com', password: 'StrongPassword123!' }).subscribe();
     expect(service.currentUser()).not.toBeNull();
@@ -100,8 +93,8 @@ describe('AuthService', () => {
     expect(service.isAuthenticated()).toBe(false);
   });
 
-  it('debe autenticar SuperAdmin válido, actualizar signals y persistir exactamente 1 clave unificada en sessionStorage', () => {
-    httpMock.post.mockReturnValue(of(mockSuperAdminResponse));
+  it('debe autenticar SuperAdmin valido y actualizar signals sin persistir en storage', () => {
+    authApiMock.login.mockReturnValue(of(mockSuperAdminResponse));
 
     const credentials: LoginRequest = {
       email: 'admin@nalunpos.com',
@@ -113,6 +106,7 @@ describe('AuthService', () => {
       result = res;
     });
 
+    expect(authApiMock.login).toHaveBeenCalledWith(credentials);
     expect(result).toEqual(mockSuperAdminResponse);
     expect(service.isAuthenticated()).toBe(true);
     expect(service.currentUser()?.email).toBe('admin@nalunpos.com');
@@ -120,24 +114,10 @@ describe('AuthService', () => {
     expect(service.tenantId()).toBeNull();
     expect(service.getToken()).toBe(mockSuperAdminResponse.token);
     expect(service.token()).toBe(mockSuperAdminResponse.token);
-
-    // Verificación estricta: exactamente 1 clave en sessionStorage
-    expect(sessionStorage.length).toBe(1);
-    expect(sessionStorage.getItem('nalunpos_token')).toBeNull();
-    expect(sessionStorage.getItem('nalunpos_session')).toBeNull();
-
-    const raw = sessionStorage.getItem(STORAGE_KEY);
-    expect(raw).not.toBeNull();
-    const stored = JSON.parse(raw!);
-    expect(stored.token).toBe(mockSuperAdminResponse.token);
-    expect(stored.email).toBe('admin@nalunpos.com');
-    expect(stored.role).toBe('SuperAdmin');
-    expect(stored.tenantId).toBeNull();
-    expect(stored.id).toBe('usr-001');
   });
 
   it('debe autenticar usuario de tenant Cajero con tenantId y actualizar signals correctamente', () => {
-    httpMock.post.mockReturnValue(of(mockTenantCajeroResponse));
+    authApiMock.login.mockReturnValue(of(mockTenantCajeroResponse));
 
     service.login({ email: 'cajero@empresa.com', password: 'Password123!' }).subscribe();
 
@@ -145,19 +125,13 @@ describe('AuthService', () => {
     expect(service.userRole()).toBe('Cajero');
     expect(service.tenantId()).toBe('tenant-enterprise-01');
     expect(service.currentUser()?.isSuperAdmin).toBe(false);
-    expect(sessionStorage.length).toBe(1);
   });
 
-  it('no debe actualizar estado ni persistir en storage si el login falla con error HTTP', () => {
-    httpMock.post.mockReturnValue(throwError(() => new Error('Credenciales invalidas')));
-
-    const credentials: LoginRequest = {
-      email: 'wrong@nalunpos.com',
-      password: 'bad',
-    };
+  it('no debe actualizar estado si el login falla con error HTTP', () => {
+    authApiMock.login.mockReturnValue(throwError(() => new Error('Credenciales invalidas')));
 
     let errorCaught = false;
-    service.login(credentials).subscribe({
+    service.login({ email: 'wrong@nalunpos.com', password: 'bad' }).subscribe({
       next: () => expect.fail('No debio ser exitoso'),
       error: () => {
         errorCaught = true;
@@ -168,19 +142,14 @@ describe('AuthService', () => {
     expect(service.isAuthenticated()).toBe(false);
     expect(service.currentUser()).toBeNull();
     expect(service.getToken()).toBeNull();
-    expect(sessionStorage.length).toBe(0);
   });
 
-  it('debe fallar cerrado con error genérico si el backend responde con rol desconocido sin persistir ni autenticar', () => {
-    const legacyRoleResponse: AuthResponse = {
-      ...mockTenantCajeroResponse,
-      role: 'Cashier',
-    };
-    httpMock.post.mockReturnValue(of(legacyRoleResponse));
+  it('debe fallar cerrado con error generico si el backend responde con rol desconocido', () => {
+    authApiMock.login.mockReturnValue(of({ ...mockTenantCajeroResponse, role: 'Cashier' }));
 
     let capturedError: AppError | undefined;
     service.login({ email: 'cajero@empresa.com', password: 'Password123!' }).subscribe({
-      next: () => expect.fail('No debio aceptar rol no canónico'),
+      next: () => expect.fail('No debio aceptar rol no canonico'),
       error: (err: AppError) => {
         capturedError = err;
       },
@@ -194,15 +163,12 @@ describe('AuthService', () => {
     expect(capturedError?.message).not.toContain('Cashier');
     expect(service.currentUser()).toBeNull();
     expect(service.isAuthenticated()).toBe(false);
-    expect(sessionStorage.length).toBe(0);
   });
 
   it('debe fallar cerrado en login cuando hay incoherencia entre rol SuperAdmin y tenantId no nulo', () => {
-    const incoherentResponse: AuthResponse = {
-      ...mockSuperAdminResponse,
-      tenantId: 'tenant-invalido-para-superadmin',
-    };
-    httpMock.post.mockReturnValue(of(incoherentResponse));
+    authApiMock.login.mockReturnValue(
+      of({ ...mockSuperAdminResponse, tenantId: 'tenant-invalido-para-superadmin' }),
+    );
 
     let capturedError: AppError | undefined;
     service.login({ email: 'admin@nalunpos.com', password: 'Password123!' }).subscribe({
@@ -214,15 +180,10 @@ describe('AuthService', () => {
 
     expect(capturedError?.code).toBe('AUTH_INVALID_SESSION');
     expect(service.currentUser()).toBeNull();
-    expect(sessionStorage.length).toBe(0);
   });
 
   it('debe fallar cerrado en login cuando un rol de tenant viene con tenantId null', () => {
-    const incoherentTenantResponse: AuthResponse = {
-      ...mockTenantCajeroResponse,
-      tenantId: null,
-    };
-    httpMock.post.mockReturnValue(of(incoherentTenantResponse));
+    authApiMock.login.mockReturnValue(of({ ...mockTenantCajeroResponse, tenantId: null }));
 
     let capturedError: AppError | undefined;
     service.login({ email: 'cajero@empresa.com', password: 'Password123!' }).subscribe({
@@ -234,14 +195,89 @@ describe('AuthService', () => {
 
     expect(capturedError?.code).toBe('AUTH_INVALID_SESSION');
     expect(service.currentUser()).toBeNull();
-    expect(sessionStorage.length).toBe(0);
   });
 
-  it('debe limpiar la sesion, dejar sessionStorage.length en 0 y navegar a /login al ejecutar logout', () => {
-    httpMock.post.mockReturnValue(of(mockSuperAdminResponse));
+  it('debe restaurar la sesion al inicializar cuando el refresh devuelve un LoginResponse valido', () => {
+    coordinatorMock.refresh.mockReturnValue(of(mockTenantCajeroResponse));
+
+    let completed = false;
+    service.initializeSession().subscribe({
+      next: () => {
+        /* sin valor */
+      },
+      complete: () => {
+        completed = true;
+      },
+    });
+
+    expect(completed).toBe(true);
+    expect(service.isAuthenticated()).toBe(true);
+    expect(service.currentUser()?.email).toBe('cajero@empresa.com');
+    expect(service.getToken()).toBe(mockTenantCajeroResponse.token);
+  });
+
+  it('debe completar sin sesion cuando el refresh devuelve una respuesta invalida fail-closed', () => {
+    coordinatorMock.refresh.mockReturnValue(of({ ...mockTenantCajeroResponse, role: 'Cashier' }));
+
+    let completed = false;
+    service.initializeSession().subscribe({
+      error: () => expect.fail('initializeSession nunca debe lanzar'),
+      complete: () => {
+        completed = true;
+      },
+    });
+
+    expect(completed).toBe(true);
+    expect(service.currentUser()).toBeNull();
+    expect(service.isAuthenticated()).toBe(false);
+  });
+
+  it.each([
+    { code: 'HTTP_400', status: 400 },
+    { code: 'Auth.RefreshTokenInvalid', status: 401 },
+    { code: 'Tenant.Suspended', status: 403 },
+    { code: 'Auth.RefreshConcurrent', status: 409 },
+    { code: 'HTTP_429', status: 429 },
+    { code: 'HTTP_500', status: 500 },
+    { code: 'HTTP_0', status: 0 },
+  ])(
+    'debe completar sin sesion ni lanzar cuando el refresh falla con $status',
+    ({ code, status }) => {
+      coordinatorMock.refresh.mockReturnValue(
+        throwError(() => ({ code, message: 'refresh failed', status })),
+      );
+
+      let completed = false;
+      service.initializeSession().subscribe({
+        error: () => expect.fail('initializeSession nunca debe lanzar'),
+        complete: () => {
+          completed = true;
+        },
+      });
+
+      expect(completed).toBe(true);
+      expect(service.currentUser()).toBeNull();
+      expect(service.isAuthenticated()).toBe(false);
+    },
+  );
+
+  it('debe limpiar una sesion existente si el refresh de inicializacion falla', () => {
+    authApiMock.login.mockReturnValue(of(mockSuperAdminResponse));
     service.login({ email: 'admin@nalunpos.com', password: 'pwd' }).subscribe();
     expect(service.isAuthenticated()).toBe(true);
-    expect(sessionStorage.length).toBe(1);
+
+    coordinatorMock.refresh.mockReturnValue(throwError(() => new Error('network down')));
+
+    service.initializeSession().subscribe();
+
+    expect(service.currentUser()).toBeNull();
+    expect(service.getToken()).toBeNull();
+  });
+
+  it('debe limpiar la sesion en memoria, navegar a /login y llamar al logout del servidor', () => {
+    authApiMock.login.mockReturnValue(of(mockSuperAdminResponse));
+    service.login({ email: 'admin@nalunpos.com', password: 'pwd' }).subscribe();
+    expect(service.isAuthenticated()).toBe(true);
 
     service.logout();
 
@@ -249,205 +285,26 @@ describe('AuthService', () => {
     expect(service.currentUser()).toBeNull();
     expect(service.userRole()).toBeNull();
     expect(service.getToken()).toBeNull();
-    expect(sessionStorage.length).toBe(0);
-    expect(sessionStorage.getItem(STORAGE_KEY)).toBeNull();
     expect(routerMock.navigate).toHaveBeenCalledWith(['/login']);
+    expect(authApiMock.logout).toHaveBeenCalledTimes(1);
   });
 
-  it('debe restaurar una sesion activa valida desde la clave unificada de sessionStorage al inicializarse', () => {
-    const futureDate = new Date(Date.now() + 3600000).toISOString();
-    const storedSession = {
-      id: 'usr-restore',
-      name: 'Usuario Restaurado',
-      email: 'restore@nalunpos.com',
-      role: 'SuperAdmin',
-      tenantId: null,
-      token: 'valid-restored-jwt',
-      expiresAt: futureDate,
-    };
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(storedSession));
-    expect(sessionStorage.length).toBe(1);
+  it('debe silenciar el error del logout del servidor sin lanzar', () => {
+    authApiMock.logout.mockReturnValue(throwError(() => new Error('network down')));
 
-    TestBed.resetTestingModule();
-    TestBed.configureTestingModule({
-      providers: [
-        AuthService,
-        { provide: APP_CONFIG, useValue: TEST_APP_CONFIG },
-        { provide: HttpClient, useValue: httpMock },
-        { provide: Router, useValue: routerMock },
-      ],
-    });
-    const restoredService = TestBed.inject(AuthService);
-
-    expect(restoredService.isAuthenticated()).toBe(true);
-    expect(restoredService.currentUser()?.email).toBe('restore@nalunpos.com');
-    expect(restoredService.getToken()).toBe('valid-restored-jwt');
-    expect(restoredService.userRole()).toBe('SuperAdmin');
-    expect(restoredService.tenantId()).toBeNull();
-    expect(sessionStorage.length).toBe(1);
+    expect(() => service.logout()).not.toThrow();
+    expect(authApiMock.logout).toHaveBeenCalledTimes(1);
+    expect(service.currentUser()).toBeNull();
   });
 
-  it('debe limpiar sessionStorage y dejar length en 0 si la sesion almacenada esta expirada', () => {
-    const pastDate = new Date(Date.now() - 3600000).toISOString();
-    const expiredSession = {
-      id: 'usr-expired',
-      name: 'Usuario Expirado',
-      email: 'expired@nalunpos.com',
-      role: 'SuperAdmin',
-      tenantId: null,
-      token: 'expired-token',
-      expiresAt: pastDate,
-    };
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(expiredSession));
+  it('debe navegar de inmediato sin esperar la respuesta del logout del servidor', () => {
+    const pendingLogout = new Subject<void>();
+    authApiMock.logout.mockReturnValue(pendingLogout.asObservable());
 
-    TestBed.resetTestingModule();
-    TestBed.configureTestingModule({
-      providers: [
-        AuthService,
-        { provide: APP_CONFIG, useValue: TEST_APP_CONFIG },
-        { provide: HttpClient, useValue: httpMock },
-        { provide: Router, useValue: routerMock },
-      ],
-    });
-    const restoredService = TestBed.inject(AuthService);
+    const result: void = service.logout();
 
-    expect(restoredService.isAuthenticated()).toBe(false);
-    expect(restoredService.getToken()).toBeNull();
-    expect(sessionStorage.length).toBe(0);
-    expect(sessionStorage.getItem(STORAGE_KEY)).toBeNull();
-  });
-
-  it('debe limpiar sessionStorage si el JSON en storage es invalido o corrupto', () => {
-    sessionStorage.setItem(STORAGE_KEY, '{invalid-json');
-
-    TestBed.resetTestingModule();
-    TestBed.configureTestingModule({
-      providers: [
-        AuthService,
-        { provide: APP_CONFIG, useValue: TEST_APP_CONFIG },
-        { provide: HttpClient, useValue: httpMock },
-        { provide: Router, useValue: routerMock },
-      ],
-    });
-    const restoredService = TestBed.inject(AuthService);
-
-    expect(restoredService.isAuthenticated()).toBe(false);
-    expect(restoredService.getToken()).toBeNull();
-    expect(sessionStorage.length).toBe(0);
-    expect(sessionStorage.getItem(STORAGE_KEY)).toBeNull();
-  });
-
-  it('debe limpiar sessionStorage si el objeto almacenado esta incompleto o tiene token vacio', () => {
-    const incompleteSession = {
-      id: 'usr-bad',
-      email: 'bad@nalunpos.com',
-      role: 'SuperAdmin',
-      tenantId: null,
-      token: '   ',
-      expiresAt: new Date(Date.now() + 3600000).toISOString(),
-    };
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(incompleteSession));
-
-    TestBed.resetTestingModule();
-    TestBed.configureTestingModule({
-      providers: [
-        AuthService,
-        { provide: APP_CONFIG, useValue: TEST_APP_CONFIG },
-        { provide: HttpClient, useValue: httpMock },
-        { provide: Router, useValue: routerMock },
-      ],
-    });
-    const restoredService = TestBed.inject(AuthService);
-
-    expect(restoredService.isAuthenticated()).toBe(false);
-    expect(restoredService.getToken()).toBeNull();
-    expect(sessionStorage.length).toBe(0);
-  });
-
-  it.each(['Cashier', 'Inventory'])(
-    'debe limpiar sessionStorage y retornar currentUser null si la sesión almacenada tiene rol legacy "%s"',
-    (legacyRole) => {
-      const legacySession = {
-        id: 'usr-legacy',
-        name: 'Usuario Legacy',
-        email: 'legacy@nalunpos.com',
-        role: legacyRole,
-        tenantId: 'tenant-1',
-        token: 'legacy-token',
-        expiresAt: new Date(Date.now() + 3600000).toISOString(),
-      };
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(legacySession));
-
-      TestBed.resetTestingModule();
-      TestBed.configureTestingModule({
-        providers: [
-          AuthService,
-          { provide: APP_CONFIG, useValue: TEST_APP_CONFIG },
-          { provide: HttpClient, useValue: httpMock },
-          { provide: Router, useValue: routerMock },
-        ],
-      });
-      const restoredService = TestBed.inject(AuthService);
-
-      expect(restoredService.currentUser()).toBeNull();
-      expect(restoredService.isAuthenticated()).toBe(false);
-      expect(sessionStorage.length).toBe(0);
-    },
-  );
-
-  it('debe limpiar sessionStorage y retornar currentUser null si la sesión almacenada tiene SuperAdmin con tenantId no nulo', () => {
-    const incoherentSession = {
-      id: 'usr-incoherent',
-      name: 'Incoherente',
-      email: 'admin@nalunpos.com',
-      role: 'SuperAdmin',
-      tenantId: 'tenant-1',
-      token: 'valid-token',
-      expiresAt: new Date(Date.now() + 3600000).toISOString(),
-    };
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(incoherentSession));
-
-    TestBed.resetTestingModule();
-    TestBed.configureTestingModule({
-      providers: [
-        AuthService,
-        { provide: APP_CONFIG, useValue: TEST_APP_CONFIG },
-        { provide: HttpClient, useValue: httpMock },
-        { provide: Router, useValue: routerMock },
-      ],
-    });
-    const restoredService = TestBed.inject(AuthService);
-
-    expect(restoredService.currentUser()).toBeNull();
-    expect(restoredService.isAuthenticated()).toBe(false);
-    expect(sessionStorage.length).toBe(0);
-  });
-
-  it('debe limpiar sessionStorage y retornar currentUser null si la sesión almacenada tiene rol de tenant con tenantId null', () => {
-    const incoherentTenantSession = {
-      id: 'usr-incoherent-tenant',
-      name: 'Incoherente Tenant',
-      email: 'cajero@nalunpos.com',
-      role: 'Cajero',
-      tenantId: null,
-      token: 'valid-token',
-      expiresAt: new Date(Date.now() + 3600000).toISOString(),
-    };
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(incoherentTenantSession));
-
-    TestBed.resetTestingModule();
-    TestBed.configureTestingModule({
-      providers: [
-        AuthService,
-        { provide: APP_CONFIG, useValue: TEST_APP_CONFIG },
-        { provide: HttpClient, useValue: httpMock },
-        { provide: Router, useValue: routerMock },
-      ],
-    });
-    const restoredService = TestBed.inject(AuthService);
-
-    expect(restoredService.currentUser()).toBeNull();
-    expect(restoredService.isAuthenticated()).toBe(false);
-    expect(sessionStorage.length).toBe(0);
+    expect(result).toBeUndefined();
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/login']);
+    expect(service.currentUser()).toBeNull();
   });
 });

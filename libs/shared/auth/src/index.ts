@@ -21,8 +21,10 @@ export type { LoginRequest, AuthResponse } from './interfaces/auth.interfaces';
 // Modelos de dominio de sesión
 export { UserSession } from './models/user-session.model';
 
-// Servicio de autenticación
+// Servicios de autenticación y coordinación de sesión
 export { AuthService } from './services/auth.service';
+export { AuthApiClient } from './services/auth-api.client';
+export { SessionRefreshCoordinator } from './services/session-refresh.coordinator';
 
 // Interceptores HTTP funcionales
 export { authTokenInterceptor } from './interceptors/auth-token.interceptor';

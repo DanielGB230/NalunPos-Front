@@ -50,12 +50,14 @@ export const sessionExpiredInterceptor: HttpInterceptorFn = (req, next) => {
       const status = extractHttpStatus(error);
 
       if (status === 401) {
-        // Regla: No tratar un 401 de /auth/login como sesión expirada.
-        // Si el usuario ingresa credenciales inválidas en el login, el error debe propagarse
-        // al suscriptor (formulario) para mostrar el mensaje de validación, sin llamar a logout()
-        // ni forzar redirecciones innecesarias.
-        const isLoginRequest = req.url.includes('/auth/login');
-        if (!isLoginRequest) {
+        // Regla: los endpoints anónimos de autenticación nunca deben provocar logout.
+        // Un 401 en /auth/login se propaga al formulario; un 401 en /auth/refresh o
+        // /auth/logout se propaga sin bucle logout -> 401 -> logout.
+        const isAuthEndpointRequest =
+          req.url.includes('/auth/login') ||
+          req.url.includes('/auth/refresh') ||
+          req.url.includes('/auth/logout');
+        if (!isAuthEndpointRequest) {
           authService.logout();
         }
       } else if (status === 403) {

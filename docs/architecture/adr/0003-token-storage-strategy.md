@@ -1,7 +1,7 @@
 # ADR 0003 — Estrategia de Almacenamiento del Token JWT y Sesión
 
 - **Fecha:** 2026-09-09 (Reconciliado 2026-10-30)
-- **Estado:** Aceptado (Vigente en Fase 0)
+- **Estado:** Reemplazado por ADR 0012
 - **Contexto:** Seguridad Frontend y Estrategia de Persistencia de Sesión
 
 ---

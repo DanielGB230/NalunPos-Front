@@ -5,7 +5,7 @@
 // expirado, con rol no canónico o con incoherencia rol/tenantId retorna null.
 // =============================================================================
 
-import type { AuthResponse, StoredAuthSession } from '../interfaces/auth.interfaces';
+import type { AuthResponse } from '../interfaces/auth.interfaces';
 import {
   isNonEmptyIdentifier,
   isRoleTenantCoherent,
@@ -32,18 +32,6 @@ export class UserSession {
     return this.role === 'SuperAdmin' && this.tenantId === null;
   }
 
-  toStoredSession(): StoredAuthSession {
-    return {
-      id: this.id,
-      name: this.name,
-      email: this.email,
-      role: this.role,
-      tenantId: this.tenantId,
-      token: this.token,
-      expiresAt: this.expiresAt.toISOString(),
-    };
-  }
-
   /**
    * Crea una instancia validada de UserSession a partir de LoginResponse (Pos.Api).
    * Falla cerrado (retorna null) si falta algún campo requerido, la fecha es inválida/vencida,
@@ -62,27 +50,6 @@ export class UserSession {
       tenantId: response.tenantId,
       expiresAt: response.expiresAtUtc,
       name: response.fullName,
-    });
-  }
-
-  /**
-   * Reconstruye y valida una UserSession desde el objeto deserializado de sessionStorage.
-   * Reutiliza exactamente la misma política fail-closed que fromAuthResponse.
-   */
-  static fromStoredSession(raw: unknown): UserSession | null {
-    if (!raw || typeof raw !== 'object') {
-      return null;
-    }
-
-    const record = raw as Record<string, unknown>;
-    return UserSession.validateAndCreate({
-      token: record['token'],
-      id: record['id'],
-      email: record['email'],
-      role: record['role'],
-      tenantId: record['tenantId'],
-      expiresAt: record['expiresAt'],
-      name: record['name'],
     });
   }
 

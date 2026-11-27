@@ -111,6 +111,44 @@ describe('sessionExpiredInterceptor (Pruebas Unitarias Aisladas)', () => {
     expect(receivedError).toBe(httpError);
   });
 
+  it('NO debe llamar a logout() ante error 401 proveniente de /auth/refresh', () => {
+    const req = new HttpRequest('POST', '/api/v1/auth/refresh');
+    const httpError = new HttpErrorResponse({ status: 401, statusText: 'Unauthorized' });
+    const nextFn = vi.fn(() => throwError(() => httpError));
+
+    let receivedError: unknown;
+    TestBed.runInInjectionContext(() =>
+      sessionExpiredInterceptor(req, nextFn).subscribe({
+        error: (err) => {
+          receivedError = err;
+        },
+      }),
+    );
+
+    expect(authServiceMock.logout).not.toHaveBeenCalled();
+    expect(routerMock.navigate).not.toHaveBeenCalled();
+    expect(receivedError).toBe(httpError);
+  });
+
+  it('NO debe llamar a logout() ante error 401 proveniente de /auth/logout', () => {
+    const req = new HttpRequest('POST', '/api/v1/auth/logout');
+    const httpError = new HttpErrorResponse({ status: 401, statusText: 'Unauthorized' });
+    const nextFn = vi.fn(() => throwError(() => httpError));
+
+    let receivedError: unknown;
+    TestBed.runInInjectionContext(() =>
+      sessionExpiredInterceptor(req, nextFn).subscribe({
+        error: (err) => {
+          receivedError = err;
+        },
+      }),
+    );
+
+    expect(authServiceMock.logout).not.toHaveBeenCalled();
+    expect(routerMock.navigate).not.toHaveBeenCalled();
+    expect(receivedError).toBe(httpError);
+  });
+
   it('debe redirigir a /forbidden sin hacer logout ante error 403', () => {
     const req = new HttpRequest('GET', '/api/v1/tenants');
     const httpError = new HttpErrorResponse({ status: 403, statusText: 'Forbidden' });
@@ -183,8 +221,6 @@ describe('Cadena Completa de Interceptores HTTP (Test de Integración Real)', ()
   };
 
   beforeEach(() => {
-    sessionStorage.clear();
-
     TestBed.configureTestingModule({
       providers: [
         { provide: APP_CONFIG, useValue: mockAppConfig },
@@ -213,7 +249,6 @@ describe('Cadena Completa de Interceptores HTTP (Test de Integración Real)', ()
 
   afterEach(() => {
     httpMock.verify();
-    sessionStorage.clear();
     vi.restoreAllMocks();
   });
 
@@ -234,6 +269,11 @@ describe('Cadena Completa de Interceptores HTTP (Test de Integración Real)', ()
       { title: 'Unauthorized', detail: 'El token ha expirado', status: 401 },
       { status: 401, statusText: 'Unauthorized' },
     );
+
+    // logout() es no bloqueante: encola el POST idempotente contra el backend.
+    const logoutReq = httpMock.expectOne('https://api.nalunpos.com/api/v1/auth/logout');
+    expect(logoutReq.request.withCredentials).toBe(true);
+    logoutReq.flush(null, { status: 204, statusText: 'No Content' });
 
     expect(authServiceLogoutSpy).toHaveBeenCalledTimes(1);
     expect(routerNavigateSpy).toHaveBeenCalledWith(['/login']);

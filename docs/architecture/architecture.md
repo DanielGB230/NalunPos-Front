@@ -11,7 +11,7 @@ El ecosistema frontend de **NalunPos** está construido sobre un **Monorepo Nx**
 
 ### 1.2 Librerías Compartidas (`libs/shared/`)
 
-- **`libs/shared/auth`**: `AuthService`, interceptores de autorización y control de sesión (`authTokenInterceptor`, `sessionExpiredInterceptor`), guards funcionales (`authGuard`, `roleGuard`), interfaces tipadas y modelo de sesión de usuario `UserSession`.
+- **`libs/shared/auth`**: `AuthService`, `AuthApiClient`, `SessionRefreshCoordinator`, interceptores de autorización y control de sesión (`authTokenInterceptor`, `sessionExpiredInterceptor`), guards funcionales (`authGuard`, `roleGuard`), interfaces tipadas y modelo de sesión de usuario `UserSession`.
 - **`libs/shared/data-access`**: Configuración dinámica de runtime (`APP_CONFIG` resuelto antes del bootstrap), interceptores globales (`correlationIdInterceptor`, `errorInterceptor`) y modelos de error estandarizados (`ProblemDetails`, `AppError`).
 - **`libs/shared/ui`**: Componentes visuales puros reutilizables (`AppShellComponent`, `HeaderComponent`, `SidebarComponent`, `BaseLoginComponent`, `PageHeroCardComponent`, `MetricsBentoGridComponent`, `QuickFilterBarComponent`, `AdvancedFilterDrawerComponent`, `NotificationService`).
 - **`libs/shared/design-tokens`**: Fuente única de verdad visual M3 (`theme.css`), tokens de diseño semánticos y tipografías auto-alojadas (`@fontsource`).
@@ -71,7 +71,7 @@ En Angular `provideHttpClient(withInterceptors([...]))`, las peticiones y las re
      Al ser el último interceptor declarado, su operador `catchError` se ejecuta en primer lugar ante cualquier fallo de red o respuesta HTTP de error. Convierte **TODOS** los errores HTTP (`HttpErrorResponse`) en instancias fuertemente tipadas de `AppError` (traduciendo `ProblemDetails` RFC 7807 o generando mensajes estandarizados para errores 400, 401, 403, 404, 500 y fallo de conexión con status 0).
    - **`sessionExpiredInterceptor` (3° en la lista — SEGUNDO en la ruta de retorno de error):**
      Recibe en su `catchError` el error ya procesado y transformado por `errorInterceptor`. Por tanto, recibe una instancia de `AppError` (o un `HttpErrorResponse` si en algún contexto aislado no intervino el conversor). La función `extractHttpStatus(error)` extrae polimórficamente el código numérico `status` de ambos tipos:
-     - Si el status es `401` y la petición no es `/auth/login` (evitando cerrar sesión o redirigir cuando el usuario introduce credenciales incorrectas en el formulario de acceso), invoca `authService.logout()`.
+     - Si el status es `401` y la peticion no es un endpoint anonimo de autenticacion (`/auth/login`, `/auth/refresh` o `/auth/logout`), invoca `authService.logout()`. Se excluyen los tres para evitar cierres de sesion espurios: un `401` en el login se propaga al formulario y un `401` en el refresh o el logout no debe generar un bucle `logout -> 401 -> logout`.
      - Si el status es `403`, redirige a la vista `/forbidden`.
      - Finalmente, re-lanza el error (`throwError(() => error)`) para que los suscriptores y componentes consumidores reciban el `AppError` tipado.
    - **`authTokenInterceptor` (2°)** y **`correlationIdInterceptor` (1°)**:
@@ -151,7 +151,7 @@ Las aplicaciones no contienen URLs de backend hardcodeadas (ADR 0009 y ADR 0014)
 - **Ausencia total de vulnerabilidades XSS**: 0 usos de `innerHTML` crudo y 0 usos de `bypassSecurityTrust*`.
 - **Content Security Policy (CSP) Estricta (ADR 0014)**: Origen canónico fijo (`https://api.nalunpos.com`) en `connect-src`, hashes SHA-256 y cero `'unsafe-inline'` en `script-src`; `style-src` permite `'unsafe-inline'` por requerimiento dinámico de Tailwind CSS v4 y Angular Material M3, con prohibición absoluta de comodines `*` en orígenes de red.
 - **Deduplicación Canónica de Datos y Tokens UI (ADR 0013)**: Centralización DRY de servicios de datos en `libs/shared/data-access` y abstracción desacoplada `AUTH_GATEWAY` en `libs/shared/util` (consumida por `libs/shared/ui` y provista en `apps/*` con `AuthService`).
-- **Evolución hacia Autenticación Zero-Trust (ADR 0012)**: Almacenamiento en memoria volátil de access tokens de corta duración combinado con refresh tokens en cookies seguras `HttpOnly` y `SameSite=Strict`.
+- **Autenticación Zero-Trust (ADR 0012, implementada)**: access token solo en memoria (Signal de `AuthService`), refresh token en cookie `HttpOnly; Secure; SameSite=Strict; Path=/api/v1/auth` (`nalunpos_rt`), refresh de arranque vía `POST /api/v1/auth/refresh` coordinado con `SessionRefreshCoordinator` (single-flight por pestaña + Web Locks `nalunpos-session-refresh`) y logout que limpia memoria, navega a `/login` y revoca en servidor de forma no bloqueante.
 
 ---
 

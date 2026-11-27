@@ -14,6 +14,24 @@ test.describe('NalunPos-Web Smoke Suite', () => {
         }),
       });
     });
+
+    // Sin cookie de refresh: el arranque no restaura sesión y no bloquea la app.
+    await page.route('**/api/v1/auth/refresh', async (route) => {
+      await route.fulfill({
+        status: 401,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          code: 'Auth.RefreshTokenInvalid',
+          title: 'Unauthorized',
+          status: 401,
+        }),
+      });
+    });
+
+    // Logout idempotente contra el servidor.
+    await page.route('**/api/v1/auth/logout', async (route) => {
+      await route.fulfill({ status: 204, body: '' });
+    });
   });
 
   test('debe cargar la pantalla de login sin errores de consola no controlados', async ({
@@ -32,8 +50,12 @@ test.describe('NalunPos-Web Smoke Suite', () => {
     await expect(page.locator('#password-input')).toBeVisible();
     await expect(page.locator('button[type="submit"]')).toBeVisible();
 
-    // Validar que no hay excepciones fatales en runtime
-    expect(consoleErrors).toEqual([]);
+    // El refresh de arranque sin cookie devuelve 401: el navegador lo registra como
+    // error de recurso esperado. Se descarta ese mensaje y se exige cero errores reales.
+    const unexpectedErrors = consoleErrors.filter(
+      (msg) => !msg.includes('Failed to load resource: the server responded with a status of 401'),
+    );
+    expect(unexpectedErrors).toEqual([]);
   });
 
   test('no debe registrar violaciones de Content Security Policy (securitypolicyviolation) al cargar /login', async ({
@@ -98,9 +120,114 @@ test.describe('NalunPos-Web Smoke Suite', () => {
     // Debe redirigir fuera de /login hacia /dashboard
     await expect(page).not.toHaveURL(/\/login/);
     await expect(page).toHaveURL(/\/dashboard/);
+
+    // La sesión vive solo en memoria: no se persiste sesión ni token en storage.
+    const persistedSessionKey = await page.evaluate(() =>
+      window.sessionStorage.getItem('nalunpos_auth_session'),
+    );
+    expect(persistedSessionKey).toBeNull();
+
+    const tokenInStorage = await page.evaluate(() => {
+      const hasTokenKey = (storage: Storage): boolean =>
+        Object.keys(storage).some((key) => key.toLowerCase().includes('token'));
+      return hasTokenKey(window.sessionStorage) || hasTokenKey(window.localStorage);
+    });
+    expect(tokenInStorage).toBe(false);
   });
 
-  test('debe fallar cerrado en /login ante un rol no canónico sin crear sesión en sessionStorage', async ({
+  test('debe restaurar la sesión en memoria tras recargar (F5) usando POST /auth/refresh', async ({
+    page,
+  }) => {
+    const refreshResponse = {
+      token: 'jwt-e2e-refresh-token-mock',
+      userId: 'usr-e2e-1',
+      roleId: 'role-e2e-cajero-01',
+      role: 'Cajero',
+      email: 'cajero@nalunpos.com',
+      fullName: 'Cajero Operador E2E',
+      tenantId: 'tenant-retail-01',
+      expiresAtUtc: new Date(Date.now() + 3600 * 1000).toISOString(),
+    };
+
+    let hasLoggedIn = false;
+
+    await page.route('**/api/v1/auth/refresh', async (route) => {
+      if (hasLoggedIn) {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify(refreshResponse),
+        });
+        return;
+      }
+
+      await route.fulfill({
+        status: 401,
+        contentType: 'application/json',
+        body: JSON.stringify({ code: 'Auth.RefreshTokenInvalid', status: 401 }),
+      });
+    });
+
+    await page.route('**/api/v1/auth/login', async (route) => {
+      hasLoggedIn = true;
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(refreshResponse),
+      });
+    });
+
+    await page.goto('/login');
+    await page.fill('#email-input', 'cajero@nalunpos.com');
+    await page.fill('#password-input', 'Password123!');
+    await page.click('button[type="submit"]');
+    await expect(page).toHaveURL(/\/dashboard/);
+
+    // F5 destruye el access token en memoria y debe restaurarse vía refresh.
+    await page.reload();
+    await expect(page).toHaveURL(/\/dashboard/);
+    await expect(page.locator('text=cajero@nalunpos.com').first()).toBeVisible();
+
+    const persistedSessionKey = await page.evaluate(() =>
+      window.sessionStorage.getItem('nalunpos_auth_session'),
+    );
+    expect(persistedSessionKey).toBeNull();
+  });
+
+  test('debe invocar POST /api/v1/auth/logout al cerrar sesión y volver a /login', async ({
+    page,
+  }) => {
+    await page.route('**/api/v1/auth/login', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          token: 'jwt-e2e-logout-token-mock',
+          userId: 'usr-e2e-1',
+          roleId: 'role-e2e-cajero-01',
+          role: 'Cajero',
+          email: 'cajero@nalunpos.com',
+          fullName: 'Cajero Operador E2E',
+          tenantId: 'tenant-retail-01',
+          expiresAtUtc: new Date(Date.now() + 3600 * 1000).toISOString(),
+        }),
+      });
+    });
+
+    await page.goto('/login');
+    await page.fill('#email-input', 'cajero@nalunpos.com');
+    await page.fill('#password-input', 'Password123!');
+    await page.click('button[type="submit"]');
+    await expect(page).toHaveURL(/\/dashboard/);
+
+    const logoutRequest = page.waitForRequest('**/api/v1/auth/logout');
+    await page.getByText('Cerrar Sesión').first().click();
+    await logoutRequest;
+
+    await expect(page).toHaveURL(/\/login/);
+  });
+
+  test('debe fallar cerrado en /login ante un rol no canónico sin crear sesión ni token en storage', async ({
     page,
   }) => {
     await page.route('**/api/v1/auth/login', async (route) => {
@@ -136,6 +263,13 @@ test.describe('NalunPos-Web Smoke Suite', () => {
       window.sessionStorage.getItem('nalunpos_auth_session'),
     );
     expect(storedSession).toBeNull();
+
+    const tokenInStorage = await page.evaluate(() => {
+      const hasTokenKey = (storage: Storage): boolean =>
+        Object.keys(storage).some((key) => key.toLowerCase().includes('token'));
+      return hasTokenKey(window.sessionStorage) || hasTokenKey(window.localStorage);
+    });
+    expect(tokenInStorage).toBe(false);
   });
 
   test('debe redirigir a /forbidden cuando SuperAdmin intenta acceder al layout protegido de NalunPos-Web', async ({

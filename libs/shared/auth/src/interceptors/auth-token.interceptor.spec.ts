@@ -214,7 +214,8 @@ describe('authTokenInterceptor', () => {
     });
 
     it('prohibido acceder directamente a sessionStorage en el interceptor', () => {
-      const storageSpy = vi.spyOn(sessionStorage, 'getItem');
+      const storage = Reflect.get(globalThis, 'sessionStorage') as Storage;
+      const storageSpy = vi.spyOn(storage, 'getItem');
       authServiceMock.getToken.mockReturnValue('valid-token');
 
       const req = new HttpRequest('GET', '/api/v1/warehouses');

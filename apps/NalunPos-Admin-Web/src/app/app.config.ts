@@ -6,7 +6,12 @@
 // =============================================================================
 
 import type { ApplicationConfig } from '@angular/core';
-import { provideBrowserGlobalErrorListeners, provideZonelessChangeDetection } from '@angular/core';
+import {
+  inject,
+  provideAppInitializer,
+  provideBrowserGlobalErrorListeners,
+  provideZonelessChangeDetection,
+} from '@angular/core';
 import { provideRouter, withComponentInputBinding, withViewTransitions } from '@angular/router';
 import { provideHttpClient, withInterceptors, withFetch } from '@angular/common/http';
 import { appRoutes } from './app.routes';
@@ -39,5 +44,9 @@ export const appConfig: ApplicationConfig = {
     { provide: APP_NAV_CONFIG, useValue: ADMIN_NAV_CONFIG },
     { provide: LOGIN_CONFIG, useValue: ADMIN_LOGIN_CONFIG },
     { provide: AUTH_GATEWAY, useExisting: AuthService },
+
+    // Refresh de arranque: restaura la sesión en memoria desde la cookie HttpOnly.
+    // Nunca bloquea el arranque si falla (initializeSession completa sin lanzar).
+    provideAppInitializer(() => inject(AuthService).initializeSession()),
   ],
 };

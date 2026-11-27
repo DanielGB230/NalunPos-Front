@@ -124,17 +124,18 @@ export default tseslint.config(
       // ── Seguridad de logs (Fase 0.1 - Paso 2) ─────────────────────────────
       'no-console': 'error',
 
-      // ── Prohibición de localStorage/sessionStorage fuera de shared-auth ──
+      // ── Prohibición de localStorage/sessionStorage en todo el código ─────
       'no-restricted-globals': [
         'error',
         {
           name: 'localStorage',
-          message: 'Prohibido usar localStorage directamente. Usar AuthService (libs/shared/auth).',
+          message:
+            'La sesión vive solo en memoria (ADR 0012). Prohibido localStorage; usa AuthService.',
         },
         {
           name: 'sessionStorage',
           message:
-            'Prohibido usar sessionStorage directamente. Usar AuthService (libs/shared/auth).',
+            'La sesión vive solo en memoria (ADR 0012). Prohibido sessionStorage; usa AuthService.',
         },
       ],
       'no-restricted-properties': [
@@ -143,24 +144,15 @@ export default tseslint.config(
           object: 'window',
           property: 'localStorage',
           message:
-            'Prohibido usar window.localStorage directamente. Usar AuthService (libs/shared/auth).',
+            'La sesión vive solo en memoria (ADR 0012). Prohibido window.localStorage; usa AuthService.',
         },
         {
           object: 'window',
           property: 'sessionStorage',
           message:
-            'Prohibido usar window.sessionStorage directamente. Usar AuthService (libs/shared/auth).',
+            'La sesión vive solo en memoria (ADR 0012). Prohibido window.sessionStorage; usa AuthService.',
         },
       ],
-    },
-  },
-
-  // ── Excepción: shared-auth SÍ puede usar almacenamiento ──────────────────
-  {
-    files: ['libs/shared/auth/**/*.ts'],
-    rules: {
-      'no-restricted-globals': 'off',
-      'no-restricted-properties': 'off',
     },
   },
 
