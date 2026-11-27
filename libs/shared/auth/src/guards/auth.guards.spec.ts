@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import type { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
+import { of, type Observable } from 'rxjs';
 import { EMPTY_GUID, TENANT_ROLES, USER_ROLES, type UserRole } from '../models/user-role.model';
 import { AuthService } from '../services/auth.service';
 import { authGuard, roleGuard } from './auth.guards';
@@ -12,6 +13,7 @@ describe('Auth Guards', () => {
     isAuthenticated: ReturnType<typeof vi.fn>;
     userRole: ReturnType<typeof vi.fn>;
     tenantId: ReturnType<typeof vi.fn>;
+    ensureValidSession: ReturnType<typeof vi.fn>;
   };
   let routerMock: {
     createUrlTree: ReturnType<typeof vi.fn>;
@@ -25,6 +27,7 @@ describe('Auth Guards', () => {
       isAuthenticated: vi.fn(),
       userRole: vi.fn(),
       tenantId: vi.fn(),
+      ensureValidSession: vi.fn(),
     };
 
     routerMock = {
@@ -42,19 +45,63 @@ describe('Auth Guards', () => {
   });
 
   describe('authGuard', () => {
-    it('debe permitir la activación si el usuario está autenticado', () => {
-      authServiceMock.isAuthenticated.mockReturnValue(true);
+    it('debe permitir la activación si ensureValidSession emite true', () => {
+      authServiceMock.ensureValidSession.mockReturnValue(of(true));
 
       const result = TestBed.runInInjectionContext(() => authGuard(dummyRoute, dummyState));
-      expect(result).toBe(true);
+
+      let emitted: unknown;
+      (result as Observable<unknown>).subscribe((value) => {
+        emitted = value;
+      });
+
+      expect(emitted).toBe(true);
+      expect(authServiceMock.ensureValidSession).toHaveBeenCalledTimes(1);
     });
 
-    it('debe redirigir a /login si el usuario no está autenticado', () => {
-      authServiceMock.isAuthenticated.mockReturnValue(false);
+    it('debe redirigir a /login si ensureValidSession emite false', () => {
+      authServiceMock.ensureValidSession.mockReturnValue(of(false));
 
       const result = TestBed.runInInjectionContext(() => authGuard(dummyRoute, dummyState));
-      expect(result).toHaveProperty('toString');
+
+      let emitted: unknown;
+      (result as Observable<unknown>).subscribe((value) => {
+        emitted = value;
+      });
+
+      expect(emitted).toHaveProperty('toString');
       expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/login']);
+    });
+
+    it('debe conservar el returnUrl cuando la navegación rechazada lo aporta', () => {
+      authServiceMock.ensureValidSession.mockReturnValue(of(false));
+      const state = { url: '/productos?page=2' } as RouterStateSnapshot;
+
+      const result = TestBed.runInInjectionContext(() => authGuard(dummyRoute, state));
+
+      let emitted: unknown;
+      (result as Observable<unknown>).subscribe((value) => {
+        emitted = value;
+      });
+
+      expect(emitted).toHaveProperty('toString');
+      expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/login'], {
+        queryParams: { returnUrl: '/productos?page=2' },
+      });
+    });
+
+    it('debe permitir la activación cuando ensureValidSession refresca una sesión vencida', () => {
+      authServiceMock.ensureValidSession.mockReturnValue(of(true));
+
+      const result = TestBed.runInInjectionContext(() => authGuard(dummyRoute, dummyState));
+
+      let emitted: unknown;
+      (result as Observable<unknown>).subscribe((value) => {
+        emitted = value;
+      });
+
+      expect(emitted).toBe(true);
+      expect(routerMock.createUrlTree).not.toHaveBeenCalled();
     });
   });
 

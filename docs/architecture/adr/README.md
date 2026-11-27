@@ -24,6 +24,7 @@ Este directorio documenta todas las decisiones arquitectónicas fundamentales ad
 |            [0014](./0014-canonical-api-origin-and-csp.md)             | **Origen Canónico de API y Content Security Policy (CSP) Fija en Producción**           |           Aceptado           | 2026-11-03 | Seguridad / CSP / Runtime    |
 |          [0015](./0015-fail-closed-session-role-contract.md)          | **Contrato Canónico de Roles, Sesión Fail-Closed y Separación por Aplicación**          |           Aceptado           | 2026-11-12 | Auth / Roles / Multi-Tenant  |
 |          [0016](./0016-openapi-generated-contract-types.md)           | **Generación Determinista de Tipos TypeScript desde OpenAPI v1 y Prevención de Deriva** |           Aceptado           | 2026-11-13 | Contratos API / Tooling / CI |
+|   [0017](./0017-automatic-session-refresh-and-interceptor-order.md)   | **Renovación Automática de Sesión ante 401, Orden de Interceptores y Guard Asíncrono**  |           Aceptado           | 2026-11-27 | Auth / Cadena HTTP / Guards  |
 
 ---
 

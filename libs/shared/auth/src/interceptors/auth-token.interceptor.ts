@@ -71,7 +71,7 @@ export function isAuthorizedApiRequest(
  *
  * Directrices arquitectónicas:
  * 1. Lee el token exclusivamente desde AuthService (Signal en memoria / sesión activa).
- * 2. Prohibido acceder directamente a sessionStorage en el interceptor.
+ * 2. Prohibido acceder directamente al almacenamiento web persistente en el interceptor.
  * 3. Valida el origen exacto contra URL.origin de document.baseURI o APP_CONFIG.apiUrl.
  * 4. Maneja URLs malformadas de forma silenciosa sin adjuntar el token.
  * 5. Protege contra colisión de prefijo de dominio, puertos y URLs relativas al protocolo.

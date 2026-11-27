@@ -18,6 +18,7 @@ import { appRoutes } from './app.routes';
 import {
   authTokenInterceptor,
   sessionExpiredInterceptor,
+  sessionRefreshInterceptor,
   AuthService,
 } from '@nalunpos/shared/auth';
 import { correlationIdInterceptor, errorInterceptor } from '@nalunpos/shared/data-access';
@@ -35,9 +36,10 @@ export const appConfig: ApplicationConfig = {
       withFetch(),
       withInterceptors([
         correlationIdInterceptor, // 1° — Agrega X-Correlation-Id
-        authTokenInterceptor, // 2° — Agrega Authorization: Bearer <token>
-        sessionExpiredInterceptor, // 3° — Maneja respuestas 401 (logout/login) y 403 (/forbidden)
-        errorInterceptor, // 4° — Traduce HttpErrorResponse → AppError
+        sessionExpiredInterceptor, // 2° — 401 de sesión (logout) y 403 (/forbidden)
+        sessionRefreshInterceptor, // 3° — 401 protegido: refresh único + reintento
+        authTokenInterceptor, // 4° — Agrega Authorization: Bearer <token>
+        errorInterceptor, // 5° — Traduce HttpErrorResponse → AppError
       ]),
     ),
     // Configuración compartida de Layout, Navegación y Autenticación

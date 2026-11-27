@@ -11,7 +11,7 @@ El ecosistema frontend de **NalunPos** está construido sobre un **Monorepo Nx**
 
 ### 1.2 Librerías Compartidas (`libs/shared/`)
 
-- **`libs/shared/auth`**: `AuthService`, `AuthApiClient`, `SessionRefreshCoordinator`, interceptores de autorización y control de sesión (`authTokenInterceptor`, `sessionExpiredInterceptor`), guards funcionales (`authGuard`, `roleGuard`), interfaces tipadas y modelo de sesión de usuario `UserSession`.
+- **`libs/shared/auth`**: `AuthService`, `AuthApiClient`, `SessionRefreshCoordinator`, interceptores de autorización y control de sesión (`authTokenInterceptor`, `sessionExpiredInterceptor`, `sessionRefreshInterceptor`), guards funcionales (`authGuard`, `roleGuard`), interfaces tipadas y modelo de sesión de usuario `UserSession`.
 - **`libs/shared/data-access`**: Configuración dinámica de runtime (`APP_CONFIG` resuelto antes del bootstrap), interceptores globales (`correlationIdInterceptor`, `errorInterceptor`) y modelos de error estandarizados (`ProblemDetails`, `AppError`).
 - **`libs/shared/ui`**: Componentes visuales puros reutilizables (`AppShellComponent`, `HeaderComponent`, `SidebarComponent`, `BaseLoginComponent`, `PageHeroCardComponent`, `MetricsBentoGridComponent`, `QuickFilterBarComponent`, `AdvancedFilterDrawerComponent`, `NotificationService`).
 - **`libs/shared/design-tokens`**: Fuente única de verdad visual M3 (`theme.css`), tokens de diseño semánticos y tipografías auto-alojadas (`@fontsource`).
@@ -50,9 +50,10 @@ Ambas aplicaciones (`apps/NalunPos-Web/src/app/app.config.ts` y `apps/NalunPos-A
 ```typescript
 withInterceptors([
   correlationIdInterceptor, // 1° — Agrega X-Correlation-Id
-  authTokenInterceptor, // 2° — Agrega Authorization: Bearer <token>
-  sessionExpiredInterceptor, // 3° — Maneja respuestas 401 (logout/login) y 403 (/forbidden)
-  errorInterceptor, // 4° — Traduce HttpErrorResponse → AppError
+  sessionExpiredInterceptor, // 2° — 401 de sesión (logout) y 403 (/forbidden)
+  sessionRefreshInterceptor, // 3° — 401 protegido: refresh único + reintento
+  authTokenInterceptor, // 4° — Agrega Authorization: Bearer <token>
+  errorInterceptor, // 5° — Traduce HttpErrorResponse → AppError
 ]);
 ```
 
@@ -60,30 +61,36 @@ withInterceptors([
 
 En Angular `provideHttpClient(withInterceptors([...]))`, las peticiones y las respuestas/errores recorren el arreglo en sentidos opuestos:
 
-1. **Flujo de Peticiones Salientes (Request — Izquierda a Derecha / 1° → 4°):**
+1. **Flujo de Peticiones Salientes (Request — Izquierda a Derecha / 1° → 5°):**
    - **`correlationIdInterceptor` (1°)**: Genera y adjunta la cabecera `X-Correlation-Id` con un UUIDv4 único a la solicitud saliente antes de que continúe su viaje.
-   - **`authTokenInterceptor` (2°)**: Inyecta la cabecera `Authorization: Bearer <token>` obtenida desde `AuthService`, tras validar coincidencia exacta de origen contra `apiUrl` (ADR 0014) y mitigar colisiones de dominios o URLs malformadas.
-   - **`sessionExpiredInterceptor` (3°)**: Pasa la petición intacta hacia adelante invocando `next(req)`.
-   - **`errorInterceptor` (4°)**: Pasa la petición directamente hacia el backend invocando `next(req)`.
+   - **`sessionExpiredInterceptor` (2°)**: Pasa la petición intacta hacia adelante invocando `next(req)`.
+   - **`sessionRefreshInterceptor` (3°)**: Captura el token al iniciar la petición y la deja pasar. En el retorno aplica la política del ADR 0017: un `401` protegido dispara un refresh single-flight y un único reintento marcado con `SESSION_RETRIED`; `/auth/*` queda excluido.
+   - **`authTokenInterceptor` (4°)**: Inyecta la cabecera `Authorization: Bearer <token>` obtenida desde `AuthService`, tras validar coincidencia exacta de origen contra `apiUrl` (ADR 0014) y mitigar colisiones de dominios o URLs malformadas. Al declararse después de `sessionRefreshInterceptor`, el reintento recibe el token renovado.
+   - **`errorInterceptor` (5°)**: Pasa la petición directamente hacia el backend invocando `next(req)`.
 
-2. **Flujo de Respuestas y Errores Entrantes (Response / Error — Derecha a Izquierda / 4° → 1°):**
-   - **`errorInterceptor` (4° en la lista — PRIMERO en la ruta de retorno de error):**
+2. **Flujo de Respuestas y Errores Entrantes (Response / Error — Derecha a Izquierda / 5° → 1°):**
+   - **`errorInterceptor` (5° en la lista — PRIMERO en la ruta de retorno de error):**
      Al ser el último interceptor declarado, su operador `catchError` se ejecuta en primer lugar ante cualquier fallo de red o respuesta HTTP de error. Convierte **TODOS** los errores HTTP (`HttpErrorResponse`) en instancias fuertemente tipadas de `AppError` (traduciendo `ProblemDetails` RFC 7807 o generando mensajes estandarizados para errores 400, 401, 403, 404, 500 y fallo de conexión con status 0).
-   - **`sessionExpiredInterceptor` (3° en la lista — SEGUNDO en la ruta de retorno de error):**
-     Recibe en su `catchError` el error ya procesado y transformado por `errorInterceptor`. Por tanto, recibe una instancia de `AppError` (o un `HttpErrorResponse` si en algún contexto aislado no intervino el conversor). La función `extractHttpStatus(error)` extrae polimórficamente el código numérico `status` de ambos tipos:
-     - Si el status es `401` y la peticion no es un endpoint anonimo de autenticacion (`/auth/login`, `/auth/refresh` o `/auth/logout`), invoca `authService.logout()`. Se excluyen los tres para evitar cierres de sesion espurios: un `401` en el login se propaga al formulario y un `401` en el refresh o el logout no debe generar un bucle `logout -> 401 -> logout`.
-     - Si el status es `403`, redirige a la vista `/forbidden`.
+   - **`authTokenInterceptor` (4° en la lista — SEGUNDO en la ruta de retorno):**
+     Deja pasar el error sin alterarlo.
+   - **`sessionRefreshInterceptor` (3° en la lista — TERCERO en la ruta de retorno de error):**
+     Ante un `401` de un endpoint protegido no reintentado (`SESSION_RETRIED = false`), invoca `authService.refreshSession()` y reintenta la petición una sola vez. Si el token actual ya difiere del capturado, otro refresh concurrente se completó y reintenta sin duplicar la llamada. Si el refresh falla, propaga el error original.
+   - **`sessionExpiredInterceptor` (2° en la lista — CUARTO en la ruta de retorno de error):**
+     Recibe el error original o el `AppError` transformado. La función `extractHttpStatus(error)` extrae polimórficamente el código numérico `status`:
+     - Si el status es `401` y la petición no es un endpoint anónimo de autenticación (`/auth/login`, `/auth/refresh` o `/auth/logout`), invoca `authService.logout()`. Se excluyen los tres para evitar cierres de sesión espurios: un `401` en el login se propaga al formulario y un `401` en el refresh o el logout no debe generar un bucle `logout -> 401 -> logout`.
+     - Si el status es `403`, redirige a la vista `/forbidden`, salvo en `/auth/login`, `/auth/refresh` o `/auth/logout`, donde se propaga sin navegar.
      - Finalmente, re-lanza el error (`throwError(() => error)`) para que los suscriptores y componentes consumidores reciban el `AppError` tipado.
-   - **`authTokenInterceptor` (2°)** y **`correlationIdInterceptor` (1°)**:
-     Dejan pasar la respuesta o el error hacia el suscriptor final sin interferir en la sesión.
+   - **`correlationIdInterceptor` (1°)**:
+     Deja pasar la respuesta o el error hacia el suscriptor final sin interferir en la sesión.
 
 #### ¿Por qué es crítico este orden y Advertencia de Integración?
 
 - `errorInterceptor` debe estar al final del arreglo para que sea el primero en atrapar el `HttpErrorResponse` nativo en el flujo de retorno y transformarlo en `AppError`.
-- `sessionExpiredInterceptor` debe preceder a `errorInterceptor` en el arreglo para que en el retorno de error se ejecute después de este, consumiendo el `AppError` unificado con `extractHttpStatus`.
+- `sessionExpiredInterceptor` debe preceder a `sessionRefreshInterceptor` en el arreglo para que en el retorno de error se ejecute después de este: el refresh se intenta primero y solo si falla el `401` original llega a `sessionExpired`, única responsable de limpiar la sesión.
+- `sessionRefreshInterceptor` debe preceder a `authTokenInterceptor` para que el reintento vuelva a entrar por `authToken` y reciba el token renovado (ADR 0017).
 
 > [!WARNING]
-> **Advertencia de Mantenibilidad:** **NO** reordenar los interceptores en `app.config.ts`. Cualquier alteración en el orden romperá el flujo bidireccional y las aserciones de integración. Toda modificación debe ser validada contra el test de integración de la cadena completa en [`libs/shared/auth/src/interceptors/session-expired.interceptor.spec.ts`](../../libs/shared/auth/src/interceptors/session-expired.interceptor.spec.ts#L171-L285) (`describe('Cadena Completa de Interceptores HTTP (Test de Integración Real)')`).
+> **Advertencia de Mantenibilidad:** **NO** reordenar los interceptores en `app.config.ts`. Cualquier alteración en el orden romperá el flujo bidireccional y las aserciones de integración. Toda modificación debe ser validada contra el test de integración de la cadena completa en [`libs/shared/auth/src/interceptors/session-expired.interceptor.spec.ts`](../../libs/shared/auth/src/interceptors/session-expired.interceptor.spec.ts) (`describe('Cadena Completa de Interceptores HTTP (Test de Integración Real)')`).
 
 ---
 

@@ -6,24 +6,31 @@
 
 import { inject } from '@angular/core';
 import type { CanActivateFn } from '@angular/router';
-import { Router } from '@angular/router';
+import { Router, type UrlTree } from '@angular/router';
+import { map } from 'rxjs';
 import { isRoleTenantCoherent, isUserRole, type UserRole } from '../models/user-role.model';
 import { AuthService } from '../services/auth.service';
 
 /**
- * Guard de autenticación.
- * Redirige a /login si el usuario no está autenticado o su sesión expiró.
+ * Guard de autenticación asíncrono.
+ * Garantiza una sesión vigente (refrescándola si el token expiró) antes de activar
+ * la ruta. Si no hay sesión válida redirige a /login conservando el returnUrl.
  */
-export const authGuard: CanActivateFn = () => {
+export const authGuard: CanActivateFn = (_route, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  if (authService.isAuthenticated()) {
-    return true;
-  }
-
-  return router.createUrlTree(['/login']);
+  return authService
+    .ensureValidSession()
+    .pipe(map((isValid) => (isValid ? true : buildLoginRedirect(router, state.url))));
 };
+
+function buildLoginRedirect(router: Router, returnUrl: string | undefined): UrlTree {
+  if (returnUrl !== undefined && returnUrl.length > 0 && returnUrl !== '/') {
+    return router.createUrlTree(['/login'], { queryParams: { returnUrl } });
+  }
+  return router.createUrlTree(['/login']);
+}
 
 /**
  * Factory de guard de rol.

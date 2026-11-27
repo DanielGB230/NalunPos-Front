@@ -299,4 +299,119 @@ test.describe('NalunPos-Web Smoke Suite', () => {
 
     await expect(page).toHaveURL(/\/forbidden/);
   });
+
+  test('debe renovar la sesión y reintentar una petición protegida tras un 401 sin salir de pantalla', async ({
+    page,
+  }) => {
+    const refreshedSession = {
+      token: 'jwt-e2e-refreshed-token',
+      userId: 'usr-e2e-1',
+      roleId: 'role-e2e-cajero-01',
+      role: 'Cajero',
+      email: 'cajero@nalunpos.com',
+      fullName: 'Cajero Operador E2E',
+      tenantId: 'tenant-retail-01',
+      expiresAtUtc: new Date(Date.now() + 3600 * 1000).toISOString(),
+    };
+    const pagedCategories = {
+      items: [
+        {
+          id: 'cat-e2e-1',
+          name: 'Categoría Renovada E2E',
+          description: 'Categoría obtenida tras el reintento',
+          isActive: true,
+          createdAtUtc: new Date().toISOString(),
+        },
+      ],
+      pageNumber: 1,
+      pageSize: 10,
+      totalCount: 1,
+      totalPages: 1,
+      hasPreviousPage: false,
+      hasNextPage: false,
+    };
+
+    // El bootstrap restaura la sesión desde la cookie de refresh.
+    await page.route('**/api/v1/auth/refresh', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(refreshedSession),
+      });
+    });
+
+    // La primera petición protegida recibe 401; el reintento devuelve 200.
+    let categoriesCalls = 0;
+    await page.route('**/api/v1/categories*', async (route) => {
+      categoriesCalls += 1;
+      if (categoriesCalls === 1) {
+        await route.fulfill({
+          status: 401,
+          contentType: 'application/json',
+          body: JSON.stringify({ title: 'Unauthorized', status: 401 }),
+        });
+        return;
+      }
+
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(pagedCategories),
+      });
+    });
+
+    await page.goto('/categorias');
+
+    await expect(page).toHaveURL(/\/categorias/);
+    await expect(page.locator('text=Categoría Renovada E2E')).toBeVisible();
+    expect(categoriesCalls).toBeGreaterThanOrEqual(2);
+    await expect(page).not.toHaveURL(/\/login/);
+  });
+
+  test('debe redirigir a /login cuando el refresh falla al renovar una petición protegida', async ({
+    page,
+  }) => {
+    const initialSession = {
+      token: 'jwt-e2e-session-token',
+      userId: 'usr-e2e-1',
+      roleId: 'role-e2e-cajero-01',
+      role: 'Cajero',
+      email: 'cajero@nalunpos.com',
+      fullName: 'Cajero Operador E2E',
+      tenantId: 'tenant-retail-01',
+      expiresAtUtc: new Date(Date.now() + 3600 * 1000).toISOString(),
+    };
+
+    let refreshCalls = 0;
+    await page.route('**/api/v1/auth/refresh', async (route) => {
+      refreshCalls += 1;
+      if (refreshCalls === 1) {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify(initialSession),
+        });
+        return;
+      }
+
+      await route.fulfill({
+        status: 401,
+        contentType: 'application/json',
+        body: JSON.stringify({ title: 'Unauthorized', status: 401 }),
+      });
+    });
+
+    await page.route('**/api/v1/categories*', async (route) => {
+      await route.fulfill({
+        status: 401,
+        contentType: 'application/json',
+        body: JSON.stringify({ title: 'Unauthorized', status: 401 }),
+      });
+    });
+
+    await page.goto('/categorias');
+
+    await expect(page).toHaveURL(/\/login/);
+    expect(refreshCalls).toBeGreaterThanOrEqual(2);
+  });
 });

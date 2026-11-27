@@ -29,6 +29,10 @@ export { SessionRefreshCoordinator } from './services/session-refresh.coordinato
 // Interceptores HTTP funcionales
 export { authTokenInterceptor } from './interceptors/auth-token.interceptor';
 export { sessionExpiredInterceptor } from './interceptors/session-expired.interceptor';
+export {
+  SESSION_RETRIED,
+  sessionRefreshInterceptor,
+} from './interceptors/session-refresh.interceptor';
 
 // Guards de rutas
 export { authGuard, roleGuard } from './guards/auth.guards';

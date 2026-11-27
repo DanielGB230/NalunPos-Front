@@ -6,7 +6,7 @@
 // =============================================================================
 
 import { Injectable, inject } from '@angular/core';
-import { defer, finalize, from, shareReplay, type Observable } from 'rxjs';
+import { defer, finalize, firstValueFrom, from, shareReplay, type Observable } from 'rxjs';
 import type { AuthResponse } from '../interfaces/auth.interfaces';
 import { AuthApiClient } from './auth-api.client';
 
@@ -40,13 +40,7 @@ export class SessionRefreshCoordinator {
       return this.authApi.refresh();
     }
 
-    return from(locks.request(REFRESH_LOCK_NAME, () => this.refreshAsPromise()));
-  }
-
-  private async refreshAsPromise(): Promise<AuthResponse> {
-    return new Promise<AuthResponse>((resolve, reject) => {
-      this.authApi.refresh().subscribe({ next: resolve, error: reject });
-    });
+    return from(locks.request(REFRESH_LOCK_NAME, () => firstValueFrom(this.authApi.refresh())));
   }
 
   private resolveLockManager(): LockManager | null {

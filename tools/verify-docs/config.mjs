@@ -48,12 +48,6 @@ export const VERIFY_DOCS_CONFIG = {
         'Referencia a "handleSessionExpired" obsoleta. La lógica reside en sessionExpiredInterceptor.',
     },
     {
-      id: 'adr-0017',
-      pattern: /\bADR\s+0017\b/i,
-      message:
-        'Referencia obsoleta a "ADR 0017". En NalunPos-Front existen únicamente los ADR 0001 a 0014.',
-    },
-    {
       id: 'commit-a6a2a46',
       pattern: /\ba6a2a46\b/,
       message:

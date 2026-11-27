@@ -44,6 +44,7 @@ describe('SessionRefreshCoordinator', () => {
 
   afterEach(() => {
     TestBed.resetTestingModule();
+    vi.unstubAllGlobals();
     if (originalLocks) {
       Object.defineProperty(navigator, 'locks', originalLocks);
     } else {
@@ -160,6 +161,31 @@ describe('SessionRefreshCoordinator', () => {
     coordinator.refresh().subscribe();
 
     expect(lockNames).toEqual([]);
+    expect(refreshMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('debe degradar a single-flight cuando navigator no esta definido', () => {
+    vi.stubGlobal('navigator', undefined);
+    refreshMock.mockReturnValue(of(mockAuthResponse));
+
+    let received: AuthResponse | undefined;
+    coordinator.refresh().subscribe((value) => (received = value));
+
+    expect(received).toEqual(mockAuthResponse);
+    expect(refreshMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('debe degradar a single-flight cuando navigator.locks no expone request', () => {
+    Object.defineProperty(navigator, 'locks', {
+      configurable: true,
+      value: {},
+    });
+    refreshMock.mockReturnValue(of(mockAuthResponse));
+
+    let received: AuthResponse | undefined;
+    coordinator.refresh().subscribe((value) => (received = value));
+
+    expect(received).toEqual(mockAuthResponse);
     expect(refreshMock).toHaveBeenCalledTimes(1);
   });
 });

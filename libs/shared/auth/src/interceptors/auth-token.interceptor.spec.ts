@@ -285,5 +285,15 @@ describe('authTokenInterceptor', () => {
         ),
       ).toBe(false);
     });
+
+    it('retorna false si configuredApiUrl está ausente, vacía o solo contiene espacios', () => {
+      expect(isAuthorizedApiRequest('https://other.com/api/v1/products', baseUri, undefined)).toBe(
+        false,
+      );
+      expect(isAuthorizedApiRequest('https://other.com/api/v1/products', baseUri, '')).toBe(false);
+      expect(isAuthorizedApiRequest('https://other.com/api/v1/products', baseUri, '   ')).toBe(
+        false,
+      );
+    });
   });
 });

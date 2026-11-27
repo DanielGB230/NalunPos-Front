@@ -111,34 +111,44 @@ provideHttpClient(
   withFetch(),
   withInterceptors([
     correlationIdInterceptor, // 1° — Agrega X-Correlation-Id
-    authTokenInterceptor, // 2° — Agrega Authorization: Bearer <token>
-    sessionExpiredInterceptor, // 3° — Maneja respuestas 401 (logout/login) y 403 (/forbidden)
-    errorInterceptor, // 4° — Traduce HttpErrorResponse → AppError
+    sessionExpiredInterceptor, // 2° — 401 de sesión (logout) y 403 (/forbidden)
+    sessionRefreshInterceptor, // 3° — 401 protegido: refresh único + reintento
+    authTokenInterceptor, // 4° — Agrega Authorization: Bearer <token>
+    errorInterceptor, // 5° — Traduce HttpErrorResponse → AppError
   ]),
 );
 ```
 
 ### 4.1 Flujo Bidireccional en la Ejecución HTTP
 
-1. **Peticiones Salientes (Request — Izquierda a Derecha / 1° → 4°):**
+1. **Peticiones Salientes (Request — Izquierda a Derecha / 1° → 5°):**
    - **`correlationIdInterceptor` (1°)**: Genera y adjunta la cabecera `X-Correlation-Id` con un UUIDv4.
-   - **`authTokenInterceptor` (2°)**: Extrae el access token de `AuthService` y lo inyecta en `Authorization: Bearer <token>`. **Invariante de Seguridad (ADR 0014):** Comprueba coincidencia estricta de origen contra `apiUrl` (previene fugas de token ante colisiones de dominios o URLs malformadas).
-   - **`sessionExpiredInterceptor` (3°)**: Pasa la petición intacta vía `next(req)`.
-   - **`errorInterceptor` (4°)**: Envía la petición a la red vía `next(req)`.
+   - **`sessionExpiredInterceptor` (2°)**: Pasa la petición intacta vía `next(req)`.
+   - **`sessionRefreshInterceptor` (3°)**: Captura el token al iniciar la petición y la deja pasar. En el retorno aplica la política de refresh (ADR 0017): un único `401` protegido dispara un refresh single-flight y **un solo reintento** marcado con `SESSION_RETRIED`; los endpoints `/auth/*` quedan excluidos.
+   - **`authTokenInterceptor` (4°)**: Extrae el access token de `AuthService` y lo inyecta en `Authorization: Bearer <token>`. **Invariante de Seguridad (ADR 0014):** Comprueba coincidencia estricta de origen contra `apiUrl` (previene fugas de token ante colisiones de dominios o URLs malformadas). Al ejecutarse **después** de `sessionRefreshInterceptor`, el reintento recibe el token renovado.
+   - **`errorInterceptor` (5°)**: Envía la petición a la red vía `next(req)`.
 
-2. **Respuestas y Errores Entrantes (Response / Error — Derecha a Izquierda / 4° → 1°):**
-   - **`errorInterceptor` (4° en la lista — PRIMERO en ejecutarse en retorno de error):**
+2. **Respuestas y Errores Entrantes (Response / Error — Derecha a Izquierda / 5° → 1°):**
+   - **`errorInterceptor` (5° en la lista — PRIMERO en ejecutarse en retorno de error):**
      Atrapa **TODOS** los errores HTTP (`HttpErrorResponse`) mediante `catchError` y los convierte inmediatamente al modelo unificado `AppError` (traduciendo `ProblemDetails` RFC 7807 o errores de conexión con status 0).
-   - **`sessionExpiredInterceptor` (3° en la lista — SEGUNDO en retorno de error):**
-     Recibe el error transformado como instancia de `AppError` (o `HttpErrorResponse` en ejecuciones desacopladas). Mediante `extractHttpStatus(error)` extrae el código numérico:
-     - Status `401`: Si la URL no es `/auth/login`, llama a `authService.logout()` y redirige a `/login`.
-     - Status `403`: Redirige a `/forbidden`.
+   - **`authTokenInterceptor` (4° en la lista — SEGUNDO en retorno de error):**
+     Deja pasar el error sin alterarlo.
+   - **`sessionRefreshInterceptor` (3° en la lista — TERCERO en retorno de error):**
+     Ante un `401` de un endpoint protegido y no reintentado (`SESSION_RETRIED`), renueva la sesión con `AuthService.refreshSession()` y reintenta una sola vez. Si el token ya cambió por otro refresh concurrente, reintenta sin refrescar. Si el refresh falla, propaga el error original.
+   - **`sessionExpiredInterceptor` (2° en la lista — CUARTO en retorno de error):**
+     Recibe el error ya sea original (`401`) o transformado (`AppError`). Mediante `extractHttpStatus(error)` extrae el código numérico:
+     - Status `401`: Si la URL no es `/auth/login`, `/auth/refresh` ni `/auth/logout`, llama a `authService.logout()` y redirige a `/login`.
+     - Status `403`: Redirige a `/forbidden`, salvo en `/auth/login`, `/auth/refresh` o `/auth/logout`, donde se propaga sin navegar.
      - Re-emite el `AppError` (`throwError(() => error)`) hacia los suscriptores.
-   - **`authTokenInterceptor` (2°)** y **`correlationIdInterceptor` (1°)**:
-     Dejan pasar el error hacia el suscriptor final.
+   - **`correlationIdInterceptor` (1°)**:
+     Deja pasar el error hacia el suscriptor final.
 
 > [!WARNING]
-> **Advertencia Estricta:** **NO** cambies el orden de los interceptores. Modificar el arreglo alterará la secuencia bidireccional y romperá los tests de integración. Valida siempre contra [`libs/shared/auth/src/interceptors/session-expired.interceptor.spec.ts`](./libs/shared/auth/src/interceptors/session-expired.interceptor.spec.ts).
+> **Advertencia Estricta:** **NO** cambies el orden de los interceptores. Modificar el arreglo alterará la secuencia bidireccional y romperá los tests de integración. El orden canónico está fijado por el ADR 0017 y se valida en [`libs/shared/auth/src/interceptors/session-expired.interceptor.spec.ts`](./libs/shared/auth/src/interceptors/session-expired.interceptor.spec.ts).
+
+### 4.2 Guard Asíncrono de Autenticación
+
+`authGuard` devuelve `Observable<boolean | UrlTree>` a partir de `AuthService.ensureValidSession()`: una sesión vigente resuelve `true` sin refresh; una sesión con token vencido se refresca antes de activar la ruta; si no puede garantizarse, redirige a `/login` conservando el `returnUrl`. `roleGuard` y `guestGuard` permanecen síncronos sobre la sesión ya validada (ADR 0017).
 
 ---
 
@@ -236,7 +246,7 @@ El estado con cifras y fecha vigente está detallado en [`docs/STATUS.md`](./doc
 5. **Endpoints de Almacenes Pendientes en Backend:**
    - En `WarehouseApiService`, los métodos de modificación (`PUT`, `PATCH status`, `PATCH default`) lanzan errores descriptivos en espera de disponibilidad de endpoints en la API.
 6. **Normalización de Encabezados en ADRs Históricos:**
-   - De los 16 ADRs existentes (`0001` a `0016`), **6 ADRs** (`0003`, `0004`, `0009`, `0012`, `0015` y `0016`) cumplen explícitamente con los tres encabezados mínimos (`Contexto`, `Decisión`, `Consecuencias`). Los **10 ADRs restantes** (`0001`, `0002`, `0005`, `0006`, `0007`, `0008`, `0010`, `0011`, `0013` y `0014`) no cuentan con la terna completa (los ADRs `0001`, `0002`, `0006`, `0007`, `0008`, `0010`, `0011`, `0013` y `0014` carecen de `## Contexto` explícito al residir en el párrafo introductorio o en razones, y el ADR `0005` carece de `## Consecuencias`), quedando catalogados para normalización en una tarea futura de limpieza documental sin alterar sus decisiones.
+   - De los 17 ADRs existentes (`0001` a `0017`), **7 ADRs** (`0003`, `0004`, `0009`, `0012`, `0015`, `0016` y `0017`) cumplen explícitamente con los tres encabezados mínimos (`Contexto`, `Decisión`, `Consecuencias`). Los **10 ADRs restantes** (`0001`, `0002`, `0005`, `0006`, `0007`, `0008`, `0010`, `0011`, `0013` y `0014`) no cuentan con la terna completa (los ADRs `0001`, `0002`, `0006`, `0007`, `0008`, `0010`, `0011`, `0013` y `0014` carecen de `## Contexto` explícito al residir en el párrafo introductorio o en razones, y el ADR `0005` carece de `## Consecuencias`), quedando catalogados para normalización en una tarea futura de limpieza documental sin alterar sus decisiones.
 7. **Mapeo de rol de la sesión, contrato canónico y separación por app — RESUELTO (100% Cerrado — 2026-11-12):**
    - **Evidencia en Backend (`NalunPos-Api` commit `6bc7cb0`, `ADR 0023`):**
      - `docs/architecture/adr/0023-contrato-de-roles-y-sesion-de-autenticacion.md:1-99`: Formaliza los 5 roles canónicos (`PlatformRoles.SuperAdmin`, `TenantRoles`), resolución fail-closed bajo RLS y contrato estable HTTP/JWT.
@@ -291,7 +301,7 @@ El repositorio cuenta con skills de agentes estructurados en `.agents/skills/` q
 
 ### 10.2 Jerarquía normativa (precedencia inquebrantable)
 
-1. **ADRs vigentes** en `docs/architecture/adr/` (ADR 0001 a ADR 0016) y las guardas de CI.
+1. **ADRs vigentes** en `docs/architecture/adr/` (ADR 0001 a ADR 0017) y las guardas de CI.
 2. **`AGENTS.md`** (este documento), incluida la Tabla de Blindaje Arquitectónico de §10.3.
 3. **Skills versionados** en `NalunPos-Front/.agents/skills/`.
 4. **`modern-web-guidance`** y cualquier guía externa: referencia de sintaxis, nunca autoridad arquitectónica.
@@ -307,7 +317,7 @@ Ninguna recomendación de `modern-web-guidance` autoriza una excepción. Si una 
 | 3   | Signal Forms exclusivos            | ADR 0006             | Todo formulario nuevo usa exclusivamente Signal Forms de `@angular/forms/signals` (`form()`, `schema()`, `submit()`). Prohibido importar `ReactiveFormsModule` o `FormsModule` en código nuevo, incluso si una guía externa sugiere Reactive Forms.                                                                                                                                                                                                                                                                                |
 | 4   | Separación de estilos              | ADR 0005, 0008       | Prohibido crear archivos `.css` nuevos. Tailwind CSS v4 para layout y espaciado en plantillas HTML; SCSS para variables, Custom Properties y estilos de componente; Angular Material M3 para controles complejos. Prohibido `!important`.                                                                                                                                                                                                                                                                                          |
 | 5   | Configuración pre-bootstrap y CSP  | ADR 0009, 0014       | `APP_CONFIG` se resuelve y valida **antes** de `bootstrapApplication()` en `main.ts` mediante `await loadAppConfig('/config.json', environment)` e inyección `{ provide: APP_CONFIG, useValue: config }`. Prohibidas URLs estáticas (`localhost`, orígenes fijos) y prohibido leer `environment` directamente desde servicios o componentes. CSP con hash en `script-src`: sin `'unsafe-inline'` para scripts y sin manejadores inline en plantillas.                                                                              |
-| 6   | Contratos OpenAPI v1 y cadena HTTP | ADR 0016             | Prohibido escribir DTO a mano o adoptar generadores pesados basados en Axios o `fetch`. Los contratos se derivan de `libs/shared/data-access/openapi/openapi.v1.json` hacia `libs/shared/data-access/src/generated/openapi.types.ts` (0 `any`, 0 `eslint-disable`) y se consumen con `HttpClient`, preservando la cadena `correlationIdInterceptor` → `authTokenInterceptor` → `sessionExpiredInterceptor` → `errorInterceptor`.                                                                                                   |
+| 6   | Contratos OpenAPI v1 y cadena HTTP | ADR 0016, 0017       | Prohibido escribir DTO a mano o adoptar generadores pesados basados en Axios o `fetch`. Los contratos se derivan de `libs/shared/data-access/openapi/openapi.v1.json` hacia `libs/shared/data-access/src/generated/openapi.types.ts` (0 `any`, 0 `eslint-disable`) y se consumen con `HttpClient`, preservando la cadena `correlationIdInterceptor` → `sessionExpiredInterceptor` → `sessionRefreshInterceptor` → `authTokenInterceptor` → `errorInterceptor`.                                                                     |
 | 7   | Seguridad multi-tenant fail-closed | ADR 0003, 0012, 0015 | Sesión gobernada por `USER_ROLES` (`PLATFORM_ROLES` frente a `TENANT_ROLES`), `UserSession` con validación fail-closed y `roleGuard` en el layout raíz de cada aplicación (`NalunPos-Admin-Web` frente a `NalunPos-Web`). Prohibido persistir tokens en `localStorage`, `sessionStorage`, `IndexedDB` o cookies accesibles por JavaScript: el access token vive solo en memoria y el refresh token en la cookie `HttpOnly` `nalunpos_rt` (ADR 0012). El refresh de arranque se coordina con Web Locks y nunca bloquea el arranque. |
 | 8   | Compilador TypeScript estricto     | ADR 0010             | Intactos los flags de `tsconfig.base.json` (`exactOptionalPropertyTypes: false`, `noImplicitOverride: true`, `noPropertyAccessFromIndexSignature: true`, `noUncheckedIndexedAccess: true`). Prohibidos `any` y `eslint-disable`.                                                                                                                                                                                                                                                                                                   |
 
@@ -335,5 +345,5 @@ Ninguna recomendación de `modern-web-guidance` autoriza una excepción. Si una 
 - **Guía de Contribución y DoD:** [`CONTRIBUTING.md`](./CONTRIBUTING.md)
 - **Política de Seguridad:** [`SECURITY.md`](./SECURITY.md)
 - **Arquitectura Frontend:** [`docs/architecture/architecture.md`](./docs/architecture/architecture.md)
-- **Registro de ADRs (0001 a 0016):** [`docs/architecture/adr/README.md`](./docs/architecture/adr/README.md)
+- **Registro de ADRs (0001 a 0017):** [`docs/architecture/adr/README.md`](./docs/architecture/adr/README.md)
 - **Cabeceras HTTP y Content Security Policy:** [`docs/security/headers-and-csp.md`](./docs/security/headers-and-csp.md)

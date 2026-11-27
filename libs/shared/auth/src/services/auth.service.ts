@@ -9,7 +9,7 @@
 import { Injectable, computed, inject, signal, type Signal } from '@angular/core';
 import { Router } from '@angular/router';
 import type { AppError } from '@nalunpos/shared/data-access';
-import { EMPTY, catchError, map, of, switchMap, tap, throwError, type Observable } from 'rxjs';
+import { EMPTY, catchError, map, of, switchMap, throwError, type Observable } from 'rxjs';
 import type { AuthResponse, LoginRequest } from '../interfaces/auth.interfaces';
 import type { UserRole } from '../models/user-role.model';
 import { UserSession } from '../models/user-session.model';
@@ -59,13 +59,53 @@ export class AuthService {
 
   // ─── Inicialización de sesión al arranque ──────────────────────────────────
   initializeSession(): Observable<void> {
-    return this.sessionRefresh.refresh().pipe(
-      map((response) => UserSession.fromAuthResponse(response)),
-      tap((session) => this._currentUser.set(session)),
-      map(() => undefined),
+    return this.refreshSession().pipe(
       catchError(() => {
         this._currentUser.set(null);
         return of(undefined);
+      }),
+    );
+  }
+
+  // ─── Refresh de sesión ─────────────────────────────────────────────────────
+  /**
+   * Renueva la sesión contra el backend validando la respuesta de forma fail-closed.
+   * Los errores se propagan al llamador; quien decide limpiar la sesión es el consumidor.
+   */
+  refreshSession(): Observable<void> {
+    return this.sessionRefresh.refresh().pipe(
+      switchMap((response) => {
+        const session = UserSession.fromAuthResponse(response);
+        if (!session) {
+          return throwError(() => this.createInvalidSessionError());
+        }
+
+        this._currentUser.set(session);
+        return of(undefined);
+      }),
+    );
+  }
+
+  /**
+   * Garantiza una sesión vigente antes de activar una ruta protegida.
+   * - Sesión vigente: true sin refresh.
+   * - Sesión presente con token vencido: refresh; éxito → true, fallo → limpia y false.
+   * - Sin sesión: false.
+   */
+  ensureValidSession(): Observable<boolean> {
+    if (this.isAuthenticated()) {
+      return of(true);
+    }
+
+    if (this._currentUser() === null) {
+      return of(false);
+    }
+
+    return this.refreshSession().pipe(
+      map(() => true),
+      catchError(() => {
+        this._currentUser.set(null);
+        return of(false);
       }),
     );
   }

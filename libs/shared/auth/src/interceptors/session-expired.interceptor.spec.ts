@@ -27,6 +27,7 @@ import {
   type AppError,
 } from '@nalunpos/shared/data-access';
 import { authTokenInterceptor } from './auth-token.interceptor';
+import { SESSION_RETRIED, sessionRefreshInterceptor } from './session-refresh.interceptor';
 import { sessionExpiredInterceptor } from './session-expired.interceptor';
 import { AuthService } from '../services/auth.service';
 
@@ -169,6 +170,29 @@ describe('sessionExpiredInterceptor (Pruebas Unitarias Aisladas)', () => {
     expect(receivedError).toBe(httpError);
   });
 
+  it('NO debe redirigir a /forbidden ante error 403 de /auth/login, /auth/refresh o /auth/logout', () => {
+    const authUrls = ['/api/v1/auth/login', '/api/v1/auth/refresh', '/api/v1/auth/logout'];
+
+    for (const url of authUrls) {
+      const req = new HttpRequest('POST', url);
+      const httpError = new HttpErrorResponse({ status: 403, statusText: 'Forbidden' });
+      const nextFn = vi.fn(() => throwError(() => httpError));
+
+      let receivedError: unknown;
+      TestBed.runInInjectionContext(() =>
+        sessionExpiredInterceptor(req, nextFn).subscribe({
+          error: (err) => {
+            receivedError = err;
+          },
+        }),
+      );
+
+      expect(authServiceMock.logout).not.toHaveBeenCalled();
+      expect(routerMock.navigate).not.toHaveBeenCalled();
+      expect(receivedError).toBe(httpError);
+    }
+  });
+
   it('NO debe redirigir ni ejecutar logout ante otros errores HTTP (ej. 500)', () => {
     const req = new HttpRequest('GET', '/api/v1/products');
     const httpError = new HttpErrorResponse({ status: 500, statusText: 'Internal Error' });
@@ -220,6 +244,17 @@ describe('Cadena Completa de Interceptores HTTP (Test de Integración Real)', ()
     production: false,
   };
 
+  const validRefreshResponse = {
+    token: 'refreshed-token',
+    userId: 'usr-001',
+    roleId: '00000000-0000-0000-0000-000000000002',
+    role: 'TenantAdmin',
+    email: 'admin@empresa.com',
+    fullName: 'Admin Empresa',
+    tenantId: 'tenant-001',
+    expiresAtUtc: '2099-01-01T00:00:00.000Z',
+  };
+
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
@@ -227,8 +262,9 @@ describe('Cadena Completa de Interceptores HTTP (Test de Integración Real)', ()
         provideHttpClient(
           withInterceptors([
             correlationIdInterceptor,
-            authTokenInterceptor,
             sessionExpiredInterceptor,
+            sessionRefreshInterceptor,
+            authTokenInterceptor,
             errorInterceptor,
           ]),
         ),
@@ -244,7 +280,7 @@ describe('Cadena Completa de Interceptores HTTP (Test de Integración Real)', ()
     routerNavigateSpy = vi
       .spyOn(router, 'navigate')
       .mockImplementation(() => Promise.resolve(true));
-    authServiceLogoutSpy = vi.spyOn(authService, 'logout');
+    authServiceLogoutSpy = vi.spyOn(authService, 'logout').mockImplementation(() => undefined);
   });
 
   afterEach(() => {
@@ -252,32 +288,125 @@ describe('Cadena Completa de Interceptores HTTP (Test de Integración Real)', ()
     vi.restoreAllMocks();
   });
 
-  it('a) 401 en endpoint protegido (/api/v1/warehouses) → ejecuta logout() exactamente una vez y redirige a /login', () => {
+  it('a) 401 en endpoint protegido → refresh exitoso → reintento con token nuevo y 200', () => {
+    let received: unknown;
+
+    httpClient.get('/api/v1/warehouses').subscribe({
+      next: (value) => {
+        received = value;
+      },
+      error: () => expect.fail('El reintento debió completarse con 200'),
+    });
+
+    const first = httpMock.expectOne('/api/v1/warehouses');
+    expect(first.request.headers.has('X-Correlation-Id')).toBe(true);
+    first.flush(
+      { title: 'Unauthorized', detail: 'El token ha expirado', status: 401 },
+      { status: 401, statusText: 'Unauthorized' },
+    );
+
+    const refreshReq = httpMock.expectOne('https://api.nalunpos.com/api/v1/auth/refresh');
+    expect(refreshReq.request.withCredentials).toBe(true);
+    expect(refreshReq.request.headers.has('Authorization')).toBe(false);
+    refreshReq.flush(validRefreshResponse, { status: 200, statusText: 'OK' });
+
+    const retryReq = httpMock.expectOne('/api/v1/warehouses');
+    expect(retryReq.request.context.get(SESSION_RETRIED)).toBe(true);
+    expect(retryReq.request.headers.get('Authorization')).toBe('Bearer refreshed-token');
+    retryReq.flush([{ id: 'w1' }], { status: 200, statusText: 'OK' });
+
+    expect(received).toEqual([{ id: 'w1' }]);
+    expect(authServiceLogoutSpy).not.toHaveBeenCalled();
+    expect(routerNavigateSpy).not.toHaveBeenCalled();
+  });
+
+  it('a.2) 401 en endpoint protegido con refresh fallido → logout() y error original al llamador', () => {
     let capturedError: AppError | undefined;
 
     httpClient.get('/api/v1/warehouses').subscribe({
-      next: () => expect.fail('La llamada debió fallar con 401'),
+      next: () => expect.fail('La llamada debió fallar tras el refresh fallido'),
       error: (err: AppError) => {
         capturedError = err;
       },
     });
 
-    const req = httpMock.expectOne('/api/v1/warehouses');
-    expect(req.request.headers.has('X-Correlation-Id')).toBe(true);
-
-    req.flush(
+    const first = httpMock.expectOne('/api/v1/warehouses');
+    first.flush(
       { title: 'Unauthorized', detail: 'El token ha expirado', status: 401 },
       { status: 401, statusText: 'Unauthorized' },
     );
 
-    // logout() es no bloqueante: encola el POST idempotente contra el backend.
-    const logoutReq = httpMock.expectOne('https://api.nalunpos.com/api/v1/auth/logout');
-    expect(logoutReq.request.withCredentials).toBe(true);
-    logoutReq.flush(null, { status: 204, statusText: 'No Content' });
+    const refreshReq = httpMock.expectOne('https://api.nalunpos.com/api/v1/auth/refresh');
+    refreshReq.flush(
+      { title: 'Unauthorized', detail: 'Refresh inválido', status: 401 },
+      { status: 401, statusText: 'Unauthorized' },
+    );
 
     expect(authServiceLogoutSpy).toHaveBeenCalledTimes(1);
-    expect(routerNavigateSpy).toHaveBeenCalledWith(['/login']);
     expect(capturedError?.status).toBe(401);
+    expect(httpMock.match('/api/v1/warehouses').length).toBe(0);
+  });
+
+  it('a.3) reintento con 401 → no ejecuta un segundo refresh y propaga el error', () => {
+    let capturedError: AppError | undefined;
+
+    httpClient.get('/api/v1/warehouses').subscribe({
+      error: (err: AppError) => {
+        capturedError = err;
+      },
+    });
+
+    const first = httpMock.expectOne('/api/v1/warehouses');
+    first.flush(
+      { title: 'Unauthorized', detail: 'El token ha expirado', status: 401 },
+      { status: 401, statusText: 'Unauthorized' },
+    );
+
+    const refreshReq = httpMock.expectOne('https://api.nalunpos.com/api/v1/auth/refresh');
+    refreshReq.flush(validRefreshResponse, { status: 200, statusText: 'OK' });
+
+    const retryReq = httpMock.expectOne('/api/v1/warehouses');
+    expect(retryReq.request.context.get(SESSION_RETRIED)).toBe(true);
+    retryReq.flush(
+      { title: 'Unauthorized', detail: 'Sigue sin autorización', status: 401 },
+      { status: 401, statusText: 'Unauthorized' },
+    );
+
+    expect(httpMock.match('https://api.nalunpos.com/api/v1/auth/refresh').length).toBe(0);
+    expect(authServiceLogoutSpy).toHaveBeenCalledTimes(1);
+    expect(capturedError?.status).toBe(401);
+  });
+
+  it('a.4) cinco peticiones concurrentes con 401 → un solo POST /auth/refresh', () => {
+    const urls = [1, 2, 3, 4, 5].map((index) => `/api/v1/warehouses/${index}`);
+    const results: unknown[] = [];
+
+    for (const url of urls) {
+      httpClient.get(url).subscribe((value) => {
+        results.push(value);
+      });
+    }
+
+    for (const url of urls) {
+      const first = httpMock.expectOne(url);
+      first.flush(
+        { title: 'Unauthorized', detail: 'El token ha expirado', status: 401 },
+        { status: 401, statusText: 'Unauthorized' },
+      );
+    }
+
+    const refreshRequests = httpMock.match('https://api.nalunpos.com/api/v1/auth/refresh');
+    expect(refreshRequests.length).toBe(1);
+    refreshRequests[0]?.flush(validRefreshResponse, { status: 200, statusText: 'OK' });
+
+    for (const url of urls) {
+      const retryReq = httpMock.expectOne(url);
+      expect(retryReq.request.context.get(SESSION_RETRIED)).toBe(true);
+      expect(retryReq.request.headers.get('Authorization')).toBe('Bearer refreshed-token');
+      retryReq.flush({ url }, { status: 200, statusText: 'OK' });
+    }
+
+    expect(results).toHaveLength(5);
   });
 
   it('b) 401 en /api/v1/auth/login → NO ejecuta logout() ni redirige, y propaga el error al suscriptor', () => {

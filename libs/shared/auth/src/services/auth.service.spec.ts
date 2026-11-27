@@ -274,6 +274,145 @@ describe('AuthService', () => {
     expect(service.getToken()).toBeNull();
   });
 
+  describe('refreshSession', () => {
+    it('debe actualizar la sesion en memoria cuando el refresh devuelve un LoginResponse valido', () => {
+      coordinatorMock.refresh.mockReturnValue(of(mockTenantCajeroResponse));
+
+      let completed = false;
+      service.refreshSession().subscribe({
+        complete: () => {
+          completed = true;
+        },
+      });
+
+      expect(completed).toBe(true);
+      expect(service.isAuthenticated()).toBe(true);
+      expect(service.currentUser()?.email).toBe('cajero@empresa.com');
+      expect(service.getToken()).toBe(mockTenantCajeroResponse.token);
+    });
+
+    it('debe propagar el error del refresh (a diferencia de initializeSession)', () => {
+      const refreshError = {
+        code: 'Auth.RefreshTokenInvalid',
+        message: 'refresh failed',
+        status: 401,
+      };
+      coordinatorMock.refresh.mockReturnValue(throwError(() => refreshError));
+
+      let capturedError: unknown;
+      service.refreshSession().subscribe({
+        next: () => expect.fail('No debio emitir un valor'),
+        error: (err) => {
+          capturedError = err;
+        },
+      });
+
+      expect(capturedError).toBe(refreshError);
+      expect(service.currentUser()).toBeNull();
+    });
+
+    it('debe fallar cerrado y propagar AUTH_INVALID_SESSION cuando el refresh devuelve una respuesta invalida', () => {
+      coordinatorMock.refresh.mockReturnValue(of({ ...mockTenantCajeroResponse, role: 'Cashier' }));
+
+      let capturedError: AppError | undefined;
+      service.refreshSession().subscribe({
+        next: () => expect.fail('No debio aceptar un rol no canonico'),
+        error: (err: AppError) => {
+          capturedError = err;
+        },
+      });
+
+      expect(capturedError?.code).toBe('AUTH_INVALID_SESSION');
+      expect(capturedError?.status).toBe(401);
+      expect(service.currentUser()).toBeNull();
+    });
+  });
+
+  describe('ensureValidSession', () => {
+    function seedExpiredSession(): void {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2026-11-12T10:00:00.000Z'));
+      authApiMock.login.mockReturnValue(
+        of({ ...mockTenantCajeroResponse, expiresAtUtc: '2026-11-12T11:00:00.000Z' }),
+      );
+      service.login({ email: 'cajero@empresa.com', password: 'Password123!' }).subscribe();
+      vi.setSystemTime(new Date('2026-11-12T12:00:00.000Z'));
+    }
+
+    it('debe retornar true sin refrescar cuando la sesion es vigente', () => {
+      authApiMock.login.mockReturnValue(of(mockSuperAdminResponse));
+      service.login({ email: 'admin@nalunpos.com', password: 'pwd' }).subscribe();
+
+      let result: boolean | undefined;
+      service.ensureValidSession().subscribe((value) => {
+        result = value;
+      });
+
+      expect(result).toBe(true);
+      expect(coordinatorMock.refresh).not.toHaveBeenCalled();
+    });
+
+    it('debe retornar false sin refrescar cuando no hay sesion en memoria', () => {
+      let result: boolean | undefined;
+      service.ensureValidSession().subscribe((value) => {
+        result = value;
+      });
+
+      expect(result).toBe(false);
+      expect(coordinatorMock.refresh).not.toHaveBeenCalled();
+    });
+
+    it('debe refrescar y retornar true cuando hay sesion presente con token vencido', () => {
+      seedExpiredSession();
+      expect(service.isAuthenticated()).toBe(false);
+      expect(service.currentUser()).not.toBeNull();
+
+      coordinatorMock.refresh.mockReturnValue(
+        of({
+          ...mockTenantCajeroResponse,
+          token: 'refreshed-token',
+          expiresAtUtc: '2026-11-12T13:00:00.000Z',
+        }),
+      );
+
+      let result: boolean | undefined;
+      service.ensureValidSession().subscribe((value) => {
+        result = value;
+      });
+
+      expect(result).toBe(true);
+      expect(coordinatorMock.refresh).toHaveBeenCalledTimes(1);
+      expect(service.getToken()).toBe('refreshed-token');
+    });
+
+    it('debe retornar false y limpiar la sesion cuando el refresh falla', () => {
+      seedExpiredSession();
+      coordinatorMock.refresh.mockReturnValue(throwError(() => new Error('refresh failed')));
+
+      let result: boolean | undefined;
+      service.ensureValidSession().subscribe((value) => {
+        result = value;
+      });
+
+      expect(result).toBe(false);
+      expect(service.currentUser()).toBeNull();
+      expect(service.getToken()).toBeNull();
+    });
+
+    it('debe retornar false y limpiar la sesion cuando el refresh devuelve una respuesta invalida', () => {
+      seedExpiredSession();
+      coordinatorMock.refresh.mockReturnValue(of({ ...mockTenantCajeroResponse, role: 'Cashier' }));
+
+      let result: boolean | undefined;
+      service.ensureValidSession().subscribe((value) => {
+        result = value;
+      });
+
+      expect(result).toBe(false);
+      expect(service.currentUser()).toBeNull();
+    });
+  });
+
   it('debe limpiar la sesion en memoria, navegar a /login y llamar al logout del servidor', () => {
     authApiMock.login.mockReturnValue(of(mockSuperAdminResponse));
     service.login({ email: 'admin@nalunpos.com', password: 'pwd' }).subscribe();
